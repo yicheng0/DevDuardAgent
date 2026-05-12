@@ -1,8 +1,8 @@
 import { useState, useRef, KeyboardEvent } from 'react';
-import { GlassCard } from '@/components/ui/GlassCard';
 import { GlowButton } from '@/components/ui/GlowButton';
 import { useChatStore } from '@/stores/chatStore';
 import { useUIStore } from '@/stores/uiStore';
+import { useAIOpsStore } from '@/stores/aiopsStore';
 import { Paperclip, Send, ChevronDown } from 'lucide-react';
 import { useStreaming } from '@/hooks/useStreaming';
 
@@ -12,7 +12,8 @@ const InputArea = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addMessage, currentSessionId, createSession } = useChatStore();
-  const { chatMode, setChatMode } = useUIStore();
+  const { chatMode, setChatMode, isAIOpsOpen, toggleAIOps } = useUIStore();
+  const { startDemoTrace, completeTrace, failTrace } = useAIOpsStore();
   const { startStreaming } = useStreaming();
 
   const handleSend = async () => {
@@ -32,6 +33,10 @@ const InputArea = () => {
     const userMessage = input.trim();
     setInput('');
     setFile(null);
+    startDemoTrace(userMessage || file?.name || '分析上传材料', Boolean(file));
+    if (!isAIOpsOpen) {
+      toggleAIOps();
+    }
 
     // Send to backend
     if (chatMode === 'stream') {
@@ -56,12 +61,14 @@ const InputArea = () => {
           role: 'assistant',
           content: data.response || '抱歉，我无法回答这个问题。',
         });
+        completeTrace('Agent 已完成任务分析，并生成可执行的处置建议。');
       } catch (error) {
         console.error('Chat error:', error);
         addMessage({
           role: 'assistant',
           content: '抱歉，发生了错误，请稍后重试。',
         });
+        failTrace('请求后端分析失败，Agent 未能完成本次处置链路。');
       }
     }
   };
@@ -90,12 +97,12 @@ const InputArea = () => {
 
   return (
     <div className="p-6">
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4">
+      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="flex items-end gap-3">
           {/* File Upload */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
             title="上传文件"
           >
             <Paperclip className="w-5 h-5 text-slate-400" />
@@ -119,7 +126,7 @@ const InputArea = () => {
               }}
               onKeyDown={handleKeyDown}
               placeholder="输入消息... (Shift+Enter 换行)"
-              className="w-full bg-transparent border-none outline-none text-white placeholder-slate-500 resize-none min-h-[48px] max-h-[200px]"
+              className="min-h-[48px] max-h-[200px] w-full resize-none border-none bg-transparent text-white outline-none placeholder-slate-500"
               rows={1}
             />
             {file && (
@@ -140,7 +147,7 @@ const InputArea = () => {
           <div className="relative flex-shrink-0">
             <button
               onClick={() => setChatMode(chatMode === 'quick' ? 'stream' : 'quick')}
-              className="px-3 py-2 bg-slate-700 rounded-lg text-sm text-white flex items-center gap-1 hover:bg-slate-600 transition-colors border border-slate-600"
+              className="flex h-11 items-center gap-1 rounded-lg border border-white/10 bg-white/[0.055] px-3 text-sm text-white transition-colors hover:bg-white/10"
             >
               {chatMode === 'quick' ? '快速' : '流式'}
               <ChevronDown className="w-4 h-4" />

@@ -20,9 +20,9 @@ const MessageList = () => {
     <div className="flex-1 overflow-y-auto px-6 py-4">
       {session.messages.length === 0 && !isStreaming ? (
         <div className="h-full flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-slate-400 text-lg">开始新的对话</p>
-            <p className="text-slate-500 text-sm mt-2">输入消息开始与 AI 助手交流</p>
+          <div className="rounded-2xl border border-white/10 bg-slate-950/58 p-8 text-center backdrop-blur-xl">
+            <p className="text-lg font-medium text-white">开始新的 Agent 任务</p>
+            <p className="mt-2 text-sm text-slate-400">输入安全问题后，右侧会同步展示推理轨迹。</p>
           </div>
         </div>
       ) : (

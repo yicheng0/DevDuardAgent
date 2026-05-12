@@ -1,44 +1,14 @@
-import { GlassCard } from '@/components/ui/GlassCard';
 import { useAIOpsStore } from '@/stores/aiopsStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Loader, XCircle, Clock, X } from 'lucide-react';
+import { Activity, Bot, PanelRightClose, Route, ShieldCheck } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
+import { TraceTimeline } from './TraceTimeline';
 
 const AIOpsPanel = () => {
   const { result, isRunning } = useAIOpsStore();
   const { isAIOpsOpen, toggleAIOps } = useUIStore();
 
   if (!isAIOpsOpen) return null;
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-5 h-5 text-glow-green" />;
-      case 'running':
-        return (
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }}>
-            <Loader className="w-5 h-5 text-glow-blue" />
-          </motion.div>
-        );
-      case 'error':
-        return <XCircle className="w-5 h-5 text-red-400" />;
-      default:
-        return <Clock className="w-5 h-5 text-slate-400" />;
-    }
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'border-glow-green/50 shadow-glow-green';
-      case 'running':
-        return 'border-glow-blue/50 shadow-glow animate-glow-pulse';
-      case 'error':
-        return 'border-red-500/50 shadow-glow-pink';
-      default:
-        return 'border-white/10';
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -47,72 +17,78 @@ const AIOpsPanel = () => {
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: 400, opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed right-0 top-0 h-full w-[400px] glass-dark border-l border-white/10 z-40 overflow-y-auto"
+        className="fixed right-0 top-0 z-40 h-full w-full overflow-y-auto border-l border-white/10 bg-slate-950/88 shadow-[-28px_0_70px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:w-[440px]"
       >
-        <div className="p-6">
-          {/* Header */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(34,211,238,0.16),transparent_34%),radial-gradient(circle_at_100%_30%,rgba(16,185,129,0.10),transparent_28%)]" />
+        <div className="relative p-5">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">AI Ops 分析</h2>
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-cyan-100">
+                <Route className="h-3.5 w-3.5" />
+                Agent Trace
+              </div>
+              <h2 className="text-xl font-semibold text-white">推理轨迹工作台</h2>
+              <p className="mt-1 text-sm text-slate-400">任务拆解、工具调用、证据和处置结论</p>
+            </div>
             <button
               onClick={toggleAIOps}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+              aria-label="关闭推理轨迹面板"
             >
-              <X className="w-5 h-5 text-white" />
+              <PanelRightClose className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Content */}
           {!result && !isRunning ? (
-            <div className="text-center py-12">
-              <p className="text-slate-400">暂无分析结果</p>
-              <p className="text-slate-500 text-sm mt-2">点击顶部 AI Ops 按钮开始分析</p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-100">
+                <Bot className="h-7 w-7" />
+              </div>
+              <p className="text-base font-medium text-white">等待 Agent 任务</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                发送一条安全运维问题后，这里会展示 Agent 的理解、检索、观测、研判和响应过程。
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {result?.steps.map((step, index) => (
-                <motion.div
-                  key={step.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <GlassCard
-                    variant="elevated"
-                    className={`p-4 ${getStatusClass(step.status)}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-1">{getStatusIcon(step.status)}</div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-medium mb-1">{step.title}</h3>
-                        {step.description && (
-                          <p className="text-sm text-slate-400 mb-2">{step.description}</p>
-                        )}
-                        {step.result && (
-                          <div className="mt-2 p-3 bg-black/20 rounded-lg">
-                            <p className="text-sm text-slate-300 whitespace-pre-wrap">
-                              {step.result}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-xl border border-white/10 bg-white/[0.045] p-3">
+                  <Activity className="mb-2 h-4 w-4 text-cyan-200" />
+                  <p className="text-lg font-semibold text-white">
+                    {result?.steps.filter((step) => step.status === 'completed').length || 0}/
+                    {result?.steps.length || 0}
+                  </p>
+                  <p className="text-xs text-slate-400">完成阶段</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.045] p-3">
+                  <ShieldCheck className="mb-2 h-4 w-4 text-emerald-200" />
+                  <p className="text-lg font-semibold text-white">
+                    {isRunning ? '运行中' : '已归档'}
+                  </p>
+                  <p className="text-xs text-slate-400">Agent 状态</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.045] p-3">
+                  <Route className="mb-2 h-4 w-4 text-amber-200" />
+                  <p className="text-lg font-semibold text-white">
+                    {result?.steps.filter((step) => step.toolName).length || 0}
+                  </p>
+                  <p className="text-xs text-slate-400">工具调用</p>
+                </div>
+              </div>
 
-              {/* Final Report */}
+              {result?.steps && <TraceTimeline steps={result.steps} />}
+
               {result?.finalReport && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
+                  className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 p-4"
                 >
-                  <GlassCard variant="glow" className="p-4">
-                    <h3 className="text-white font-medium mb-3">分析报告</h3>
-                    <div className="prose prose-invert prose-sm max-w-none">
-                      <p className="text-slate-300 whitespace-pre-wrap">{result.finalReport}</p>
-                    </div>
-                  </GlassCard>
+                  <h3 className="mb-2 text-sm font-semibold text-emerald-100">最终处置摘要</h3>
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-200">
+                    {result.finalReport}
+                  </p>
                 </motion.div>
               )}
             </div>

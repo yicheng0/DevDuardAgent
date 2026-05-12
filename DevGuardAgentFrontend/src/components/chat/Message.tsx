@@ -1,5 +1,4 @@
 import { Message as MessageType } from '@/types';
-import { GlassCard } from '@/components/ui/GlassCard';
 import { motion } from 'framer-motion';
 import { User, Bot } from 'lucide-react';
 import { marked } from 'marked';
@@ -11,14 +10,7 @@ interface MessageProps {
   message: MessageType;
 }
 
-// Configure marked
 marked.setOptions({
-  highlight: (code, lang) => {
-    if (lang && hljs.getLanguage(lang)) {
-      return hljs.highlight(code, { language: lang }).value;
-    }
-    return hljs.highlightAuto(code).value;
-  },
   breaks: true,
   gfm: true,
 });
@@ -65,10 +57,10 @@ const Message = ({ message }: MessageProps) => {
       )}
 
       <div
-        className={`max-w-[80%] p-4 rounded-2xl ${
+        className={`max-w-[80%] rounded-2xl p-4 shadow-[0_18px_50px_rgba(0,0,0,0.22)] ${
           isUser
-            ? 'bg-blue-600 text-white'
-            : 'bg-slate-800 border border-slate-700 text-slate-100'
+            ? 'border border-cyan-300/30 bg-gradient-to-br from-cyan-600/85 to-blue-700/85 text-white'
+            : 'border border-white/10 bg-slate-950/72 text-slate-100 backdrop-blur-xl'
         }`}
       >
         {renderContent()}

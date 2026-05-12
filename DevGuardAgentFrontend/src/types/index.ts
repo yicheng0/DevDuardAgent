@@ -18,8 +18,13 @@ export interface AIOpsStep {
   id: string;
   title: string;
   status: 'pending' | 'running' | 'completed' | 'error';
+  phase?: 'understand' | 'retrieve' | 'observe' | 'reason' | 'respond';
+  toolName?: string;
   description?: string;
   result?: string;
+  evidence?: string[];
+  durationMs?: number;
+  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export interface AIOpsResult {

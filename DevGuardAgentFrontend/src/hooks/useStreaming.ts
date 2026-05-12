@@ -1,9 +1,11 @@
 import { useRef, useEffect } from 'react';
 import { useChatStore } from '@/stores/chatStore';
+import { useAIOpsStore } from '@/stores/aiopsStore';
 
 export const useStreaming = () => {
   const eventSourceRef = useRef<EventSource | null>(null);
   const { updateStreamingMessage, setStreaming } = useChatStore();
+  const { completeTrace, failTrace } = useAIOpsStore();
 
   const startStreaming = (sessionId: string, message: string, file?: File | null) => {
     // Close existing connection
@@ -38,6 +40,7 @@ export const useStreaming = () => {
         if (data.done) {
           eventSource.close();
           setStreaming(false);
+          completeTrace('Agent 已完成流式分析，并生成可执行的处置建议。');
         }
       } catch (error) {
         console.error('Error parsing SSE data:', error);
@@ -48,6 +51,7 @@ export const useStreaming = () => {
       console.error('SSE error:', error);
       eventSource.close();
       setStreaming(false);
+      failTrace('流式通道异常，Agent 未能完成本次分析。');
     };
 
     eventSourceRef.current = eventSource;
@@ -105,9 +109,11 @@ export const useStreaming = () => {
       }
 
       setStreaming(false);
+      completeTrace('Agent 已完成附件解析、证据归纳和处置建议生成。');
     } catch (error) {
       console.error('File upload streaming error:', error);
       setStreaming(false);
+      failTrace('附件分析链路异常，请检查文件内容或稍后重试。');
     }
   };
 

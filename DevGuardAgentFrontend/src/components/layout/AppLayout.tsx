@@ -12,13 +12,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const { isSidebarOpen } = useUIStore();
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-900">
+    <div className="app-shell-bg relative h-screen w-screen overflow-hidden text-slate-100">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.15),rgba(2,6,23,0.72))]" />
       {/* Sidebar */}
       <motion.div
         initial={{ x: -300, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className={`fixed left-0 top-0 h-full z-30 transition-transform duration-300 ${
+        className={`fixed left-0 top-0 z-30 h-full transition-transform duration-300 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
@@ -27,7 +28,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Main Content */}
       <div
-        className={`h-full transition-all duration-300 ${
+        className={`relative h-full transition-all duration-300 ${
           isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-0'
         }`}
       >
