@@ -1,0 +1,35 @@
+{
+  "name": "devguardagent-frontend",
+  "version": "1.0.0",
+  "description": "DevGuardAgent AI 运维响应工作台前端",
+  "main": "index.html",
+  "scripts": {
+    "start": "py -3 -m http.server 8080",
+    "serve": "py -3 -m http.server 8080",
+    "dev": "py -3 -m http.server 8080"
+  },
+  "keywords": [
+    "chat",
+    "ai",
+    "aiops",
+    "ops",
+    "conversation",
+    "sse",
+    "streaming"
+  ],
+  "author": "DevGuardAgent Team",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/DevGuardAgentFrontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/DevGuardAgentFrontend/issues"
+  },
+  "homepage": "https://github.com/your-org/DevGuardAgentFrontend#readme"
+}

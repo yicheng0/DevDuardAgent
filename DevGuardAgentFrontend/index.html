@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevGuardAgent</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Markdown 渲染库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <!-- 代码高亮库（可选） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/es/highlight.min.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" aria-label="对话导航">
+            <div class="sidebar-header">
+                <div class="brand-lockup">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3L20 6.5V11.2C20 16.1 16.7 20.4 12 21.5C7.3 20.4 4 16.1 4 11.2V6.5L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                            <path d="M8.5 12.2L10.8 14.5L15.8 9.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="sidebar-title">DevGuardAgent</h1>
+                        <p class="sidebar-subtitle">AI 运维响应工作台</p>
+                    </div>
+                </div>
+                <div class="sidebar-health">
+                    <span class="health-dot" aria-hidden="true"></span>
+                    <span>API localhost:6872</span>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <button class="new-chat-btn" id="newChatBtn" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>新建诊断</span>
+                </button>
+
+                <div class="sidebar-section">
+                    <div class="section-label">工作流</div>
+                    <div class="workflow-list" aria-label="核心能力">
+                        <div class="workflow-item">
+                            <span class="workflow-indicator blue"></span>
+                            <span>知识库问答</span>
+                        </div>
+                        <div class="workflow-item">
+                            <span class="workflow-indicator orange"></span>
+                            <span>告警分析</span>
+                        </div>
+                        <div class="workflow-item">
+                            <span class="workflow-indicator green"></span>
+                            <span>流式诊断</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-history-section">
+                    <div class="history-header">
+                        <span>近期对话</span>
+                    </div>
+                    <div class="chat-history-list" id="chatHistoryList">
+                        <!-- 历史对话列表将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Operations Command</p>
+                    <h2>DevGuardAgent 控制台</h2>
+                </div>
+                <div class="topbar-actions">
+                    <div class="status-pill">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <span>知识库就绪</span>
+                    </div>
+                    <div class="status-pill muted">
+                        <span>TXT / MD</span>
+                    </div>
+                    <button class="ai-ops-top-btn" id="aiOpsSidebarBtn" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>运行 AI Ops</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="chat-container">
+                <section class="welcome-greeting" id="welcomeGreeting" aria-label="开始诊断">
+                    <p class="welcome-kicker">Incident Response Workspace</p>
+                    <h2>用 DevGuardAgent 处理告警、查询知识库并生成运维分析。</h2>
+                    <p class="welcome-hint">首次使用请先通过输入框左下角的工具菜单上传项目 docs 目录下的 TXT 或 Markdown 文件，再开始提问。</p>
+                    <div class="welcome-grid" aria-label="推荐任务">
+                        <div class="welcome-card">
+                            <span class="welcome-card-label">Alert</span>
+                            <strong>分析当前活跃告警</strong>
+                            <span>调用 AI Ops 自动汇总告警、日志和处理建议。</span>
+                        </div>
+                        <div class="welcome-card">
+                            <span class="welcome-card-label">Docs</span>
+                            <strong>检索内部手册</strong>
+                            <span>上传知识库文档后，围绕处置流程直接提问。</span>
+                        </div>
+                        <div class="welcome-card">
+                            <span class="welcome-card-label">Stream</span>
+                            <strong>流式排障对话</strong>
+                            <span>需要更快反馈时切换到流式模式查看实时输出。</span>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+
+                <div class="chat-input-container">
+                    <div class="input-group-wrapper">
+                        <div class="input-wrapper">
+                            <input type="text" id="messageInput" placeholder="向 DevGuardAgent 描述告警、日志或排障问题" maxlength="1000" class="message-input" aria-label="对话输入">
+                            <div class="input-bottom-bar">
+                                <div class="tools-btn-wrapper">
+                                    <button class="tools-btn" id="toolsBtn" type="button" title="更多选项" aria-label="更多选项">
+                                        <svg class="tools-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                                            <circle cx="19" cy="12" r="1.5" fill="currentColor"/>
+                                            <circle cx="5" cy="12" r="1.5" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                    <div class="tools-menu" id="toolsMenu">
+                                        <button class="tools-menu-item" id="uploadFileItem" type="button">
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <span>上传知识库文件</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="right-actions">
+                                    <div class="mode-selector-wrapper">
+                                        <button class="mode-selector-btn" id="modeSelectorBtn" type="button">
+                                            <span id="currentModeText">快速</span>
+                                            <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        <div class="mode-dropdown" id="modeDropdown">
+                                            <div class="dropdown-header">选择对话方式</div>
+                                            <div class="dropdown-item active" data-mode="quick">
+                                                <div class="dropdown-item-main">
+                                                    <span>快速</span>
+                                                    <span class="badge-new">默认</span>
+                                                </div>
+                                                <div class="dropdown-item-sub">一次性返回完整诊断结果</div>
+                                            </div>
+                                            <div class="dropdown-item" data-mode="stream">
+                                                <div class="dropdown-item-main">
+                                                    <span>流式</span>
+                                                </div>
+                                                <div class="dropdown-item-sub">实时展示模型输出过程</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="send-btn-circle" id="sendButton" type="button" title="发送" aria-label="发送">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".txt,.md,.markdown" style="display: none;">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">DevGuardAgent 正在分析，请稍候...</div>
+            <div class="loading-subtext">后端正在处理请求</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
