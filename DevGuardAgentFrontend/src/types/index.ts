@@ -234,3 +234,23 @@ export interface KnowledgeUploadResult {
   taskId: string;
   status: KnowledgeDocumentStatus;
 }
+
+export type AgentTaskStatus = 'running' | 'succeeded' | 'failed';
+export type AgentTaskMode = 'quick' | 'stream';
+
+export interface AgentTask {
+  id: string;
+  sessionId: string;
+  traceId: string;
+  title: string;
+  question: string;
+  answer?: string;
+  mode: AgentTaskMode;
+  status: AgentTaskStatus;
+  steps?: AIOpsStep[];
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+}

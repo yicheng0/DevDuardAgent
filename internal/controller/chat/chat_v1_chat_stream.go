@@ -3,6 +3,7 @@ package chat
 import (
 	"SuperBizAgent/api/chat/v1"
 	"SuperBizAgent/internal/ai/agent/chat_pipeline"
+	"SuperBizAgent/internal/taskrecord"
 	agenttrace "SuperBizAgent/internal/trace"
 	"SuperBizAgent/utility/log_call_back"
 	"SuperBizAgent/utility/mem"
@@ -19,10 +20,20 @@ func (c *ControllerV1) ChatStream(ctx context.Context, req *v1.ChatStreamReq) (r
 	id := req.Id
 	msg := req.Question
 	traceID := agenttrace.NewTraceID(id)
+	taskID := newAgentTaskID()
+	taskStore := newTaskRecordStore()
+	_, _ = taskStore.Create(taskrecord.CreateInput{
+		ID:        taskID,
+		SessionID: id,
+		TraceID:   traceID,
+		Question:  msg,
+		Mode:      taskrecord.ModeStream,
+	})
 
 	ctx = context.WithValue(ctx, "client_id", req.Id)
 	client, err := c.service.Create(ctx, g.RequestFromCtx(ctx))
 	if err != nil {
+		_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusFailed, "", err.Error())
 		return nil, err
 	}
 	c.traces.StartRun(id, traceID)
@@ -39,6 +50,7 @@ func (c *ControllerV1) ChatStream(ctx context.Context, req *v1.ChatStreamReq) (r
 	runner, err := chat_pipeline.BuildChatAgent(ctx)
 	if err != nil {
 		client.SendJSON("error", map[string]string{"traceId": traceID, "message": err.Error()})
+		_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusFailed, "", err.Error())
 		return nil, err
 	}
 	sr, err := runner.Stream(ctx, userMessage, compose.WithCallbacks(
@@ -47,6 +59,7 @@ func (c *ControllerV1) ChatStream(ctx context.Context, req *v1.ChatStreamReq) (r
 	))
 	if err != nil {
 		client.SendJSON("error", map[string]string{"traceId": traceID, "message": err.Error()})
+		_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusFailed, "", err.Error())
 		return nil, err
 	}
 	defer sr.Close()
@@ -75,11 +88,13 @@ func (c *ControllerV1) ChatStream(ctx context.Context, req *v1.ChatStreamReq) (r
 			}
 			c.traces.UpsertStep(traceID, respond)
 			client.SendJSON("trace", agenttrace.Event{TraceID: traceID, Step: respond})
+			_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusSucceeded, fullResponse.String(), "")
 			client.SendJSON("done", map[string]string{"traceId": traceID, "message": "Stream completed"})
 			return &v1.ChatStreamRes{}, nil
 		}
 		if err != nil {
 			client.SendJSON("error", map[string]string{"traceId": traceID, "message": err.Error()})
+			_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusFailed, fullResponse.String(), err.Error())
 			return &v1.ChatStreamRes{}, nil
 		}
 		fullResponse.WriteString(chunk.Content)

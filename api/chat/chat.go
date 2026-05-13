@@ -23,4 +23,6 @@ type IChatV1 interface {
 	KnowledgeTask(ctx context.Context, req *v1.KnowledgeTaskReq) (res *v1.KnowledgeTaskRes, err error)
 	KnowledgeReindex(ctx context.Context, req *v1.KnowledgeReindexReq) (res *v1.KnowledgeReindexRes, err error)
 	KnowledgeDelete(ctx context.Context, req *v1.KnowledgeDeleteReq) (res *v1.KnowledgeDeleteRes, err error)
+	AgentTasks(ctx context.Context, req *v1.AgentTasksReq) (res *v1.AgentTasksRes, err error)
+	AgentTaskDetail(ctx context.Context, req *v1.AgentTaskDetailReq) (res *v1.AgentTaskDetailRes, err error)
 }

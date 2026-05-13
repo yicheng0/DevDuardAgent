@@ -148,6 +148,17 @@ func (s *Store) LatestRun(sessionID string) (Run, bool) {
 	return *run, true
 }
 
+func (s *Store) Run(traceID string) (Run, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	run, ok := s.runs[traceID]
+	if !ok || run == nil {
+		return Run{}, false
+	}
+	return *run, true
+}
+
 func mergeStep(current, update Step) Step {
 	if update.Title != "" {
 		current.Title = update.Title

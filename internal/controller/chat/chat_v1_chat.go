@@ -3,6 +3,7 @@ package chat
 import (
 	"SuperBizAgent/api/chat/v1"
 	"SuperBizAgent/internal/ai/agent/chat_pipeline"
+	"SuperBizAgent/internal/taskrecord"
 	agenttrace "SuperBizAgent/internal/trace"
 	"SuperBizAgent/utility/log_call_back"
 	"SuperBizAgent/utility/mem"
@@ -15,6 +16,15 @@ func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatR
 	id := req.Id
 	msg := req.Question
 	traceID := agenttrace.NewTraceID(id)
+	taskID := newAgentTaskID()
+	taskStore := newTaskRecordStore()
+	_, _ = taskStore.Create(taskrecord.CreateInput{
+		ID:        taskID,
+		SessionID: id,
+		TraceID:   traceID,
+		Question:  msg,
+		Mode:      taskrecord.ModeQuick,
+	})
 	c.traces.StartRun(id, traceID)
 	ctx = agenttrace.WithRun(ctx, id, traceID, nil)
 	userMessage := &chat_pipeline.UserMessage{
@@ -25,6 +35,7 @@ func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatR
 
 	runner, err := chat_pipeline.BuildChatAgent(ctx)
 	if err != nil {
+		_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusFailed, "", err.Error())
 		return nil, err
 	}
 
@@ -33,6 +44,7 @@ func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatR
 		log_call_back.TraceCallback(c.traces),
 	))
 	if err != nil {
+		_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusFailed, "", err.Error())
 		return nil, err
 	}
 	c.traces.UpsertStep(traceID, agenttrace.Step{
@@ -49,6 +61,7 @@ func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatR
 	}
 	mem.GetSimpleMemory(id).SetUserMessage(msg)
 	mem.GetSimpleMemory(id).SetAssistantMessage(out.Content)
+	_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusSucceeded, out.Content, "")
 
 	return res, nil
 }

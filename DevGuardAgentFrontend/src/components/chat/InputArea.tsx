@@ -60,10 +60,11 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
         body: formData,
       });
 
-      const data = await response.json();
+      const body = await response.json();
+      const data = body.data || body;
       addMessage({
         role: 'assistant',
-        content: data.response || '抱歉，我无法回答这个问题。',
+        content: data.answer || data.response || '抱歉，我无法回答这个问题。',
       });
       completeTrace('Agent 已完成任务分析，并生成可执行的处置建议。');
     } catch (error) {

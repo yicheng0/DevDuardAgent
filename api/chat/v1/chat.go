@@ -191,3 +191,55 @@ type KnowledgeDeleteReq struct {
 type KnowledgeDeleteRes struct {
 	Task KnowledgeTask `json:"task"`
 }
+
+type AgentTaskStatus string
+
+type AgentTaskStep struct {
+	ID          string   `json:"id"`
+	Title       string   `json:"title"`
+	Status      string   `json:"status"`
+	Phase       string   `json:"phase,omitempty"`
+	ToolName    string   `json:"toolName,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Result      string   `json:"result,omitempty"`
+	Evidence    []string `json:"evidence,omitempty"`
+	DurationMs  int64    `json:"durationMs,omitempty"`
+	RiskLevel   string   `json:"riskLevel,omitempty"`
+}
+
+type AgentTask struct {
+	ID         string          `json:"id"`
+	SessionID  string          `json:"sessionId"`
+	TraceID    string          `json:"traceId"`
+	Title      string          `json:"title"`
+	Question   string          `json:"question"`
+	Answer     string          `json:"answer,omitempty"`
+	Mode       string          `json:"mode"`
+	Status     string          `json:"status"`
+	Steps      []AgentTaskStep `json:"steps,omitempty"`
+	Error      string          `json:"error,omitempty"`
+	CreatedAt  string          `json:"createdAt"`
+	UpdatedAt  string          `json:"updatedAt"`
+	StartedAt  string          `json:"startedAt,omitempty"`
+	FinishedAt string          `json:"finishedAt,omitempty"`
+}
+
+type AgentTasksReq struct {
+	g.Meta  `path:"/tasks" method:"get" summary:"Agent任务记录列表"`
+	Status  string `json:"status"`
+	Keyword string `json:"keyword"`
+	Limit   int    `json:"limit"`
+}
+
+type AgentTasksRes struct {
+	Tasks []AgentTask `json:"tasks"`
+}
+
+type AgentTaskDetailReq struct {
+	g.Meta `path:"/tasks/detail" method:"get" summary:"Agent任务记录详情"`
+	ID     string `json:"id"`
+}
+
+type AgentTaskDetailRes struct {
+	Task AgentTask `json:"task"`
+}

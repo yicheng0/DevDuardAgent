@@ -5,6 +5,7 @@ import ChatContainer from '@/components/chat/ChatContainer';
 import LogsAnalysisPage from '@/components/logs/LogsAnalysisPage';
 import KnowledgePage from '@/components/knowledge/KnowledgePage';
 import MetricsHealthPage from '@/components/metrics/MetricsHealthPage';
+import HistoryPage from '@/components/history/HistoryPage';
 import { TraceTimeline } from '@/components/aiops/TraceTimeline';
 import { useChatStore } from '@/stores/chatStore';
 import { useAIOpsStore } from '@/stores/aiopsStore';
@@ -91,7 +92,7 @@ const projectHighlights = [
 ];
 
 const runtimeStats = [
-  { label: 'API 基址', value: 'localhost:6872' },
+  { label: 'API 基址', value: 'localhost:8000' },
   { label: '响应模式', value: '流式 / 快速' },
   { label: '知识文件', value: 'TXT / MD' },
 ];
@@ -306,6 +307,10 @@ const renderActiveView = (activeNav: NavItemId) => {
 
   if (activeNav === 'trace') {
     return <AgentTracePage />;
+  }
+
+  if (activeNav === 'history') {
+    return <HistoryPage />;
   }
 
   return <ModulePlaceholder activeNav={activeNav} />;
