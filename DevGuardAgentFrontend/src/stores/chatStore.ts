@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ChatSession, Message } from '@/types';
+import { AgentTask, ChatSession, Message } from '@/types';
 
 interface ChatStore {
   sessions: ChatSession[];
@@ -15,6 +15,7 @@ interface ChatStore {
   addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
   updateStreamingMessage: (content: string) => void;
   setStreaming: (isStreaming: boolean) => void;
+  restoreSessionFromTask: (task: AgentTask) => void;
   clearMessages: () => void;
   getCurrentSession: () => ChatSession | null;
 }
@@ -102,6 +103,61 @@ export const useChatStore = create<ChatStore>()(
           });
           set({ streamingContent: '' });
         }
+      },
+
+      restoreSessionFromTask: (task) => {
+        const parseTaskDate = (value?: string) => {
+          if (!value) return new Date();
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? new Date() : date;
+        };
+        const userTime = parseTaskDate(task.startedAt || task.createdAt);
+        const assistantTime = parseTaskDate(task.finishedAt || task.updatedAt);
+        const messages: Message[] = [];
+
+        if (task.question) {
+          messages.push({
+            id: `${task.id}-question`,
+            role: 'user',
+            content: task.question,
+            timestamp: userTime,
+          });
+        }
+        if (task.answer) {
+          messages.push({
+            id: `${task.id}-answer`,
+            role: 'assistant',
+            content: task.answer,
+            timestamp: assistantTime,
+          });
+        }
+
+        const restoredSession: ChatSession = {
+          id: task.sessionId || `session-${task.id}`,
+          title: task.title || task.question.slice(0, 30) || '历史任务',
+          messages,
+          createdAt: userTime,
+          updatedAt: assistantTime,
+        };
+
+        set((state) => {
+          const exists = state.sessions.some((session) => session.id === restoredSession.id);
+          return {
+            sessions: exists
+              ? state.sessions.map((session) =>
+                  session.id === restoredSession.id
+                    ? {
+                        ...session,
+                        title: session.title || restoredSession.title,
+                        messages: session.messages.length ? session.messages : restoredSession.messages,
+                        updatedAt: session.updatedAt || restoredSession.updatedAt,
+                      }
+                    : session
+                )
+              : [restoredSession, ...state.sessions],
+            currentSessionId: restoredSession.id,
+          };
+        });
       },
 
       clearMessages: () => {

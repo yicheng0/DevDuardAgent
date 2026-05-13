@@ -18,7 +18,10 @@ const (
 	maxStored     = 100
 )
 
-var ErrTaskNotFound = errors.New("agent task not found")
+var (
+	ErrTaskNotFound      = errors.New("agent task not found")
+	ErrInvalidTaskStatus = errors.New("invalid agent task status")
+)
 
 type Store struct {
 	path string
@@ -78,6 +81,9 @@ func (s *Store) Complete(input CompleteInput) (*Task, error) {
 		if status == "" {
 			status = StatusSucceeded
 		}
+		if !IsValidStatus(status) {
+			return ErrInvalidTaskStatus
+		}
 		task.Status = status
 		task.Answer = input.Answer
 		task.Steps = input.Steps
@@ -95,6 +101,9 @@ func (s *Store) Complete(input CompleteInput) (*Task, error) {
 }
 
 func (s *Store) List(filter ListFilter) ([]Task, error) {
+	if filter.Status != "" && !IsValidStatus(filter.Status) {
+		return nil, ErrInvalidTaskStatus
+	}
 	state, err := s.Load()
 	if err != nil {
 		return nil, err
@@ -122,6 +131,15 @@ func (s *Store) List(filter ListFilter) ([]Task, error) {
 		tasks = tasks[:limit]
 	}
 	return tasks, nil
+}
+
+func IsValidStatus(status Status) bool {
+	switch status {
+	case StatusRunning, StatusSucceeded, StatusFailed:
+		return true
+	default:
+		return false
+	}
 }
 
 func (s *Store) Task(id string) (*Task, error) {

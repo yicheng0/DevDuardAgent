@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -11,7 +11,7 @@ import {
   Search,
   XCircle,
 } from 'lucide-react';
-import { AgentTask, AgentTaskStatus } from '@/types';
+import { AgentTask, AgentTaskStatus, AIOpsStep } from '@/types';
 import { useChatStore } from '@/stores/chatStore';
 import { useUIStore } from '@/stores/uiStore';
 
@@ -40,6 +40,36 @@ const statusIcon: Record<AgentTaskStatus, typeof Clock3> = {
   failed: XCircle,
 };
 
+const stepStatusLabel: Record<AIOpsStep['status'], string> = {
+  pending: '等待',
+  running: '运行中',
+  completed: '完成',
+  error: '异常',
+};
+
+const riskLabel: Record<NonNullable<AIOpsStep['riskLevel']>, string> = {
+  low: '低风险',
+  medium: '中风险',
+  high: '高风险',
+  critical: '严重',
+};
+
+const request = async <T,>(url: string): Promise<T> => {
+  const response = await fetch(url);
+  const contentType = response.headers.get('content-type') || '';
+  const body = contentType.includes('application/json')
+    ? ((await response.json()) as ApiResponse<T>)
+    : ({ message: await response.text(), data: undefined as T } as ApiResponse<T>);
+
+  if (!response.ok) {
+    throw new Error(`GET ${url} 返回 ${response.status}：${body.message || response.statusText}`);
+  }
+  if (body.message !== 'OK') {
+    throw new Error(`GET ${url} 失败：${body.message || '后端返回异常'}`);
+  }
+  return body.data;
+};
+
 const formatDate = (value?: string) => {
   if (!value) return '-';
   const date = new Date(value);
@@ -47,17 +77,29 @@ const formatDate = (value?: string) => {
   return date.toLocaleString();
 };
 
+const formatDuration = (durationMs?: number) => {
+  if (!durationMs) return '';
+  if (durationMs < 1000) return `${durationMs}ms`;
+  return `${(durationMs / 1000).toFixed(1)}s`;
+};
+
 const HistoryPage = () => {
   const [tasks, setTasks] = useState<AgentTask[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
+  const [selectedTaskDetail, setSelectedTaskDetail] = useState<AgentTask | null>(null);
   const [keyword, setKeyword] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [error, setError] = useState('');
-  const { sessions, switchSession } = useChatStore();
+  const { sessions, switchSession, restoreSessionFromTask } = useChatStore();
   const { setActiveNav } = useUIStore();
 
-  const selectedTask = tasks.find((task) => task.id === selectedId) || tasks[0] || null;
+  const listSelectedTask = tasks.find((task) => task.id === selectedId) || tasks[0] || null;
+  const selectedTask =
+    selectedTaskDetail && selectedTaskDetail.id === selectedId
+      ? selectedTaskDetail
+      : listSelectedTask;
 
   const stats = useMemo(() => {
     return {
@@ -68,46 +110,91 @@ const HistoryPage = () => {
     };
   }, [tasks]);
 
-  const loadTasks = async () => {
-    setIsLoading(true);
-    setError('');
+  const loadTaskDetail = useCallback(async (taskId: string, silent = false) => {
+    if (!taskId) return;
+    if (!silent) {
+      setIsDetailLoading(true);
+      setError('');
+    }
+    try {
+      const data = await request<{ task: AgentTask }>(
+        `/api/tasks/detail?id=${encodeURIComponent(taskId)}`
+      );
+      setSelectedTaskDetail(data.task);
+      setTasks((current) =>
+        current.map((task) => (task.id === data.task.id ? data.task : task))
+      );
+    } catch (err) {
+      if (!silent) {
+        setError(err instanceof Error ? err.message : '任务详情加载失败');
+      }
+    } finally {
+      if (!silent) setIsDetailLoading(false);
+    }
+  }, []);
+
+  const loadTasks = useCallback(async (silent = false) => {
+    if (!silent) {
+      setIsLoading(true);
+      setError('');
+    }
     try {
       const params = new URLSearchParams();
       if (keyword.trim()) params.set('keyword', keyword.trim());
       if (status !== 'all') params.set('status', status);
       params.set('limit', '100');
 
-      const response = await fetch(`/api/tasks?${params.toString()}`);
-      const body = (await response.json()) as ApiResponse<{ tasks: AgentTask[] }>;
-      if (!response.ok || body.message !== 'OK') {
-        throw new Error(body.message || `HTTP ${response.status}`);
+      const data = await request<{ tasks: AgentTask[] }>(`/api/tasks?${params.toString()}`);
+      const nextTasks = data.tasks || [];
+      const nextSelectedId =
+        selectedId && nextTasks.some((task) => task.id === selectedId)
+          ? selectedId
+          : nextTasks[0]?.id || '';
+
+      setTasks(nextTasks);
+      setSelectedId(nextSelectedId);
+      if (nextSelectedId) {
+        void loadTaskDetail(nextSelectedId, true);
+      } else {
+        setSelectedTaskDetail(null);
       }
-      setTasks(body.data.tasks || []);
-      setSelectedId((current) => {
-        if (current && body.data.tasks?.some((task) => task.id === current)) return current;
-        return body.data.tasks?.[0]?.id || '';
-      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '任务记录加载失败');
+      if (!silent) {
+        setError(err instanceof Error ? err.message : '任务记录加载失败');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
-  };
+  }, [keyword, loadTaskDetail, selectedId, status]);
 
   useEffect(() => {
-    loadTasks();
+    void loadTasks();
+    // Initial load only; filters are applied by the explicit button or Enter key.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const openSession = (sessionId: string) => {
-    if (sessions.some((session) => session.id === sessionId)) {
-      switchSession(sessionId);
-      setActiveNav('overview');
-    }
+  useEffect(() => {
+    if (!tasks.some((task) => task.status === 'running')) return;
+    const timer = window.setInterval(() => {
+      void loadTasks(true);
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [loadTasks, tasks]);
+
+  const selectTask = (task: AgentTask) => {
+    setSelectedId(task.id);
+    setSelectedTaskDetail(task);
+    void loadTaskDetail(task.id);
   };
 
-  const canOpenSession = selectedTask
-    ? sessions.some((session) => session.id === selectedTask.sessionId)
-    : false;
+  const openSession = (task: AgentTask) => {
+    if (sessions.some((session) => session.id === task.sessionId)) {
+      switchSession(task.sessionId);
+    } else {
+      restoreSessionFromTask(task);
+    }
+    setActiveNav('overview');
+  };
 
   return (
     <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:grid xl:grid-cols-[minmax(440px,0.82fr)_minmax(520px,1.18fr)] xl:gap-3 xl:overflow-hidden">
@@ -123,7 +210,7 @@ const HistoryPage = () => {
             </div>
             <button
               type="button"
-              onClick={loadTasks}
+              onClick={() => loadTasks()}
               disabled={isLoading}
               className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -153,7 +240,7 @@ const HistoryPage = () => {
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter') loadTasks();
+                  if (event.key === 'Enter') void loadTasks();
                 }}
                 className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 placeholder="搜索问题、答复或 Trace ID"
@@ -165,8 +252,10 @@ const HistoryPage = () => {
                   key={item}
                   type="button"
                   onClick={() => setStatus(item)}
-                  className={`h-10 cursor-pointer text-xs font-semibold transition-colors ${
-                    status === item ? 'bg-[#f7ebe5] text-[#7f432f]' : 'text-slate-500 hover:bg-[#fffdf8]'
+                  className={`h-10 cursor-pointer text-xs font-semibold transition-all ${
+                    status === item
+                      ? 'bg-[#fffdf8] text-[#653221] shadow-[inset_0_0_0_1px_rgba(154,86,63,0.22),0_8px_18px_rgba(127,67,47,0.12)]'
+                      : 'text-[#806a5c] hover:bg-[#fffdf8] hover:text-[#4f3f35]'
                   }`}
                 >
                   {item === 'all' ? '全部' : statusLabel[item]}
@@ -175,7 +264,7 @@ const HistoryPage = () => {
             </div>
           </div>
 
-          <button type="button" onClick={loadTasks} className="brand-button mt-3 h-10 w-full text-sm">
+          <button type="button" onClick={() => loadTasks()} className="brand-button mt-3 h-10 w-full text-sm">
             <Search className="h-4 w-4" />
             应用筛选
           </button>
@@ -211,14 +300,15 @@ const HistoryPage = () => {
           <div className="space-y-2">
             {tasks.map((task) => {
               const Icon = statusIcon[task.status];
+              const isActive = selectedTask?.id === task.id;
               return (
                 <button
                   key={task.id}
                   type="button"
-                  onClick={() => setSelectedId(task.id)}
-                  className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors ${
-                    selectedTask?.id === task.id
-                      ? 'border-[#d9a08a] bg-[#fbf7f4]'
+                  onClick={() => selectTask(task)}
+                  className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-all ${
+                    isActive
+                      ? 'border-[#d9a08a] bg-[#fbf7f4] shadow-[0_8px_22px_rgba(127,67,47,0.1)]'
                       : 'border-[#ead7b7] bg-[#fffdf8] hover:border-[#ead1c5] hover:bg-[#fff6e8]'
                   }`}
                 >
@@ -236,6 +326,12 @@ const HistoryPage = () => {
                     <span>{task.mode === 'stream' ? '流式' : '快速'}</span>
                     <span className="h-1 w-1 rounded-full bg-slate-300" />
                     <span>{formatDate(task.updatedAt)}</span>
+                    {task.steps?.length ? (
+                      <>
+                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span>{task.steps.length} 个阶段</span>
+                      </>
+                    ) : null}
                   </div>
                 </button>
               );
@@ -266,9 +362,8 @@ const HistoryPage = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => openSession(selectedTask.sessionId)}
-                  disabled={!canOpenSession}
-                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => openSession(selectedTask)}
+                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold"
                 >
                   <MessageSquareText className="h-4 w-4" />
                   打开会话
@@ -277,6 +372,13 @@ const HistoryPage = () => {
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              {isDetailLoading && (
+                <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#ead7b7] bg-[#fff6e8] px-3 py-2 text-sm text-[#7f432f]">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  正在刷新任务详情
+                </div>
+              )}
+
               <div className="grid gap-3 md:grid-cols-3">
                 <div className={`rounded-lg border p-3 ${statusStyle[selectedTask.status]}`}>
                   <p className="text-xs font-semibold">状态</p>
@@ -318,11 +420,26 @@ const HistoryPage = () => {
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="text-sm font-semibold text-slate-950">{step.title}</p>
                           <span className="rounded-md bg-[#fffdf8] px-2 py-1 text-xs font-semibold text-slate-500 ring-1 ring-[#ead7b7]">
-                            {step.status}
+                            {stepStatusLabel[step.status] || step.status}
                           </span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+                          {step.phase && <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">阶段：{step.phase}</span>}
+                          {step.toolName && <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">工具：{step.toolName}</span>}
+                          {step.durationMs ? <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">耗时：{formatDuration(step.durationMs)}</span> : null}
+                          {step.riskLevel && <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">风险：{riskLabel[step.riskLevel]}</span>}
                         </div>
                         {step.description && <p className="mt-2 text-sm leading-6 text-slate-600">{step.description}</p>}
                         {step.result && <p className="mt-2 text-sm leading-6 text-slate-700">{step.result}</p>}
+                        {step.evidence?.length ? (
+                          <div className="mt-3 space-y-1">
+                            {step.evidence.map((item) => (
+                              <p key={item} className="break-words rounded-md bg-[#fffdf8] px-2 py-1 text-xs leading-5 text-slate-600 ring-1 ring-[#ead7b7]">
+                                {item}
+                              </p>
+                            ))}
+                          </div>
+                        ) : null}
                       </article>
                     ))}
                   </div>

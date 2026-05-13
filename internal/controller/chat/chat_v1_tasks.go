@@ -27,7 +27,7 @@ func (c *ControllerV1) AgentTasks(ctx context.Context, req *v1.AgentTasksReq) (r
 		Limit:   req.Limit,
 	})
 	if err != nil {
-		return nil, err
+		return nil, taskRecordHTTPError(ctx, err)
 	}
 	out := make([]v1.AgentTask, 0, len(tasks))
 	for _, task := range tasks {
@@ -61,8 +61,14 @@ func newTaskRecordStore() *taskrecord.Store {
 
 func taskRecordHTTPError(ctx context.Context, err error) error {
 	req := g.RequestFromCtx(ctx)
-	if errors.Is(err, taskrecord.ErrTaskNotFound) && req != nil {
-		req.Response.Status = http.StatusNotFound
+	if req != nil {
+		switch {
+		case errors.Is(err, taskrecord.ErrTaskNotFound):
+			req.Response.Status = http.StatusNotFound
+		case errors.Is(err, taskrecord.ErrInvalidTaskStatus):
+			req.Response.Status = http.StatusBadRequest
+			return gerror.New("任务状态只支持 running、succeeded、failed")
+		}
 	}
 	return err
 }

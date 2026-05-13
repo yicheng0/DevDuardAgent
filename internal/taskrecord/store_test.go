@@ -44,6 +44,14 @@ func TestStoreCreateCompleteAndList(t *testing.T) {
 	if tasks[0].Answer == "" || len(tasks[0].Steps) != 1 || tasks[0].FinishedAt == nil {
 		t.Fatalf("List() task missing completion fields: %#v", tasks[0])
 	}
+
+	detail, err := store.Task("task-1")
+	if err != nil {
+		t.Fatalf("Task() error = %v", err)
+	}
+	if detail.ID != "task-1" || detail.Status != StatusSucceeded {
+		t.Fatalf("Task() = %#v, want completed task-1", detail)
+	}
 }
 
 func TestStoreMissingAndEmptyState(t *testing.T) {
@@ -79,5 +87,39 @@ func TestStoreLimitAndOrdering(t *testing.T) {
 	}
 	if tasks[0].ID != "task-3" {
 		t.Fatalf("List()[0].ID = %s, want task-3", tasks[0].ID)
+	}
+}
+
+func TestStoreRejectsInvalidStatus(t *testing.T) {
+	store := NewStore(t.TempDir())
+	if _, err := store.Create(CreateInput{ID: "task-1", Question: "test"}); err != nil {
+		t.Fatalf("Create() error = %v", err)
+	}
+
+	if _, err := store.List(ListFilter{Status: Status("bad")}); err != ErrInvalidTaskStatus {
+		t.Fatalf("List() error = %v, want ErrInvalidTaskStatus", err)
+	}
+	if _, err := store.Complete(CompleteInput{ID: "task-1", Status: Status("bad")}); err != ErrInvalidTaskStatus {
+		t.Fatalf("Complete() error = %v, want ErrInvalidTaskStatus", err)
+	}
+}
+
+func TestStoreCompleteFailedTask(t *testing.T) {
+	store := NewStore(t.TempDir())
+	if _, err := store.Create(CreateInput{ID: "task-1", Question: "test"}); err != nil {
+		t.Fatalf("Create() error = %v", err)
+	}
+
+	task, err := store.Complete(CompleteInput{
+		ID:     "task-1",
+		Status: StatusFailed,
+		Answer: "partial answer",
+		Error:  "model timeout",
+	})
+	if err != nil {
+		t.Fatalf("Complete() error = %v", err)
+	}
+	if task.Status != StatusFailed || task.Answer == "" || task.Error == "" || task.FinishedAt == nil {
+		t.Fatalf("Complete() failed task = %#v", task)
 	}
 }
