@@ -18,7 +18,7 @@ const blurClasses = {
 const variantClasses = {
   default: 'border-slate-200 bg-white',
   elevated: 'border-slate-200 bg-white shadow-sm',
-  glow: 'border-blue-200 bg-blue-50',
+  glow: 'border-[#ead1c5] bg-[#f7ebe5]',
 };
 
 export const GlassCard = ({

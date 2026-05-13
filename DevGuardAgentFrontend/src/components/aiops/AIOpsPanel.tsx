@@ -19,11 +19,11 @@ const AIOpsPanel = () => {
         transition={{ duration: 0.3 }}
         className="fixed right-0 top-0 z-40 h-full w-full overflow-y-auto border-l border-white/10 bg-slate-950/88 shadow-[-28px_0_70px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:w-[440px]"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(34,211,238,0.16),transparent_34%),radial-gradient(circle_at_100%_30%,rgba(16,185,129,0.10),transparent_28%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(154,86,63,0.20),transparent_34%),radial-gradient(circle_at_100%_30%,rgba(16,185,129,0.10),transparent_28%)]" />
         <div className="relative p-5">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-cyan-100">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#d9a08a]/30 bg-[#9a563f]/15 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#f3c7b4]">
                 <Route className="h-3.5 w-3.5" />
                 Agent Trace
               </div>
@@ -32,7 +32,7 @@ const AIOpsPanel = () => {
             </div>
             <button
               onClick={toggleAIOps}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+              className="brand-focus-ring flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition-colors hover:border-[#d9a08a]/40 hover:bg-[#9a563f]/20 hover:text-[#f3c7b4]"
               aria-label="关闭推理轨迹面板"
             >
               <PanelRightClose className="h-5 w-5" />
@@ -41,7 +41,7 @@ const AIOpsPanel = () => {
 
           {!result && !isRunning ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-100">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d9a08a]/30 bg-[#9a563f]/15 text-[#f3c7b4]">
                 <Bot className="h-7 w-7" />
               </div>
               <p className="text-base font-medium text-white">等待 Agent 任务</p>
@@ -53,7 +53,7 @@ const AIOpsPanel = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-xl border border-white/10 bg-white/[0.045] p-3">
-                  <Activity className="mb-2 h-4 w-4 text-cyan-200" />
+                  <Activity className="mb-2 h-4 w-4 text-[#f3c7b4]" />
                   <p className="text-lg font-semibold text-white">
                     {result?.steps.filter((step) => step.status === 'completed').length || 0}/
                     {result?.steps.length || 0}

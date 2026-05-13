@@ -116,10 +116,10 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
               key={mode}
               type="button"
               onClick={() => setChatMode(mode)}
-              className={`inline-flex h-8 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded px-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+              className={`brand-focus-ring inline-flex h-8 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded px-2 text-xs font-semibold transition-colors ${
                 chatMode === mode
-                  ? 'bg-white text-blue-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-white text-[#7f432f] shadow-sm'
+                  : 'text-slate-500 hover:text-[#7f432f]'
               }`}
             >
               {mode === 'stream' && <Zap className="h-3.5 w-3.5" />}
@@ -141,7 +141,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
           <button
             type="button"
             onClick={() => setFile(null)}
-            className="cursor-pointer text-slate-500 transition-colors hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="brand-focus-ring cursor-pointer rounded text-slate-500 transition-colors hover:text-red-600"
             aria-label="移除文件"
           >
             <X className="h-4 w-4" />
@@ -150,14 +150,14 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       )}
 
       <div
-        className={`grid items-end gap-2 rounded-lg border border-slate-300 bg-white focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20 ${
+        className={`brand-focus-within grid items-end gap-2 rounded-lg border border-slate-300 bg-white ${
           compact ? 'grid-cols-[36px_minmax(0,1fr)_36px] p-1.5' : 'grid-cols-[40px_minmax(0,1fr)_40px] p-2'
         }`}
       >
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className={`flex shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+          className={`brand-icon-button flex shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500 ${
             compact ? 'h-9 w-9' : 'h-10 w-10'
           }`}
           title="上传文件"
@@ -192,7 +192,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
           type="button"
           onClick={handleSend}
           disabled={!input.trim() && !file}
-          className={`flex shrink-0 cursor-pointer items-center justify-center rounded-md bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:bg-slate-300 ${
+          className={`brand-button flex shrink-0 cursor-pointer items-center justify-center rounded-md p-0 disabled:cursor-not-allowed disabled:bg-slate-300 ${
             compact ? 'h-9 w-9' : 'h-10 w-10'
           }`}
           aria-label="发送"

@@ -213,7 +213,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">{badge}</span>
+            <span className="rounded-md bg-[#f7ebe5] px-2 py-1 text-xs font-semibold text-[#7f432f]">{badge}</span>
           </div>
           <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
         </div>
@@ -221,7 +221,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
           type="button"
           onClick={() => testConfig(target)}
           disabled={testingTarget !== null}
-          className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          className="brand-subtle-button inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
         >
           {testingTarget === target ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlugZap className="h-3.5 w-3.5" />}
           测试
@@ -234,7 +234,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
             value={config[key].baseUrl}
             onChange={(event) => updateModel(key, 'baseUrl', event.target.value)}
             placeholder={key === 'embedding' ? 'https://dashscope.aliyuncs.com/compatible-mode/v1' : 'https://ark.cn-beijing.volces.com/api/v3'}
-            className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
           />
         </label>
         <label className="block">
@@ -243,7 +243,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
             value={config[key].model}
             onChange={(event) => updateModel(key, 'model', event.target.value)}
             placeholder={key === 'embedding' ? 'text-embedding-v4' : 'deepseek-v3-1-terminus'}
-            className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
           />
         </label>
         <label className="block md:col-span-2">
@@ -253,7 +253,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
             value={config[key].apiKey.value}
             onChange={(event) => updateModel(key, 'apiKey', event.target.value)}
             placeholder={config[key].apiKey.hasValue ? '已配置，留空或保持 ******** 表示不修改' : '请输入 API Key'}
-            className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
           />
         </label>
       </div>
@@ -265,7 +265,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
     <div className={`flex min-h-0 flex-col overflow-hidden ${isDialog ? 'h-full' : 'h-full rounded-lg border border-slate-200 bg-slate-50 shadow-sm'}`}>
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#9a563f] text-white">
             <Settings className="h-5 w-5" />
           </span>
           <div className="min-w-0">
@@ -277,7 +277,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="brand-icon-button flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500"
             aria-label="关闭配置"
           >
             <X className="h-5 w-5" />
@@ -304,14 +304,14 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
               onKeyDown={(event) => {
                 if (event.key === 'Enter') handleTokenSubmit();
               }}
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="brand-input h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
               placeholder="输入管理员口令"
             />
             {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
             <button
               type="button"
               onClick={handleTokenSubmit}
-              className="mt-4 inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="brand-button mt-4 h-10 w-full px-3 text-sm"
             >
               进入配置
             </button>
@@ -346,7 +346,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                         type="button"
                         onClick={() => testConfig('milvus')}
                         disabled={testingTarget !== null}
-                        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        className="brand-subtle-button inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {testingTarget === 'milvus' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlugZap className="h-3.5 w-3.5" />}
                         测试 Milvus
@@ -359,7 +359,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                           value={config.mcpUrl}
                           onChange={(event) => setConfig((current) => ({ ...current, mcpUrl: event.target.value }))}
                           placeholder="https://mcp-api.tencent-cloud.com/sse/XXXX"
-                          className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                          className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
                         />
                       </label>
                       <label className="block">
@@ -368,7 +368,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                           value={config.milvusAddress}
                           onChange={(event) => setConfig((current) => ({ ...current, milvusAddress: event.target.value }))}
                           placeholder="localhost:19530"
-                          className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                          className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
                         />
                       </label>
                       <label className="block">
@@ -377,7 +377,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                           value={config.fileDir}
                           onChange={(event) => setConfig((current) => ({ ...current, fileDir: event.target.value }))}
                           placeholder="/path/to/knowledge_cmd/docs"
-                          className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                          className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
                         />
                       </label>
                     </div>
@@ -390,19 +390,19 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                     <h3 className="text-sm font-semibold text-slate-950">当前配置范围</h3>
                     <div className="mt-4 space-y-3 text-sm">
                       <div className="flex items-center gap-3 text-slate-600">
-                        <ServerCog className="h-4 w-4 text-blue-600" />
+                        <ServerCog className="h-4 w-4 text-[#9a563f]" />
                         两套 OpenAI 兼容 Chat 模型
                       </div>
                       <div className="flex items-center gap-3 text-slate-600">
-                        <Database className="h-4 w-4 text-blue-600" />
+                        <Database className="h-4 w-4 text-[#9a563f]" />
                         DashScope 兼容 Embedding
                       </div>
                       <div className="flex items-center gap-3 text-slate-600">
-                        <Network className="h-4 w-4 text-blue-600" />
+                        <Network className="h-4 w-4 text-[#9a563f]" />
                         MCP SSE 与 Milvus 连接
                       </div>
                       <div className="flex items-center gap-3 text-slate-600">
-                        <FolderOpen className="h-4 w-4 text-blue-600" />
+                        <FolderOpen className="h-4 w-4 text-[#9a563f]" />
                         知识库文件存储目录
                       </div>
                     </div>
@@ -419,7 +419,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                     type="button"
                     onClick={loadConfig}
                     disabled={isLoading || isSaving}
-                    className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                    className="brand-subtle-button inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <RotateCcw className="h-4 w-4" />
                     重新读取配置
@@ -436,7 +436,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                 setToken('');
                 setDraftToken('');
               }}
-              className="cursor-pointer text-sm font-medium text-slate-500 transition-colors hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+              className="brand-text-link cursor-pointer rounded px-1 text-sm font-semibold"
             >
               更换管理员口令
             </button>
@@ -444,7 +444,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
               type="button"
               onClick={saveConfig}
               disabled={isSaving || isLoading}
-              className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="brand-button h-10 px-4 text-sm disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               保存并立即生效

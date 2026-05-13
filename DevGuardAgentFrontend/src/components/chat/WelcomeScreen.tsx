@@ -15,7 +15,7 @@ const WelcomeScreen = () => {
       title: '扫描代码',
       description: '识别风险函数、依赖漏洞和修复优先级',
       prompt: '帮我扫描代码中的安全漏洞',
-      color: 'from-cyan-400 to-blue-500',
+      color: 'from-[#d9a08a] to-[#9a563f]',
     },
     {
       icon: Shield,
@@ -29,7 +29,7 @@ const WelcomeScreen = () => {
       title: '分析日志',
       description: '从日志中提取异常模式和影响范围',
       prompt: '帮我分析最近的系统日志',
-      color: 'from-indigo-400 to-cyan-500',
+      color: 'from-[#b77961] to-[#7f432f]',
     },
     {
       icon: AlertTriangle,
@@ -64,7 +64,7 @@ const WelcomeScreen = () => {
           transition={{ duration: 0.5 }}
           className="mb-10 text-center"
         >
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-cyan-100">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d9a08a]/30 bg-[#9a563f]/15 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-[#f3c7b4]">
             <Radar className="h-4 w-4" />
             Agent Reasoning Workspace
           </div>
@@ -85,17 +85,17 @@ const WelcomeScreen = () => {
               whileHover={{ y: -8, scale: 1.02 }}
             >
               <div
-                className="group h-full cursor-pointer rounded-2xl border border-white/10 bg-slate-950/62 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all hover:border-cyan-300/35 hover:bg-white/[0.07]"
+                className="group h-full cursor-pointer rounded-2xl border border-white/10 bg-slate-950/62 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all hover:border-[#d9a08a]/45 hover:bg-white/[0.07]"
                 onClick={() => handleFeatureClick(feature.prompt)}
               >
                 <div
-                  className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} shadow-[0_0_28px_rgba(34,211,238,0.18)]`}
+                  className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} shadow-[0_0_28px_rgba(154,86,63,0.22)]`}
                 >
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
                 <p className="text-sm text-slate-400">{feature.description}</p>
-                <div className="mt-5 flex items-center gap-2 text-xs font-medium text-cyan-100 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#f3c7b4] opacity-0 transition-opacity group-hover:opacity-100">
                   <FileSearch className="h-3.5 w-3.5" />
                   启动推理轨迹
                 </div>

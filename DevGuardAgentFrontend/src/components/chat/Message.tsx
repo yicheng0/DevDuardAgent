@@ -52,7 +52,7 @@ const Message = ({ message, compact = false }: MessageProps) => {
       {!isUser && (
         <div className="shrink-0">
           <div
-            className={`flex items-center justify-center rounded-md bg-blue-50 text-blue-700 ring-1 ring-blue-100 ${
+            className={`flex items-center justify-center rounded-md bg-[#f7ebe5] text-[#7f432f] ring-1 ring-[#ead1c5] ${
               compact ? 'h-7 w-7' : 'h-8 w-8'
             }`}
           >
@@ -64,14 +64,14 @@ const Message = ({ message, compact = false }: MessageProps) => {
       <div
         className={`${compact ? 'max-w-[88%] px-2.5 py-1.5 text-xs leading-5' : 'max-w-[82%] px-3 py-2 text-sm leading-6'} rounded-lg border ${
           isUser
-            ? 'border-blue-200 bg-blue-600 text-white'
+            ? 'border-[#9a563f] bg-[#9a563f] text-white'
             : 'border-slate-200 bg-slate-50 text-slate-800'
         }`}
       >
         {renderContent()}
         {message.isStreaming && (
           <motion.span
-            className="ml-1 inline-block h-4 w-1.5 bg-blue-500"
+            className="ml-1 inline-block h-4 w-1.5 bg-[#9a563f]"
             animate={{ opacity: [1, 0] }}
             transition={{ duration: 1, repeat: Infinity }}
           />

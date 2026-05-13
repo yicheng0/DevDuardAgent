@@ -28,7 +28,7 @@ const Topbar = () => {
         <button
           type="button"
           onClick={toggleSidebar}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 md:hidden"
+          className="brand-icon-button flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 md:hidden"
           aria-label="打开侧边栏"
         >
           <PanelLeftOpen className="h-5 w-5" />
@@ -36,7 +36,7 @@ const Topbar = () => {
         <button
           type="button"
           onClick={toggleSidebarCollapsed}
-          className="hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 md:flex"
+          className="brand-icon-button hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 md:flex"
           aria-label={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
           title={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
         >
@@ -56,7 +56,7 @@ const Topbar = () => {
         <button
           type="button"
           onClick={toggleConfig}
-          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+          className="brand-button brand-button-sm px-3"
         >
           <Settings className="h-4 w-4" />
           <span>配置</span>

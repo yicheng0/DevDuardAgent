@@ -139,13 +139,13 @@ const statusLabel = {
 
 const statusStyle = {
   open: 'bg-slate-100 text-slate-700',
-  investigating: 'bg-blue-100 text-blue-700',
+  investigating: 'bg-[#f7ebe5] text-[#7f432f]',
   mitigating: 'bg-orange-100 text-orange-700',
   resolved: 'bg-emerald-100 text-emerald-700',
 };
 
 const stepStatusStyle = {
-  ready: 'bg-blue-50 text-blue-700',
+  ready: 'bg-[#f7ebe5] text-[#7f432f]',
   running: 'bg-orange-50 text-orange-700',
   blocked: 'bg-red-50 text-red-700',
   done: 'bg-emerald-50 text-emerald-700',
@@ -205,9 +205,9 @@ const OpsWorkbench = () => {
                 setSelectedIncidentId(incident.id);
                 setActiveNav('alerts');
               }}
-              className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/60 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+              className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors hover:border-[#d9a08a] hover:bg-[#f7ebe5]/70 focus:outline-none focus:ring-2 focus:ring-[#9a563f]/30 ${
                 selectedIncident.id === incident.id
-                  ? 'border-blue-300 bg-blue-50'
+                  ? 'border-[#d9a08a] bg-[#f7ebe5]'
                   : 'border-slate-200 bg-white'
               }`}
             >
@@ -252,7 +252,7 @@ const OpsWorkbench = () => {
                 <RiskBadge level={selectedIncident.severity} />
                 <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs font-semibold text-slate-300">
                   {isRunning ? (
-                    <PlayCircle className="h-3.5 w-3.5 text-blue-300" />
+                    <PlayCircle className="h-3.5 w-3.5 text-[#d9a08a]" />
                   ) : (
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
                   )}
@@ -269,10 +269,11 @@ const OpsWorkbench = () => {
             <button
               type="button"
               onClick={handleRunAgent}
-              className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-md bg-blue-500 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/50"
+              disabled={isRunning}
+              className="brand-button brand-button-lg shrink-0"
             >
               <Bot className="h-4 w-4" />
-              {result?.steps ? '重新分析' : '运行 Agent'}
+              {isRunning ? '分析中' : result?.steps ? '重新分析' : '运行 Agent'}
             </button>
           </div>
         </div>
@@ -280,7 +281,7 @@ const OpsWorkbench = () => {
         <div className="grid gap-3 border-b border-slate-800 bg-slate-950/75 p-4 sm:grid-cols-3">
           <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
             <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-400">
-              <Server className="h-4 w-4 text-blue-300" />
+              <Server className="h-4 w-4 text-[#d9a08a]" />
               受影响服务
             </div>
             <p className="truncate text-lg font-semibold text-white">{selectedIncident.service}</p>
@@ -308,7 +309,7 @@ const OpsWorkbench = () => {
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                <MessageSquareText className="h-4 w-4 text-blue-300" />
+                <MessageSquareText className="h-4 w-4 text-[#d9a08a]" />
                 Agent 推理轨迹
               </h2>
               <p className="mt-1 text-xs text-slate-500">
@@ -322,7 +323,7 @@ const OpsWorkbench = () => {
           ) : (
             <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center">
               <div className="max-w-md">
-                <Bot className="mx-auto h-10 w-10 text-blue-300" />
+                <Bot className="mx-auto h-10 w-10 text-[#d9a08a]" />
                 <p className="mt-4 text-base font-semibold text-white">选择告警并运行 Agent</p>
                 <p className="mt-2 text-sm leading-6 text-slate-400">
                   中间主舞台会同步展示推理链路，便于比赛演示时说明 Agent 如何调用工具、归因和生成处置建议。
@@ -365,7 +366,7 @@ const OpsWorkbench = () => {
               <h3 className="text-sm font-semibold text-slate-950">关键证据</h3>
               <button
                 type="button"
-                className="cursor-pointer text-xs font-medium text-blue-700 transition-colors hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                className="brand-text-link cursor-pointer rounded px-1 text-xs font-semibold"
               >
                 查看全部
               </button>
@@ -380,7 +381,7 @@ const OpsWorkbench = () => {
                   >
                     <div className="mb-2 flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-2">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-700">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#f7ebe5] text-[#7f432f]">
                           <Icon className="h-4 w-4" />
                         </span>
                         <div className="min-w-0">
@@ -444,12 +445,12 @@ const OpsWorkbench = () => {
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
             <div className="min-w-0">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                <MessageSquareText className="h-4 w-4 text-blue-600" />
+                <MessageSquareText className="h-4 w-4 text-[#9a563f]" />
                 向 Agent 追问
               </h3>
               <p className="mt-0.5 truncate text-xs text-slate-500">补充上下文、追问证据或生成处置话术</p>
             </div>
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[#f7ebe5] px-2 py-1 text-xs font-semibold text-[#7f432f]">
               <Radio className="h-3.5 w-3.5" />
               {isRunning ? '同步中' : '可用'}
             </span>
