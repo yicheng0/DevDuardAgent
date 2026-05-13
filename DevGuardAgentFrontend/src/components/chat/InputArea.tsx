@@ -96,25 +96,28 @@ const InputArea = () => {
 
   return (
     <div className="border-t border-slate-200 bg-white p-3">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1 rounded-md bg-slate-100 p-1" aria-label="响应模式">
+      <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div
+          className="grid w-full grid-cols-2 gap-1 rounded-md bg-slate-100 p-1 sm:w-[184px]"
+          aria-label="响应模式"
+        >
           {(['stream', 'quick'] as const).map((mode) => (
             <button
               key={mode}
               type="button"
               onClick={() => setChatMode(mode)}
-              className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded px-2.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+              className={`inline-flex h-8 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded px-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                 chatMode === mode
                   ? 'bg-white text-blue-700 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               {mode === 'stream' && <Zap className="h-3.5 w-3.5" />}
-              {mode === 'stream' ? '流式响应' : '快速响应'}
+              <span className="truncate">{mode === 'stream' ? '流式' : '快速'}</span>
             </button>
           ))}
         </div>
-        <span className="hidden text-xs text-slate-500 sm:inline">
+        <span className="hidden whitespace-nowrap text-xs text-slate-500 sm:inline">
           Enter 发送，Shift+Enter 换行
         </span>
       </div>
@@ -136,7 +139,7 @@ const InputArea = () => {
         </div>
       )}
 
-      <div className="flex items-end gap-2 rounded-lg border border-slate-300 bg-white p-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20">
+      <div className="grid grid-cols-[40px_minmax(0,1fr)_40px] items-end gap-2 rounded-lg border border-slate-300 bg-white p-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -163,7 +166,7 @@ const InputArea = () => {
           }}
           onKeyDown={handleKeyDown}
           placeholder="询问 Agent，或描述需要分析的告警..."
-          className="min-h-9 max-h-[120px] flex-1 resize-none border-none bg-transparent py-2 text-sm leading-5 text-slate-900 outline-none placeholder:text-slate-400"
+          className="min-h-10 max-h-[120px] min-w-0 resize-none border-none bg-transparent py-2 text-sm leading-5 text-slate-900 outline-none placeholder:text-slate-400"
           rows={1}
         />
 

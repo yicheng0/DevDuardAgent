@@ -30,25 +30,31 @@ const navItems: Array<{
 ];
 
 const Sidebar = () => {
-  const { activeNav, setActiveNav } = useUIStore();
+  const { activeNav, isSidebarCollapsed, setActiveNav } = useUIStore();
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 px-4 py-4">
-        <div className="flex items-center gap-3">
+    <aside
+      className={`flex h-full flex-col border-r border-slate-200 bg-white shadow-sm transition-[width] duration-200 ${
+        isSidebarCollapsed ? 'w-[72px]' : 'w-64'
+      }`}
+    >
+      <div className={`border-b border-slate-200 py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
+        <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
             <Shield className="h-5 w-5" />
           </div>
-          <div className="min-w-0">
-            <h1 className="truncate text-base font-semibold tracking-tight text-slate-950">
-              DevGuard Agent
-            </h1>
-            <p className="text-xs text-slate-500">AIOps Console</p>
-          </div>
+          {!isSidebarCollapsed && (
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-semibold tracking-tight text-slate-950">
+                DevGuard Agent
+              </h1>
+              <p className="text-xs text-slate-500">AIOps Console</p>
+            </div>
+          )}
         </div>
       </div>
 
-      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
+      <nav className={`min-h-0 flex-1 space-y-1 overflow-y-auto ${isSidebarCollapsed ? 'p-2' : 'p-3'}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeNav === item.id;
@@ -58,7 +64,11 @@ const Sidebar = () => {
               key={item.id}
               type="button"
               onClick={() => setActiveNav(item.id)}
-              className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+              title={isSidebarCollapsed ? item.label : undefined}
+              aria-label={item.label}
+              className={`group flex w-full items-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+                isSidebarCollapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2.5 text-left'
+              } ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
@@ -71,27 +81,40 @@ const Sidebar = () => {
               >
                 <Icon className="h-4 w-4" />
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{item.label}</span>
-                <span className="block truncate text-xs text-slate-500">{item.description}</span>
-              </span>
+              {!isSidebarCollapsed && (
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold">{item.label}</span>
+                  <span className="block truncate text-xs text-slate-500">{item.description}</span>
+                </span>
+              )}
             </button>
           );
         })}
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-emerald-800">
+      <div className={`border-t border-slate-200 ${isSidebarCollapsed ? 'p-2' : 'p-3'}`}>
+        {isSidebarCollapsed ? (
+          <div
+            className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700"
+            title="Runtime healthy"
+          >
             <Activity className="h-4 w-4" />
-            Runtime healthy
           </div>
-          <div className="mt-2 flex items-center justify-between text-xs text-emerald-700">
-            <span>5 tools ready</span>
-            <span>stream on</span>
-          </div>
-        </div>
-        <div className="mt-3 px-1 text-xs text-slate-400">v1.0 · production workspace</div>
+        ) : (
+          <>
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                <Activity className="h-4 w-4" />
+                Runtime healthy
+              </div>
+              <div className="mt-2 flex items-center justify-between text-xs text-emerald-700">
+                <span>5 tools ready</span>
+                <span>stream on</span>
+              </div>
+            </div>
+            <div className="mt-3 px-1 text-xs text-slate-400">v1.0 · production workspace</div>
+          </>
+        )}
       </div>
     </aside>
   );

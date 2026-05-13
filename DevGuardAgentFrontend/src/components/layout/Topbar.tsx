@@ -1,8 +1,9 @@
-import { Menu, Settings, Zap } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Settings } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 
 const Topbar = () => {
-  const { toggleSidebar, toggleConfig, chatMode, setChatMode, activeNav } = useUIStore();
+  const { toggleSidebar, toggleSidebarCollapsed, toggleConfig, activeNav, isSidebarCollapsed } =
+    useUIStore();
 
   const title =
     activeNav === 'overview'
@@ -30,7 +31,20 @@ const Topbar = () => {
           className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 md:hidden"
           aria-label="打开侧边栏"
         >
-          <Menu className="h-5 w-5" />
+          <PanelLeftOpen className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={toggleSidebarCollapsed}
+          className="hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 md:flex"
+          aria-label={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
+          title={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
+        >
+          {isSidebarCollapsed ? (
+            <PanelLeftOpen className="h-5 w-5" />
+          ) : (
+            <PanelLeftClose className="h-5 w-5" />
+          )}
         </button>
         <div className="min-w-0">
           <h2 className="truncate text-sm font-semibold text-slate-950">{title}</h2>
@@ -39,14 +53,6 @@ const Topbar = () => {
       </div>
 
       <div className="flex min-w-0 items-center justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => setChatMode(chatMode === 'quick' ? 'stream' : 'quick')}
-          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-        >
-          <Zap className="h-4 w-4 text-blue-600" />
-          <span className="hidden sm:inline">{chatMode === 'quick' ? '快速' : '流式'}</span>
-        </button>
         <button
           type="button"
           onClick={toggleConfig}

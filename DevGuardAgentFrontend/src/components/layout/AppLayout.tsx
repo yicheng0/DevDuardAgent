@@ -9,7 +9,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const { isSidebarOpen } = useUIStore();
+  const { isSidebarOpen, isSidebarCollapsed } = useUIStore();
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-slate-100 text-slate-950">
@@ -23,7 +23,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       <div
         className={`relative flex h-full flex-col transition-all duration-200 ${
-          isSidebarOpen ? 'md:ml-64' : 'md:ml-0'
+          isSidebarOpen ? (isSidebarCollapsed ? 'md:ml-[72px]' : 'md:ml-64') : 'md:ml-0'
         }`}
       >
         <Topbar />

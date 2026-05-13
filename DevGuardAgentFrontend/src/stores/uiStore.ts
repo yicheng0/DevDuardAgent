@@ -4,6 +4,7 @@ import { ChatMode, NavItemId } from '@/types';
 
 interface UIStore {
   isSidebarOpen: boolean;
+  isSidebarCollapsed: boolean;
   isAIOpsOpen: boolean;
   isConfigOpen: boolean;
   chatMode: ChatMode;
@@ -12,6 +13,7 @@ interface UIStore {
 
   // Actions
   toggleSidebar: () => void;
+  toggleSidebarCollapsed: () => void;
   toggleAIOps: () => void;
   toggleConfig: () => void;
   setConfigOpen: (open: boolean) => void;
@@ -24,6 +26,7 @@ export const useUIStore = create<UIStore>()(
   persist(
     (set) => ({
       isSidebarOpen: true,
+      isSidebarCollapsed: false,
       isAIOpsOpen: false,
       isConfigOpen: false,
       chatMode: 'stream',
@@ -31,6 +34,8 @@ export const useUIStore = create<UIStore>()(
       blurIntensity: 'medium',
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+      toggleSidebarCollapsed: () =>
+        set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
       toggleAIOps: () => set((state) => ({ isAIOpsOpen: !state.isAIOpsOpen })),
       toggleConfig: () => set((state) => ({ isConfigOpen: !state.isConfigOpen })),
       setConfigOpen: (open) => set({ isConfigOpen: open }),
