@@ -1,10 +1,13 @@
 import AppLayout from '@/components/layout/AppLayout';
+import SettingsPage from '@/components/config/SettingsPage';
 import OpsWorkbench from '@/components/ops/OpsWorkbench';
 import { useChatStore } from '@/stores/chatStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useEffect } from 'react';
 
 function App() {
   const { getCurrentSession, createSession } = useChatStore();
+  const { activeNav } = useUIStore();
   const session = getCurrentSession();
 
   useEffect(() => {
@@ -16,7 +19,7 @@ function App() {
 
   return (
     <AppLayout>
-      <OpsWorkbench />
+      {activeNav === 'settings' ? <SettingsPage /> : <OpsWorkbench />}
     </AppLayout>
   );
 }

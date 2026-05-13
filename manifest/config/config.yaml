@@ -10,7 +10,7 @@ logger:
   stdout: true
 
 admin:
-  config_token: "devguard-admin"
+  config_token: "081529"
 
 ds_think_chat_model:
   api_key: "xxxxxx"
