@@ -79,6 +79,33 @@ export interface RemediationStep {
   requiresApproval?: boolean;
   command?: string;
 }
+export interface LogAnalyzeRequest {
+  region: string;
+  topicId: string;
+  query: string;
+  startTime?: string;
+  endTime?: string;
+  limit: number;
+}
+
+export interface LogSample {
+  timestamp?: string;
+  level?: string;
+  message: string;
+}
+
+export interface LogAnalyzeResult {
+  summary: string;
+  patterns: string[];
+  samples: LogSample[];
+  suggestions: string[];
+  rawResult: string;
+  toolName: string;
+  resultCount: number;
+  startedAt: string;
+  endedAt: string;
+  durationMs: number;
+}
 
 export interface ConfigSecret {
   hasValue: boolean;

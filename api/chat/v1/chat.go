@@ -41,6 +41,34 @@ type AIOpsRes struct {
 	Result string   `json:"result"`
 	Detail []string `json:"detail"`
 }
+type LogAnalyzeReq struct {
+	g.Meta    `path:"/logs/analyze" method:"post" summary:"日志分析"`
+	Region    string `json:"region"`
+	TopicID   string `json:"topicId"`
+	Query     string `json:"query"`
+	StartTime string `json:"startTime"`
+	EndTime   string `json:"endTime"`
+	Limit     int    `json:"limit"`
+}
+
+type LogSample struct {
+	Timestamp string `json:"timestamp,omitempty"`
+	Level     string `json:"level,omitempty"`
+	Message   string `json:"message"`
+}
+
+type LogAnalyzeRes struct {
+	Summary     string      `json:"summary"`
+	Patterns    []string    `json:"patterns"`
+	Samples     []LogSample `json:"samples"`
+	Suggestions []string    `json:"suggestions"`
+	RawResult   string      `json:"rawResult"`
+	ToolName    string      `json:"toolName"`
+	ResultCount int         `json:"resultCount"`
+	StartedAt   string      `json:"startedAt"`
+	EndedAt     string      `json:"endedAt"`
+	DurationMs  int64       `json:"durationMs"`
+}
 
 type ConfigSecret struct {
 	HasValue bool   `json:"hasValue"`

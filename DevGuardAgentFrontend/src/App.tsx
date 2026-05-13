@@ -2,6 +2,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import SettingsPage from '@/components/config/SettingsPage';
 import OpsWorkbench from '@/components/ops/OpsWorkbench';
 import ChatContainer from '@/components/chat/ChatContainer';
+import LogsAnalysisPage from '@/components/logs/LogsAnalysisPage';
 import { useChatStore } from '@/stores/chatStore';
 import { useUIStore } from '@/stores/uiStore';
 import { NavItemId } from '@/types';
@@ -212,6 +213,10 @@ const renderActiveView = (activeNav: NavItemId) => {
 
   if (activeNav === 'overview') {
     return <OverviewPage />;
+  }
+
+  if (activeNav === 'logs') {
+    return <LogsAnalysisPage />;
   }
 
   return <ModulePlaceholder activeNav={activeNav} />;
