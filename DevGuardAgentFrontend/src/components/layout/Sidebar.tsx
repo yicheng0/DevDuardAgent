@@ -34,9 +34,10 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`flex h-full flex-col border-r border-slate-200 bg-white shadow-sm transition-[width] duration-200 ${
+      className={`flex h-full flex-col overflow-hidden border-r border-slate-200 bg-white shadow-sm transition-[width] duration-200 ${
         isSidebarCollapsed ? 'w-[72px]' : 'w-64'
       }`}
+      aria-label="主导航"
     >
       <div className={`border-b border-slate-200 py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
         <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
@@ -66,8 +67,8 @@ const Sidebar = () => {
               onClick={() => setActiveNav(item.id)}
               title={isSidebarCollapsed ? item.label : undefined}
               aria-label={item.label}
-              className={`group flex w-full items-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
-                isSidebarCollapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2.5 text-left'
+              className={`group flex w-full cursor-pointer items-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+                isSidebarCollapsed ? 'h-11 justify-center px-0 py-0' : 'min-h-11 gap-3 px-3 py-2.5 text-left'
               } ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'

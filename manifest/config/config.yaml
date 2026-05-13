@@ -9,6 +9,9 @@ logger:
   level: "all"
   stdout: true
 
+admin:
+  config_token: "devguard-admin"
+
 ds_think_chat_model:
   api_key: "xxxxxx"
   base_url: "https://ark.cn-beijing.volces.com/api/v3"
@@ -28,3 +31,6 @@ doubao_embedding_model:
 file_dir: "/你的路径/SuperBizAgent/internal/ai/cmd/knowledge_cmd/docs"
 
 mcp_url: "https://mcp-api.tencent-cloud.com/sse/XXXX"
+
+milvus:
+  address: "localhost:19530"

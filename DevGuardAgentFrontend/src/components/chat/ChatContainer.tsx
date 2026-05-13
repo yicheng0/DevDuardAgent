@@ -1,11 +1,15 @@
 import MessageList from './MessageList';
 import InputArea from './InputArea';
 
-const ChatContainer = () => {
+interface ChatContainerProps {
+  compact?: boolean;
+}
+
+const ChatContainer = ({ compact = false }: ChatContainerProps) => {
   return (
     <div className="flex h-full min-h-0 flex-col bg-white">
-      <MessageList />
-      <InputArea />
+      <MessageList compact={compact} />
+      <InputArea compact={compact} />
     </div>
   );
 };

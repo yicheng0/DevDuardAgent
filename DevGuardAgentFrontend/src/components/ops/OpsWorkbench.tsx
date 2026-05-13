@@ -9,6 +9,7 @@ import {
   FileSearch,
   Gauge,
   MessageSquareText,
+  Radio,
   PlayCircle,
   Server,
   ShieldCheck,
@@ -439,15 +440,22 @@ const OpsWorkbench = () => {
           </section>
         </div>
 
-        <div className="min-h-[280px] border-t border-slate-200">
-          <div className="border-b border-slate-200 px-4 py-3">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-              <MessageSquareText className="h-4 w-4 text-blue-600" />
-              向 Agent 追问
-            </h3>
+        <div className="flex h-[340px] min-h-[300px] shrink-0 flex-col border-t border-slate-200 bg-white">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
+            <div className="min-w-0">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                <MessageSquareText className="h-4 w-4 text-blue-600" />
+                向 Agent 追问
+              </h3>
+              <p className="mt-0.5 truncate text-xs text-slate-500">补充上下文、追问证据或生成处置话术</p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+              <Radio className="h-3.5 w-3.5" />
+              {isRunning ? '同步中' : '可用'}
+            </span>
           </div>
-          <div className="h-[236px]">
-            <ChatContainer />
+          <div className="min-h-0 flex-1">
+            <ChatContainer compact />
           </div>
         </div>
       </aside>

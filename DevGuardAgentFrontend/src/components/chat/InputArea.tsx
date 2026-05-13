@@ -5,7 +5,11 @@ import { useAIOpsStore } from '@/stores/aiopsStore';
 import { Paperclip, Send, X, Zap } from 'lucide-react';
 import { useStreaming } from '@/hooks/useStreaming';
 
-const InputArea = () => {
+interface InputAreaProps {
+  compact?: boolean;
+}
+
+const InputArea = ({ compact = false }: InputAreaProps) => {
   const [input, setInput] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -90,15 +94,21 @@ const InputArea = () => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+      textarea.style.height = `${Math.min(textarea.scrollHeight, compact ? 84 : 120)}px`;
     }
   };
 
   return (
-    <div className="border-t border-slate-200 bg-white p-3">
-      <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+    <div className={`border-t border-slate-200 bg-white ${compact ? 'p-2.5' : 'p-3'}`}>
+      <div
+        className={`mb-2 grid grid-cols-1 gap-2 sm:items-center ${
+          compact ? 'sm:grid-cols-1' : 'sm:grid-cols-[minmax(0,1fr)_auto]'
+        }`}
+      >
         <div
-          className="grid w-full grid-cols-2 gap-1 rounded-md bg-slate-100 p-1 sm:w-[184px]"
+          className={`grid w-full grid-cols-2 gap-1 rounded-md bg-slate-100 p-1 ${
+            compact ? '' : 'sm:w-[184px]'
+          }`}
           aria-label="响应模式"
         >
           {(['stream', 'quick'] as const).map((mode) => (
@@ -117,7 +127,7 @@ const InputArea = () => {
             </button>
           ))}
         </div>
-        <span className="hidden whitespace-nowrap text-xs text-slate-500 sm:inline">
+        <span className={`hidden whitespace-nowrap text-xs text-slate-500 ${compact ? '' : 'sm:inline'}`}>
           Enter 发送，Shift+Enter 换行
         </span>
       </div>
@@ -139,11 +149,17 @@ const InputArea = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-[40px_minmax(0,1fr)_40px] items-end gap-2 rounded-lg border border-slate-300 bg-white p-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20">
+      <div
+        className={`grid items-end gap-2 rounded-lg border border-slate-300 bg-white focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20 ${
+          compact ? 'grid-cols-[36px_minmax(0,1fr)_36px] p-1.5' : 'grid-cols-[40px_minmax(0,1fr)_40px] p-2'
+        }`}
+      >
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          className={`flex shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+            compact ? 'h-9 w-9' : 'h-10 w-10'
+          }`}
           title="上传文件"
           aria-label="上传文件"
         >
@@ -166,7 +182,9 @@ const InputArea = () => {
           }}
           onKeyDown={handleKeyDown}
           placeholder="询问 Agent，或描述需要分析的告警..."
-          className="min-h-10 max-h-[120px] min-w-0 resize-none border-none bg-transparent py-2 text-sm leading-5 text-slate-900 outline-none placeholder:text-slate-400"
+          className={`min-w-0 resize-none border-none bg-transparent text-slate-900 outline-none placeholder:text-slate-400 ${
+            compact ? 'min-h-9 max-h-[84px] py-1.5 text-xs leading-5' : 'min-h-10 max-h-[120px] py-2 text-sm leading-5'
+          }`}
           rows={1}
         />
 
@@ -174,7 +192,9 @@ const InputArea = () => {
           type="button"
           onClick={handleSend}
           disabled={!input.trim() && !file}
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className={`flex shrink-0 cursor-pointer items-center justify-center rounded-md bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:bg-slate-300 ${
+            compact ? 'h-9 w-9' : 'h-10 w-10'
+          }`}
           aria-label="发送"
         >
           <Send className="h-4 w-4" />

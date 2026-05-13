@@ -8,6 +8,7 @@ import { useEffect, useRef } from 'react';
 
 interface MessageProps {
   message: MessageType;
+  compact?: boolean;
 }
 
 marked.setOptions({
@@ -15,7 +16,7 @@ marked.setOptions({
   gfm: true,
 });
 
-const Message = ({ message }: MessageProps) => {
+const Message = ({ message, compact = false }: MessageProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const isUser = message.role === 'user';
 
@@ -33,7 +34,7 @@ const Message = ({ message }: MessageProps) => {
       return (
         <div
           ref={contentRef}
-          className="prose prose-slate prose-sm max-w-none"
+          className={`prose prose-slate max-w-none ${compact ? 'prose-xs text-xs leading-5' : 'prose-sm'}`}
           dangerouslySetInnerHTML={{ __html: marked(message.content) }}
         />
       );
@@ -46,18 +47,22 @@ const Message = ({ message }: MessageProps) => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
-      className={`mb-4 flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
+      className={`${compact ? 'mb-3 gap-2' : 'mb-4 gap-3'} flex ${isUser ? 'justify-end' : 'justify-start'}`}
     >
       {!isUser && (
         <div className="shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-50 text-blue-700 ring-1 ring-blue-100">
-            <Bot className="h-4 w-4" />
+          <div
+            className={`flex items-center justify-center rounded-md bg-blue-50 text-blue-700 ring-1 ring-blue-100 ${
+              compact ? 'h-7 w-7' : 'h-8 w-8'
+            }`}
+          >
+            <Bot className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
           </div>
         </div>
       )}
 
       <div
-        className={`max-w-[82%] rounded-lg border px-3 py-2 text-sm leading-6 ${
+        className={`${compact ? 'max-w-[88%] px-2.5 py-1.5 text-xs leading-5' : 'max-w-[82%] px-3 py-2 text-sm leading-6'} rounded-lg border ${
           isUser
             ? 'border-blue-200 bg-blue-600 text-white'
             : 'border-slate-200 bg-slate-50 text-slate-800'
@@ -75,8 +80,12 @@ const Message = ({ message }: MessageProps) => {
 
       {isUser && (
         <div className="shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-700 ring-1 ring-slate-200">
-            <User className="h-4 w-4" />
+          <div
+            className={`flex items-center justify-center rounded-md bg-slate-100 text-slate-700 ring-1 ring-slate-200 ${
+              compact ? 'h-7 w-7' : 'h-8 w-8'
+            }`}
+          >
+            <User className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
           </div>
         </div>
       )}

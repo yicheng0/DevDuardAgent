@@ -15,4 +15,7 @@ type IChatV1 interface {
 	ChatStream(ctx context.Context, req *v1.ChatStreamReq) (res *v1.ChatStreamRes, err error)
 	FileUpload(ctx context.Context, req *v1.FileUploadReq) (res *v1.FileUploadRes, err error)
 	AIOps(ctx context.Context, req *v1.AIOpsReq) (res *v1.AIOpsRes, err error)
+	GetRuntimeConfig(ctx context.Context, req *v1.GetRuntimeConfigReq) (res *v1.GetRuntimeConfigRes, err error)
+	UpdateRuntimeConfig(ctx context.Context, req *v1.UpdateRuntimeConfigReq) (res *v1.UpdateRuntimeConfigRes, err error)
+	ConfigTest(ctx context.Context, req *v1.ConfigTestReq) (res *v1.ConfigTestRes, err error)
 }

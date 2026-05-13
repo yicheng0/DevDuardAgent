@@ -41,3 +41,58 @@ type AIOpsRes struct {
 	Result string   `json:"result"`
 	Detail []string `json:"detail"`
 }
+
+type ConfigSecret struct {
+	HasValue bool   `json:"hasValue"`
+	Value    string `json:"value"`
+}
+
+type ModelRuntimeConfig struct {
+	APIKey  ConfigSecret `json:"apiKey"`
+	BaseURL string       `json:"baseUrl"`
+	Model   string       `json:"model"`
+}
+
+type EmbeddingRuntimeConfig struct {
+	APIKey  ConfigSecret `json:"apiKey"`
+	BaseURL string       `json:"baseUrl"`
+	Model   string       `json:"model"`
+}
+
+type RuntimeConfig struct {
+	QuickModel    ModelRuntimeConfig     `json:"quickModel"`
+	ThinkModel    ModelRuntimeConfig     `json:"thinkModel"`
+	Embedding     EmbeddingRuntimeConfig `json:"embedding"`
+	MCPURL        string                 `json:"mcpUrl"`
+	MilvusAddress string                 `json:"milvusAddress"`
+	FileDir       string                 `json:"fileDir"`
+}
+
+type GetRuntimeConfigReq struct {
+	g.Meta `path:"/config/runtime" method:"get" summary:"获取运行配置"`
+}
+
+type GetRuntimeConfigRes struct {
+	Config RuntimeConfig `json:"config"`
+}
+
+type UpdateRuntimeConfigReq struct {
+	g.Meta `path:"/config/runtime" method:"put" summary:"更新运行配置"`
+	Config RuntimeConfig `json:"config"`
+}
+
+type UpdateRuntimeConfigRes struct {
+	Config RuntimeConfig `json:"config"`
+}
+
+type ConfigTestReq struct {
+	g.Meta `path:"/config/test" method:"post" summary:"测试运行配置"`
+	Target string        `json:"target"`
+	Config RuntimeConfig `json:"config"`
+}
+
+type ConfigTestRes struct {
+	Target  string `json:"target"`
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
+}
