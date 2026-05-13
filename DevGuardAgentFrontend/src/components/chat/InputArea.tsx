@@ -49,8 +49,8 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
 
     try {
       const formData = new FormData();
-      formData.append('session_id', sessionId);
-      formData.append('message', userMessage);
+      formData.append('Id', sessionId);
+      formData.append('Question', userMessage);
       if (file) {
         formData.append('file', file);
       }

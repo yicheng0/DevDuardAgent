@@ -2,6 +2,7 @@ package sse
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -61,4 +62,11 @@ func (c *Client) SendToClient(eventType, data string) bool {
 	c.Request.Response.Writefln(msg)
 	c.Request.Response.Flush()
 	return true
+}
+func (c *Client) SendJSON(eventType string, payload any) bool {
+	b, err := json.Marshal(payload)
+	if err != nil {
+		b, _ = json.Marshal(map[string]string{"message": err.Error()})
+	}
+	return c.SendToClient(eventType, string(b))
 }

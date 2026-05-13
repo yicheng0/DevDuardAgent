@@ -28,8 +28,14 @@ export interface AIOpsStep {
 }
 
 export interface AIOpsResult {
+  traceId?: string;
   steps: AIOpsStep[];
   finalReport?: string;
+}
+
+export interface AgentTraceEvent {
+  traceId: string;
+  step: AIOpsStep;
 }
 
 export type ChatMode = 'quick' | 'stream';

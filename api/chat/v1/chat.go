@@ -15,9 +15,9 @@ type ChatRes struct {
 }
 
 type ChatStreamReq struct {
-	g.Meta   `path:"/chat_stream" method:"post" summary:"流式对话"`
-	Id       string
-	Question string
+	g.Meta   `path:"/chat_stream" method:"get,post" summary:"流式对话"`
+	Id       string `json:"Id" form:"Id"`
+	Question string `json:"Question" form:"Question"`
 }
 
 type ChatStreamRes struct {

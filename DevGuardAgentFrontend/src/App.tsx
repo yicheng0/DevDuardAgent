@@ -3,9 +3,11 @@ import SettingsPage from '@/components/config/SettingsPage';
 import OpsWorkbench from '@/components/ops/OpsWorkbench';
 import ChatContainer from '@/components/chat/ChatContainer';
 import LogsAnalysisPage from '@/components/logs/LogsAnalysisPage';
+import { TraceTimeline } from '@/components/aiops/TraceTimeline';
 import MetricsHealthPage from '@/components/metrics/MetricsHealthPage';
 import KnowledgePage from '@/components/knowledge/KnowledgePage';
 import { useChatStore } from '@/stores/chatStore';
+import { useAIOpsStore } from '@/stores/aiopsStore';
 import { useUIStore } from '@/stores/uiStore';
 import { NavItemId } from '@/types';
 import {
@@ -204,6 +206,78 @@ const ModulePlaceholder = ({ activeNav }: { activeNav: Exclude<NavItemId, 'alert
   );
 };
 
+const AgentTracePage = () => {
+  const { result, isRunning } = useAIOpsStore();
+  const steps = result?.steps || [];
+  const completed = steps.filter((step) => step.status === 'completed').length;
+  const tools = steps.filter((step) => step.toolName).length;
+
+  return (
+    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-4">
+      <section className="mx-auto flex max-w-6xl flex-col gap-4">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="min-w-0">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-[#ead1c5] bg-[#fbf7f4] px-2.5 py-1 text-xs font-semibold text-[#7f432f]">
+                <Route className="h-3.5 w-3.5" />
+                Agent Trace
+              </div>
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+                推理链路
+              </h1>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                查看当前会话最近一次 Agent 任务的阶段、工具调用、证据摘要和执行状态。
+              </p>
+            </div>
+            <div className="grid min-w-[260px] grid-cols-3 gap-2">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="text-lg font-semibold text-slate-950">{completed}/{steps.length}</p>
+                <p className="text-xs text-slate-500">完成阶段</p>
+              </div>
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="text-lg font-semibold text-slate-950">{tools}</p>
+                <p className="text-xs text-slate-500">工具调用</p>
+              </div>
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="text-lg font-semibold text-slate-950">
+                  {isRunning ? '运行中' : steps.length ? '已归档' : '等待中'}
+                </p>
+                <p className="text-xs text-slate-500">状态</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-slate-950 p-4 shadow-sm">
+          {steps.length ? (
+            <TraceTimeline steps={steps} />
+          ) : (
+            <div className="flex min-h-[360px] items-center justify-center text-center">
+              <div className="max-w-md">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-[#d9a08a]/30 bg-[#9a563f]/15 text-[#f3c7b4]">
+                  <Route className="h-6 w-6" />
+                </div>
+                <p className="text-base font-medium text-white">暂无 Trace</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  发送一条流式 Agent 请求后，这里会展示后端真实 callback 事件生成的链路。
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {result?.finalReport && (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+            <h2 className="text-sm font-semibold text-emerald-900">最终处置摘要</h2>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+              {result.finalReport}
+            </p>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+};
 const renderActiveView = (activeNav: NavItemId) => {
   if (activeNav === 'settings') {
     return <SettingsPage />;
@@ -219,6 +293,10 @@ const renderActiveView = (activeNav: NavItemId) => {
 
   if (activeNav === 'logs') {
     return <LogsAnalysisPage />;
+  }
+
+  if (activeNav === 'trace') {
+    return <AgentTracePage />;
   }
 
   if (activeNav === 'metrics') {

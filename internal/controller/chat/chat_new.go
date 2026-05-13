@@ -7,14 +7,17 @@ package chat
 import (
 	"SuperBizAgent/api/chat"
 	"SuperBizAgent/internal/logic/sse"
+	agenttrace "SuperBizAgent/internal/trace"
 )
 
 type ControllerV1 struct {
 	service *sse.Service
+	traces  *agenttrace.Store
 }
 
 func NewV1() chat.IChatV1 {
 	return &ControllerV1{
 		service: sse.New(),
+		traces:  agenttrace.NewStore(20),
 	}
 }

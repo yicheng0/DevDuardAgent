@@ -1,11 +1,12 @@
 import { useRef, useEffect } from 'react';
 import { useChatStore } from '@/stores/chatStore';
 import { useAIOpsStore } from '@/stores/aiopsStore';
+import { AgentTraceEvent } from '@/types';
 
 export const useStreaming = () => {
   const eventSourceRef = useRef<EventSource | null>(null);
   const { updateStreamingMessage, setStreaming } = useChatStore();
-  const { completeTrace, failTrace } = useAIOpsStore();
+  const { applyTraceEvent, completeTrace, failTrace } = useAIOpsStore();
 
   const startStreaming = (sessionId: string, message: string, file?: File | null) => {
     // Close existing connection
@@ -18,8 +19,8 @@ export const useStreaming = () => {
 
     // Build URL with query parameters
     const params = new URLSearchParams({
-      session_id: sessionId,
-      message: message,
+      Id: sessionId,
+      Question: message,
     });
 
     // For file upload, we need to use POST with FormData
@@ -30,26 +31,51 @@ export const useStreaming = () => {
 
     // Create EventSource for streaming
     const eventSource = new EventSource(`/api/chat_stream?${params.toString()}`);
+    let closed = false;
+    const closeStream = () => {
+      if (closed) return;
+      closed = true;
+      eventSource.close();
+      if (eventSourceRef.current === eventSource) {
+        eventSourceRef.current = null;
+      }
+    };
 
-    eventSource.onmessage = (event) => {
+    eventSource.addEventListener('message', (event) => {
       try {
-        const data = JSON.parse(event.data);
+        const data = parseSSEData(event.data);
         if (data.content) {
           updateStreamingMessage(data.content);
-        }
-        if (data.done) {
-          eventSource.close();
-          setStreaming(false);
-          completeTrace('Agent 已完成流式分析，并生成可执行的处置建议。');
         }
       } catch (error) {
         console.error('Error parsing SSE data:', error);
       }
-    };
+    });
+
+    eventSource.addEventListener('trace', (event) => {
+      try {
+        applyTraceEvent(JSON.parse(event.data) as AgentTraceEvent);
+      } catch (error) {
+        console.error('Error parsing trace data:', error);
+      }
+    });
+
+    eventSource.addEventListener('done', () => {
+      closeStream();
+      setStreaming(false);
+      completeTrace('Agent 已完成流式分析，并生成可执行的处置建议。');
+    });
+
+    eventSource.addEventListener('error', (event) => {
+      console.error('SSE server error:', event);
+      closeStream();
+      setStreaming(false);
+      failTrace('流式通道异常，Agent 未能完成本次分析。');
+    });
 
     eventSource.onerror = (error) => {
       console.error('SSE error:', error);
-      eventSource.close();
+      closeStream();
       setStreaming(false);
       failTrace('流式通道异常，Agent 未能完成本次分析。');
     };
@@ -64,8 +90,8 @@ export const useStreaming = () => {
   ) => {
     try {
       const formData = new FormData();
-      formData.append('session_id', sessionId);
-      formData.append('message', message);
+      formData.append('Id', sessionId);
+      formData.append('Question', message);
       formData.append('file', file);
 
       const response = await fetch('/api/chat_stream', {
@@ -85,6 +111,7 @@ export const useStreaming = () => {
       }
 
       let buffer = '';
+      let eventName = 'message';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -95,16 +122,15 @@ export const useStreaming = () => {
         buffer = lines.pop() || '';
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.content) {
-                updateStreamingMessage(data.content);
-              }
-            } catch (e) {
-              console.error('Error parsing chunk:', e);
-            }
+          if (line.startsWith('event: ')) {
+            eventName = line.slice(7).trim();
+            continue;
           }
+          if (!line.startsWith('data: ')) {
+            continue;
+          }
+          handleStreamingEvent(eventName, line.slice(6));
+          eventName = 'message';
         }
       }
 
@@ -134,4 +160,45 @@ export const useStreaming = () => {
   }, []);
 
   return { startStreaming, stopStreaming };
+};
+
+const handleStreamingEvent = (eventName: string, rawData: string) => {
+  const { updateStreamingMessage, setStreaming } = useChatStore.getState();
+  const { applyTraceEvent, completeTrace, failTrace } = useAIOpsStore.getState();
+
+  try {
+    if (eventName === 'trace') {
+      applyTraceEvent(JSON.parse(rawData) as AgentTraceEvent);
+      return;
+    }
+    if (eventName === 'done') {
+      setStreaming(false);
+      completeTrace('Agent 已完成附件解析、证据归纳和处置建议生成。');
+      return;
+    }
+    if (eventName === 'error') {
+      setStreaming(false);
+      failTrace('附件分析链路异常，请检查文件内容或稍后重试。');
+      return;
+    }
+
+    const data = parseSSEData(rawData);
+    if (data.content) {
+      updateStreamingMessage(data.content);
+    }
+  } catch (error) {
+    console.error('Error parsing streaming event:', error);
+  }
+};
+
+const parseSSEData = (raw: string): { content?: string } => {
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === 'string') {
+      return { content: parsed };
+    }
+    return parsed;
+  } catch {
+    return { content: raw };
+  }
 };

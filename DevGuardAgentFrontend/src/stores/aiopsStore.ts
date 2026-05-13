@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AIOpsResult, AIOpsStep } from '@/types';
+import { AgentTraceEvent, AIOpsResult, AIOpsStep } from '@/types';
 
 interface AIOpsStore {
   result: AIOpsResult | null;
@@ -8,6 +8,7 @@ interface AIOpsStore {
   // Actions
   setResult: (result: AIOpsResult) => void;
   updateStep: (stepId: string, updates: Partial<AIOpsStep>) => void;
+  applyTraceEvent: (event: AgentTraceEvent) => void;
   setRunning: (isRunning: boolean) => void;
   startDemoTrace: (prompt: string, hasFile?: boolean) => void;
   completeTrace: (summary?: string) => void;
@@ -99,6 +100,26 @@ export const useAIOpsStore = create<AIOpsStore>((set) => ({
           steps: state.result.steps.map((step) =>
             step.id === stepId ? { ...step, ...updates } : step
           ),
+        },
+      };
+    }),
+
+  applyTraceEvent: (event) =>
+    set((state) => {
+      const currentSteps = state.result?.traceId === event.traceId ? state.result.steps : [];
+      const exists = currentSteps.some((step) => step.id === event.step.id);
+      const steps = exists
+        ? currentSteps.map((step) =>
+            step.id === event.step.id ? { ...step, ...event.step } : step
+          )
+        : [...currentSteps, event.step];
+
+      return {
+        isRunning: event.step.status === 'completed' ? state.isRunning : true,
+        result: {
+          ...state.result,
+          traceId: event.traceId,
+          steps,
         },
       };
     }),
