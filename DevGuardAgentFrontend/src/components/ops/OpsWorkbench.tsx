@@ -440,7 +440,7 @@ const OpsWorkbench = () => {
           </section>
         </div>
 
-        <div className="flex h-[340px] min-h-[300px] shrink-0 flex-col border-t border-slate-200 bg-white">
+        <div className="flex h-[460px] min-h-[420px] shrink-0 flex-col border-t border-slate-200 bg-white xl:h-[46vh] xl:max-h-[560px]">
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
             <div className="min-w-0">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
