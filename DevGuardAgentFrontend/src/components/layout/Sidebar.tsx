@@ -106,7 +106,7 @@ const Sidebar = () => {
               } ${
                 isActive
                   ? 'sidebar-nav-active text-[#7f432f]'
-                  : 'border-transparent text-slate-600 hover:text-slate-950'
+                  : 'text-[#5f4a3d] hover:text-slate-950'
               }`}
             >
               <span
@@ -120,7 +120,7 @@ const Sidebar = () => {
                 } ${
                   isActive
                     ? 'bg-white/45 text-[#7f432f] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]'
-                    : 'text-slate-400 group-hover:bg-white/35 group-hover:text-slate-700'
+                    : 'bg-white/25 text-[#8a695a] group-hover:bg-white/45 group-hover:text-[#6f3b2a]'
                 }`}
               >
                 <Icon className={isSidebarCollapsed ? 'h-[18px] w-[18px]' : 'h-[17px] w-[17px]'} />
@@ -131,14 +131,14 @@ const Sidebar = () => {
                     className={`block text-sm ${
                       isActive
                         ? 'font-semibold text-[#653221]'
-                        : 'font-medium text-slate-700 group-hover:text-slate-950'
+                        : 'font-medium text-[#4f3f35] group-hover:text-[#241a15]'
                     }`}
                   >
                     {item.label}
                   </span>
                   <span
                     className={`block truncate text-xs ${
-                      isActive ? 'text-[#9a563f]/75' : 'text-slate-400 group-hover:text-slate-500'
+                      isActive ? 'text-[#9a563f]/75' : 'text-[#806a5c] group-hover:text-[#6f5b4b]'
                     }`}
                   >
                     {item.description}
