@@ -1,72 +1,62 @@
+import { Menu, Settings, Zap } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
-import { Activity, Menu, Play, Route, Shield, Zap } from 'lucide-react';
 
 const Topbar = () => {
-  const { toggleSidebar, toggleAIOps, chatMode, setChatMode } = useUIStore();
-  const actionClass =
-    'flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.055] px-3 text-sm font-medium text-slate-100 transition-colors hover:border-white/20 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-300/35';
-  const statusClass =
-    'flex h-8 items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-2.5 text-xs font-medium text-slate-300';
+  const { toggleSidebar, toggleConfig, chatMode, setChatMode, activeNav } = useUIStore();
+
+  const title =
+    activeNav === 'overview'
+      ? '运维总览'
+      : activeNav === 'alerts'
+        ? '告警处置'
+        : activeNav === 'logs'
+          ? '日志分析'
+          : activeNav === 'metrics'
+            ? '指标健康'
+            : activeNav === 'knowledge'
+              ? '知识库'
+              : activeNav === 'trace'
+                ? 'Agent Trace'
+                : activeNav === 'history'
+                  ? '任务历史'
+                  : '系统设置';
 
   return (
-    <div className="grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-white/10 bg-slate-950/58 px-4 backdrop-blur-2xl lg:grid-cols-[minmax(220px,1fr)_auto_minmax(220px,1fr)] sm:px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 shadow-sm">
       <div className="flex min-w-0 items-center gap-3">
         <button
+          type="button"
           onClick={toggleSidebar}
-          className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] transition-colors hover:bg-white/10 md:hidden"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 md:hidden"
           aria-label="打开侧边栏"
         >
-          <Menu className="w-5 h-5 text-white" />
+          <Menu className="h-5 w-5" />
         </button>
-
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-white">DevGuard Agent</div>
-          <div className="hidden text-xs text-slate-400 sm:block">Agent Trace Workspace</div>
+          <h2 className="truncate text-sm font-semibold text-slate-950">{title}</h2>
+          <p className="hidden text-xs text-slate-500 sm:block">Runtime console · online configuration</p>
         </div>
       </div>
 
-      <div className="hidden items-center gap-2 lg:flex">
-        <div className={`${statusClass} border-emerald-300/15 bg-emerald-300/[0.07] text-emerald-100`}>
-          <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
-          在线
-        </div>
-        <div className={statusClass}>
-          <Shield className="h-3.5 w-3.5 text-emerald-300" />
-          安全
-        </div>
-        <div className={statusClass}>
-          <Route className="h-3.5 w-3.5 text-amber-300" />
-          Trace Ready
-        </div>
-      </div>
-
-      <div className="flex min-w-0 items-center justify-end gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <button type="button" className={`${actionClass} hidden sm:flex`}>
-          <Play className="h-4 w-4 text-slate-300" />
-          Preview
-        </button>
-
+      <div className="flex min-w-0 items-center justify-end gap-2">
         <button
           type="button"
-          className={`${actionClass} ${
-            chatMode === 'quick' ? 'border-cyan-300/30 bg-cyan-300/10 text-cyan-50' : ''
-          }`}
           onClick={() => setChatMode(chatMode === 'quick' ? 'stream' : 'quick')}
+          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
         >
-          <Zap className="h-4 w-4 text-cyan-300" />
-          <span>{chatMode === 'quick' ? 'Quick' : 'Stream'}</span>
+          <Zap className="h-4 w-4 text-blue-600" />
+          <span className="hidden sm:inline">{chatMode === 'quick' ? '快速' : '流式'}</span>
         </button>
-
         <button
           type="button"
-          onClick={toggleAIOps}
-          className="flex h-9 flex-shrink-0 items-center gap-2 rounded-lg border border-cyan-300/25 bg-cyan-400 px-3 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.24)] transition-colors hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-200/70"
+          onClick={toggleConfig}
+          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
         >
-          <Activity className="h-4 w-4" />
-          Agent Trace
+          <Settings className="h-4 w-4" />
+          <span>配置</span>
         </button>
       </div>
-    </div>
+    </header>
   );
 };
 

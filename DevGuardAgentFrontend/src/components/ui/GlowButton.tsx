@@ -8,14 +8,10 @@ interface GlowButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 }
 
 const variantClasses = {
-  primary:
-    'border border-cyan-300/25 bg-gradient-to-r from-cyan-500 to-blue-600 shadow-[0_0_28px_rgba(34,211,238,0.22)] hover:shadow-[0_0_34px_rgba(34,211,238,0.34)]',
-  secondary:
-    'border border-emerald-300/20 bg-gradient-to-r from-cyan-600 to-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.2)] hover:shadow-[0_0_34px_rgba(16,185,129,0.32)]',
-  success:
-    'border border-emerald-300/25 bg-emerald-600 shadow-[0_0_28px_rgba(16,185,129,0.2)] hover:bg-emerald-500',
-  danger:
-    'border border-red-300/25 bg-red-600 shadow-[0_0_28px_rgba(248,113,113,0.18)] hover:bg-red-500',
+  primary: 'border border-blue-700 bg-blue-600 hover:bg-blue-700',
+  secondary: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
+  success: 'border border-emerald-700 bg-emerald-600 hover:bg-emerald-700',
+  danger: 'border border-red-700 bg-red-600 hover:bg-red-700',
 };
 
 export const GlowButton = ({
@@ -26,10 +22,9 @@ export const GlowButton = ({
 }: GlowButtonProps) => {
   return (
     <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      className={`rounded-xl px-6 py-3 font-medium text-white transition-all duration-300 ${variantClasses[variant]} ${className}`}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.15 }}
+      className={`rounded-md px-4 py-2 text-sm font-semibold text-white transition-colors ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {children}

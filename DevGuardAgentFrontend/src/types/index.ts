@@ -34,8 +34,82 @@ export interface AIOpsResult {
 
 export type ChatMode = 'quick' | 'stream';
 
+export type NavItemId =
+  | 'overview'
+  | 'alerts'
+  | 'logs'
+  | 'metrics'
+  | 'knowledge'
+  | 'trace'
+  | 'history'
+  | 'settings';
+
 export interface UploadedFile {
   name: string;
   size: number;
   type: string;
+}
+
+export interface IncidentItem {
+  id: string;
+  title: string;
+  service: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'investigating' | 'mitigating' | 'resolved';
+  updatedAt: string;
+  summary: string;
+  owner: string;
+  affectedUsers: string;
+  signals: string[];
+}
+
+export interface EvidenceItem {
+  id: string;
+  type: 'metric' | 'log' | 'trace' | 'doc';
+  source: string;
+  content: string;
+  confidence: number;
+}
+
+export interface RemediationStep {
+  id: string;
+  title: string;
+  status: 'ready' | 'running' | 'blocked' | 'done';
+  risk: 'low' | 'medium' | 'high';
+  requiresApproval?: boolean;
+  command?: string;
+}
+
+export interface ConfigSecret {
+  hasValue: boolean;
+  value: string;
+}
+
+export interface ModelRuntimeConfig {
+  apiKey: ConfigSecret;
+  baseUrl: string;
+  model: string;
+}
+
+export interface EmbeddingRuntimeConfig {
+  apiKey: ConfigSecret;
+  baseUrl: string;
+  model: string;
+}
+
+export interface RuntimeConfig {
+  quickModel: ModelRuntimeConfig;
+  thinkModel: ModelRuntimeConfig;
+  embedding: EmbeddingRuntimeConfig;
+  mcpUrl: string;
+  milvusAddress: string;
+  fileDir: string;
+}
+
+export type ConfigTestTarget = 'quick_model' | 'think_model' | 'embedding' | 'milvus';
+
+export interface ConfigTestResult {
+  target: ConfigTestTarget;
+  ok: boolean;
+  message: string;
 }

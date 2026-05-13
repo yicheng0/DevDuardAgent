@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
-import { motion } from 'framer-motion';
 import { useUIStore } from '@/stores/uiStore';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import ConfigDialog from '@/components/config/ConfigDialog';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,50 +12,32 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const { isSidebarOpen } = useUIStore();
 
   return (
-    <div className="app-shell-bg relative h-screen w-screen overflow-hidden text-slate-100">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.15),rgba(2,6,23,0.72))]" />
-      {/* Sidebar */}
-      <motion.div
-        initial={{ x: -300, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className={`fixed left-0 top-0 z-30 h-full transition-transform duration-300 ${
+    <div className="relative h-screen w-screen overflow-hidden bg-slate-100 text-slate-950">
+      <div
+        className={`fixed left-0 top-0 z-30 h-full transition-transform duration-200 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
         <Sidebar />
-      </motion.div>
-
-      {/* Main Content */}
-      <div
-        className={`relative h-full transition-all duration-300 ${
-          isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-0'
-        }`}
-      >
-        {/* Topbar */}
-        <Topbar />
-
-        {/* Content Area */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="h-[calc(100vh-64px)] overflow-hidden"
-        >
-          {children}
-        </motion.div>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
+      <div
+        className={`relative flex h-full flex-col transition-all duration-200 ${
+          isSidebarOpen ? 'md:ml-64' : 'md:ml-0'
+        }`}
+      >
+        <Topbar />
+        <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
+      </div>
+
       {isSidebarOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+        <div
+          className="fixed inset-0 z-20 bg-slate-950/40 md:hidden"
           onClick={() => useUIStore.getState().toggleSidebar()}
         />
       )}
+
+      <ConfigDialog />
     </div>
   );
 };

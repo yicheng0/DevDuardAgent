@@ -1,7 +1,5 @@
 import AppLayout from '@/components/layout/AppLayout';
-import ChatContainer from '@/components/chat/ChatContainer';
-import WelcomeScreen from '@/components/chat/WelcomeScreen';
-import AIOpsPanel from '@/components/aiops/AIOpsPanel';
+import OpsWorkbench from '@/components/ops/OpsWorkbench';
 import { useChatStore } from '@/stores/chatStore';
 import { useEffect } from 'react';
 
@@ -16,12 +14,9 @@ function App() {
     }
   }, []);
 
-  const hasMessages = session && session.messages.length > 0;
-
   return (
     <AppLayout>
-      {hasMessages ? <ChatContainer /> : <WelcomeScreen />}
-      <AIOpsPanel />
+      <OpsWorkbench />
     </AppLayout>
   );
 }

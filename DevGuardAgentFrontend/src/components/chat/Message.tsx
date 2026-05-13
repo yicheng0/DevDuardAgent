@@ -33,40 +33,40 @@ const Message = ({ message }: MessageProps) => {
       return (
         <div
           ref={contentRef}
-          className="prose prose-invert prose-sm max-w-none"
+          className="prose prose-slate prose-sm max-w-none"
           dangerouslySetInnerHTML={{ __html: marked(message.content) }}
         />
       );
     }
-    return <p className="text-white whitespace-pre-wrap">{message.content}</p>;
+    return <p className="whitespace-pre-wrap text-white">{message.content}</p>;
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className={`flex gap-3 mb-4 ${isUser ? 'justify-end' : 'justify-start'}`}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18 }}
+      className={`mb-4 flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
     >
       {!isUser && (
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-white" />
+        <div className="shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-50 text-blue-700 ring-1 ring-blue-100">
+            <Bot className="h-4 w-4" />
           </div>
         </div>
       )}
 
       <div
-        className={`max-w-[80%] rounded-2xl p-4 shadow-[0_18px_50px_rgba(0,0,0,0.22)] ${
+        className={`max-w-[82%] rounded-lg border px-3 py-2 text-sm leading-6 ${
           isUser
-            ? 'border border-cyan-300/30 bg-gradient-to-br from-cyan-600/85 to-blue-700/85 text-white'
-            : 'border border-white/10 bg-slate-950/72 text-slate-100 backdrop-blur-xl'
+            ? 'border-blue-200 bg-blue-600 text-white'
+            : 'border-slate-200 bg-slate-50 text-slate-800'
         }`}
       >
         {renderContent()}
         {message.isStreaming && (
           <motion.span
-            className="inline-block w-2 h-4 ml-1 bg-blue-400"
+            className="ml-1 inline-block h-4 w-1.5 bg-blue-500"
             animate={{ opacity: [1, 0] }}
             transition={{ duration: 1, repeat: Infinity }}
           />
@@ -74,9 +74,9 @@ const Message = ({ message }: MessageProps) => {
       </div>
 
       {isUser && (
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-            <User className="w-5 h-5 text-white" />
+        <div className="shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-700 ring-1 ring-slate-200">
+            <User className="h-4 w-4" />
           </div>
         </div>
       )}
