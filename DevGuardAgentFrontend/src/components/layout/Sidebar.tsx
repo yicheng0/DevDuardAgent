@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Route,
   Settings,
-  Shield,
 } from 'lucide-react';
 import { NavItemId } from '@/types';
 import { useUIStore } from '@/stores/uiStore';
@@ -29,6 +28,43 @@ const navItems: Array<{
   { id: 'settings', label: '设置', description: '系统配置', icon: Settings },
 ];
 
+const BrandMark = ({ collapsed = false }: { collapsed?: boolean }) => (
+  <div
+    className={`flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#ead1c5] bg-[#fbf7f4] shadow-[0_10px_24px_rgba(127,67,47,0.12)] ${
+      collapsed ? 'h-11 w-11' : 'h-10 w-10'
+    }`}
+    title="DevGuard Agent"
+    aria-label="DevGuard Agent"
+  >
+    <svg
+      viewBox="0 0 48 48"
+      role="img"
+      aria-hidden="true"
+      className={collapsed ? 'h-8 w-8' : 'h-7 w-7'}
+    >
+      <rect x="5" y="5" width="38" height="38" rx="11" fill="#fffaf7" />
+      <rect x="5.75" y="5.75" width="36.5" height="36.5" rx="10.25" fill="none" stroke="#d8b7a8" strokeWidth="1.5" />
+      <path
+        d="M16 14.5h6.5c6.1 0 10 3.65 10 9.5s-3.9 9.5-10 9.5H16v-19Z"
+        fill="none"
+        stroke="#653221"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="4"
+      />
+      <path
+        d="M31.5 22.5h5.5v10.25c-2.55 1.25-5.12 1.85-7.7 1.85-5.65 0-9.8-4.1-9.8-9.75 0-5.8 4.3-9.85 10.2-9.85 2.95 0 5.35.9 7.35 2.55"
+        fill="none"
+        stroke="#9a563f"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="3.25"
+      />
+      <path d="M16 36h20" stroke="#c6947d" strokeLinecap="round" strokeWidth="2" />
+    </svg>
+  </div>
+);
+
 const Sidebar = () => {
   const { activeNav, isSidebarCollapsed, setActiveNav } = useUIStore();
 
@@ -41,15 +77,13 @@ const Sidebar = () => {
     >
       <div className={`border-b border-slate-200 py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
         <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-            <Shield className="h-5 w-5" />
-          </div>
+          <BrandMark collapsed={isSidebarCollapsed} />
           {!isSidebarCollapsed && (
             <div className="min-w-0">
               <h1 className="truncate text-base font-semibold tracking-tight text-slate-950">
                 DevGuard Agent
               </h1>
-              <p className="text-xs text-slate-500">AIOps Console</p>
+              <p className="text-xs font-medium text-slate-500">Ops Intelligence</p>
             </div>
           )}
         </div>
@@ -67,26 +101,48 @@ const Sidebar = () => {
               onClick={() => setActiveNav(item.id)}
               title={isSidebarCollapsed ? item.label : undefined}
               aria-label={item.label}
-              className={`group flex w-full cursor-pointer items-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
-                isSidebarCollapsed ? 'h-11 justify-center px-0 py-0' : 'min-h-11 gap-3 px-3 py-2.5 text-left'
+              className={`group brand-focus-ring relative flex w-full cursor-pointer items-center overflow-hidden rounded-lg transition-colors ${
+                isSidebarCollapsed ? 'h-11 justify-center px-0 py-0' : 'min-h-11 gap-3 px-3 py-2.5 pl-4 text-left'
               } ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
+                  ? 'bg-[#fbf5f1] text-[#7f432f]'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
               }`}
             >
               <span
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md ${
-                  isActive ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
+                className={`absolute bottom-2 left-0 top-2 w-[3px] rounded-r-full transition-opacity ${
+                  isActive ? 'bg-[#9a563f] opacity-100' : 'opacity-0'
                 }`}
+              />
+              <span
+                className={`flex shrink-0 items-center justify-center transition-colors ${
+                  isSidebarCollapsed ? 'h-9 w-9' : 'h-6 w-6'
+                } ${isActive ? 'text-[#7f432f]' : 'text-slate-400 group-hover:text-slate-700'}`}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={isSidebarCollapsed ? 'h-[18px] w-[18px]' : 'h-[17px] w-[17px]'} />
               </span>
               {!isSidebarCollapsed && (
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold">{item.label}</span>
-                  <span className="block truncate text-xs text-slate-500">{item.description}</span>
+                  <span
+                    className={`block text-sm ${
+                      isActive
+                        ? 'font-semibold text-[#653221]'
+                        : 'font-medium text-slate-700 group-hover:text-slate-950'
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    className={`block truncate text-xs ${
+                      isActive ? 'text-[#9a563f]/75' : 'text-slate-400 group-hover:text-slate-500'
+                    }`}
+                  >
+                    {item.description}
+                  </span>
                 </span>
+              )}
+              {!isSidebarCollapsed && isActive && (
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9a563f]" />
               )}
             </button>
           );
