@@ -3,6 +3,7 @@ import SettingsPage from '@/components/config/SettingsPage';
 import OpsWorkbench from '@/components/ops/OpsWorkbench';
 import ChatContainer from '@/components/chat/ChatContainer';
 import LogsAnalysisPage from '@/components/logs/LogsAnalysisPage';
+import MetricsHealthPage from '@/components/metrics/MetricsHealthPage';
 import KnowledgePage from '@/components/knowledge/KnowledgePage';
 import { useChatStore } from '@/stores/chatStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -218,6 +219,10 @@ const renderActiveView = (activeNav: NavItemId) => {
 
   if (activeNav === 'logs') {
     return <LogsAnalysisPage />;
+  }
+
+  if (activeNav === 'metrics') {
+    return <MetricsHealthPage />;
   }
 
   if (activeNav === 'knowledge') {

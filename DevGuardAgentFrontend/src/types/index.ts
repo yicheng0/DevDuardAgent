@@ -107,6 +107,46 @@ export interface LogAnalyzeResult {
   durationMs: number;
 }
 
+export type MetricHealthStatus = 'healthy' | 'warning' | 'critical';
+
+export interface MetricTrendPoint {
+  label: string;
+  requests: number;
+  errorRate: number;
+  latencyMs: number;
+  resource: number;
+}
+
+export interface MetricServiceHealth {
+  id: string;
+  name: string;
+  environment: string;
+  owner: string;
+  status: MetricHealthStatus;
+  slo: number;
+  sloTarget: number;
+  errorBudgetRemaining: number;
+  burnRate: number;
+  rps: number;
+  errorRate: number;
+  p95LatencyMs: number;
+  cpu: number;
+  memory: number;
+  activeAlerts: number;
+  updatedAt: string;
+  trend: MetricTrendPoint[];
+}
+
+export interface MetricHealthSummary {
+  totalServices: number;
+  healthyServices: number;
+  warningServices: number;
+  criticalServices: number;
+  averageSlo: number;
+  averageErrorBudgetRemaining: number;
+  activeAlerts: number;
+  worstBurnRate: number;
+}
 export interface ConfigSecret {
   hasValue: boolean;
   value: string;
