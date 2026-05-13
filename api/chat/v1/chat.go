@@ -28,9 +28,12 @@ type FileUploadReq struct {
 }
 
 type FileUploadRes struct {
-	FileName string `json:"fileName" dc:"保存的文件名"`
-	FilePath string `json:"filePath" dc:"文件保存路径"`
-	FileSize int64  `json:"fileSize" dc:"文件大小(字节)"`
+	FileName   string `json:"fileName" dc:"保存的文件名"`
+	FilePath   string `json:"filePath" dc:"文件保存路径"`
+	FileSize   int64  `json:"fileSize" dc:"文件大小(字节)"`
+	DocumentID string `json:"documentId" dc:"知识库文档ID"`
+	TaskID     string `json:"taskId" dc:"索引任务ID"`
+	Status     string `json:"status" dc:"文档索引状态"`
 }
 
 type AIOpsReq struct {
@@ -123,4 +126,67 @@ type ConfigTestRes struct {
 	Target  string `json:"target"`
 	OK      bool   `json:"ok"`
 	Message string `json:"message"`
+}
+
+type KnowledgeDocument struct {
+	ID            string `json:"id"`
+	FileName      string `json:"fileName"`
+	FilePath      string `json:"filePath"`
+	Source        string `json:"source"`
+	SHA256        string `json:"sha256"`
+	Size          int64  `json:"size"`
+	Status        string `json:"status"`
+	ChunkCount    int    `json:"chunkCount"`
+	ActiveTaskID  string `json:"activeTaskId,omitempty"`
+	CreatedAt     string `json:"createdAt"`
+	UpdatedAt     string `json:"updatedAt"`
+	LastIndexedAt string `json:"lastIndexedAt,omitempty"`
+	LastError     string `json:"lastError,omitempty"`
+}
+
+type KnowledgeTask struct {
+	ID         string `json:"id"`
+	DocumentID string `json:"documentId"`
+	Type       string `json:"type"`
+	Status     string `json:"status"`
+	StartedAt  string `json:"startedAt,omitempty"`
+	FinishedAt string `json:"finishedAt,omitempty"`
+	Error      string `json:"error,omitempty"`
+	CreatedAt  string `json:"createdAt"`
+	UpdatedAt  string `json:"updatedAt"`
+}
+
+type KnowledgeDocumentsReq struct {
+	g.Meta `path:"/knowledge/documents" method:"get" summary:"知识库文档列表"`
+}
+
+type KnowledgeDocumentsRes struct {
+	Documents []KnowledgeDocument `json:"documents"`
+}
+
+type KnowledgeTaskReq struct {
+	g.Meta `path:"/knowledge/tasks" method:"get" summary:"知识库任务详情"`
+	ID     string `json:"id"`
+}
+
+type KnowledgeTaskRes struct {
+	Task KnowledgeTask `json:"task"`
+}
+
+type KnowledgeReindexReq struct {
+	g.Meta     `path:"/knowledge/documents/reindex" method:"post" summary:"重建知识库文档索引"`
+	DocumentID string `json:"documentId"`
+}
+
+type KnowledgeReindexRes struct {
+	Task KnowledgeTask `json:"task"`
+}
+
+type KnowledgeDeleteReq struct {
+	g.Meta `path:"/knowledge/documents" method:"delete" summary:"删除知识库文档"`
+	ID     string `json:"id"`
+}
+
+type KnowledgeDeleteRes struct {
+	Task KnowledgeTask `json:"task"`
 }

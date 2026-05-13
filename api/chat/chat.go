@@ -19,4 +19,8 @@ type IChatV1 interface {
 	GetRuntimeConfig(ctx context.Context, req *v1.GetRuntimeConfigReq) (res *v1.GetRuntimeConfigRes, err error)
 	UpdateRuntimeConfig(ctx context.Context, req *v1.UpdateRuntimeConfigReq) (res *v1.UpdateRuntimeConfigRes, err error)
 	ConfigTest(ctx context.Context, req *v1.ConfigTestReq) (res *v1.ConfigTestRes, err error)
+	KnowledgeDocuments(ctx context.Context, req *v1.KnowledgeDocumentsReq) (res *v1.KnowledgeDocumentsRes, err error)
+	KnowledgeTask(ctx context.Context, req *v1.KnowledgeTaskReq) (res *v1.KnowledgeTaskRes, err error)
+	KnowledgeReindex(ctx context.Context, req *v1.KnowledgeReindexReq) (res *v1.KnowledgeReindexRes, err error)
+	KnowledgeDelete(ctx context.Context, req *v1.KnowledgeDeleteReq) (res *v1.KnowledgeDeleteRes, err error)
 }

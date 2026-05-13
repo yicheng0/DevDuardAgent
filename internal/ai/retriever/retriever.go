@@ -2,6 +2,7 @@ package retriever
 
 import (
 	"SuperBizAgent/internal/ai/embedder"
+	"SuperBizAgent/internal/knowledge"
 	"SuperBizAgent/utility/client"
 	"SuperBizAgent/utility/common"
 	"context"
@@ -28,7 +29,7 @@ func NewMilvusRetriever(ctx context.Context) (rtr retriever.Retriever, err error
 			"content",
 			"metadata",
 		},
-		TopK:      1,
+		TopK:      knowledge.RetrievalTopK(ctx),
 		Embedding: eb,
 	})
 	if err != nil {

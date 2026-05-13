@@ -34,3 +34,10 @@ mcp_url: "https://mcp-api.tencent-cloud.com/sse/XXXX"
 
 milvus:
   address: "localhost:19530"
+knowledge:
+  retrieval_top_k: 5
+  max_upload_mb: 20
+  allowed_extensions:
+    - .md
+    - .markdown
+    - .txt

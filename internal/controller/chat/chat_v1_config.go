@@ -57,6 +57,11 @@ type yamlRuntimeConfig struct {
 	Milvus  struct {
 		Address string `yaml:"address"`
 	} `yaml:"milvus"`
+	Knowledge struct {
+		RetrievalTopK     int      `yaml:"retrieval_top_k"`
+		MaxUploadMB       int64    `yaml:"max_upload_mb"`
+		AllowedExtensions []string `yaml:"allowed_extensions"`
+	} `yaml:"knowledge"`
 }
 
 func (c *ControllerV1) GetRuntimeConfig(ctx context.Context, req *v1.GetRuntimeConfigReq) (res *v1.GetRuntimeConfigRes, err error) {
@@ -232,6 +237,15 @@ func applyRuntimeDefaults(cfg *yamlRuntimeConfig) {
 	}
 	if cfg.Milvus.Address == "" {
 		cfg.Milvus.Address = "localhost:19530"
+	}
+	if cfg.Knowledge.RetrievalTopK <= 0 {
+		cfg.Knowledge.RetrievalTopK = 5
+	}
+	if cfg.Knowledge.MaxUploadMB <= 0 {
+		cfg.Knowledge.MaxUploadMB = 20
+	}
+	if len(cfg.Knowledge.AllowedExtensions) == 0 {
+		cfg.Knowledge.AllowedExtensions = []string{".md", ".markdown", ".txt"}
 	}
 }
 

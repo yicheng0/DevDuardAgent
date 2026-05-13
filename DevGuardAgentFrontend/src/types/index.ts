@@ -140,3 +140,48 @@ export interface ConfigTestResult {
   ok: boolean;
   message: string;
 }
+export type KnowledgeDocumentStatus =
+  | 'indexing'
+  | 'ready'
+  | 'failed'
+  | 'delete_failed'
+  | 'deleted';
+
+export type KnowledgeTaskStatus = 'queued' | 'running' | 'succeeded' | 'failed';
+
+export interface KnowledgeDocument {
+  id: string;
+  fileName: string;
+  filePath: string;
+  source: string;
+  sha256: string;
+  size: number;
+  status: KnowledgeDocumentStatus;
+  chunkCount: number;
+  activeTaskId?: string;
+  createdAt: string;
+  updatedAt: string;
+  lastIndexedAt?: string;
+  lastError?: string;
+}
+
+export interface KnowledgeTask {
+  id: string;
+  documentId: string;
+  type: 'index' | 'delete' | 'reindex';
+  status: KnowledgeTaskStatus;
+  startedAt?: string;
+  finishedAt?: string;
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface KnowledgeUploadResult {
+  fileName: string;
+  filePath: string;
+  fileSize: number;
+  documentId: string;
+  taskId: string;
+  status: KnowledgeDocumentStatus;
+}
