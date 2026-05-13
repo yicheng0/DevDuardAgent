@@ -30,7 +30,7 @@ export const useUIStore = create<UIStore>()(
       isAIOpsOpen: false,
       isConfigOpen: false,
       chatMode: 'stream',
-      activeNav: 'alerts',
+      activeNav: 'overview',
       blurIntensity: 'medium',
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
