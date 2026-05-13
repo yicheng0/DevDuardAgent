@@ -45,24 +45,25 @@ func (s *Service) Create(ctx context.Context, r *ghttp.Request) (*Client, error)
 		messageChan: make(chan string, 100),
 	}
 	// 发送连接成功消息
-	r.Response.Writefln("id: %s", clientId)
-	r.Response.Writefln("event: connected")
-	r.Response.Writefln("data: {\"status\": \"connected\", \"client_id\": \"%s\"}\n", clientId)
+	r.Response.Writef("id: %s\n", clientId)
+	r.Response.WriteString("event: connected\n")
+	connectedPayload, _ := json.Marshal(map[string]string{
+		"status":    "connected",
+		"client_id": clientId,
+	})
+	r.Response.Writef("data: %s\n\n", string(connectedPayload))
 	r.Response.Flush()
 	return client, nil
 }
 
 // SendToClient 向指定客户端发送消息
 func (c *Client) SendToClient(eventType, data string) bool {
-	msg := fmt.Sprintf(
-		"id: %d\nevent: %s\ndata: %s\n\n",
-		time.Now().UnixNano(), eventType, data,
-	)
-	// 尝试发送消息，如果缓冲区满则跳过
-	c.Request.Response.Writefln(msg)
+	msg := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", time.Now().UnixNano(), eventType, data)
+	c.Request.Response.WriteString(msg)
 	c.Request.Response.Flush()
 	return true
 }
+
 func (c *Client) SendJSON(eventType string, payload any) bool {
 	b, err := json.Marshal(payload)
 	if err != nil {

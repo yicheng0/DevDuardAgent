@@ -12,7 +12,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const { isSidebarOpen, isSidebarCollapsed } = useUIStore();
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-slate-100 text-slate-950">
+    <div className="app-bg relative h-screen w-screen overflow-hidden text-slate-950">
       <div
         className={`fixed left-0 top-0 z-30 h-full transition-transform duration-200 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'

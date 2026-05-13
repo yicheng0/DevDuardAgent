@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/cloudwego/eino/compose"
-	"github.com/cloudwego/eino/schema"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -57,8 +56,8 @@ func (c *ControllerV1) ChatStream(ctx context.Context, req *v1.ChatStreamReq) (r
 	defer func() {
 		completeResponse := fullResponse.String()
 		if completeResponse != "" {
-			mem.GetSimpleMemory(id).SetMessages(schema.UserMessage(msg))
-			mem.GetSimpleMemory(id).SetMessages(schema.SystemMessage(completeResponse))
+			mem.GetSimpleMemory(id).SetUserMessage(msg)
+			mem.GetSimpleMemory(id).SetAssistantMessage(completeResponse)
 		}
 	}()
 

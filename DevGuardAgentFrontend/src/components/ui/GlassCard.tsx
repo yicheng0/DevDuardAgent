@@ -16,8 +16,8 @@ const blurClasses = {
 };
 
 const variantClasses = {
-  default: 'border-slate-200 bg-white',
-  elevated: 'border-slate-200 bg-white shadow-sm',
+  default: 'border-[#ead7b7] bg-[#fffdf8]',
+  elevated: 'border-[#ead7b7] bg-[#fffdf8] shadow-sm',
   glow: 'border-[#ead1c5] bg-[#f7ebe5]',
 };
 

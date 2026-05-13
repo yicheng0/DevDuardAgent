@@ -208,7 +208,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
     target: ConfigTestTarget,
     badge: string
   ) => (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="app-surface rounded-lg border p-4 shadow-sm">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -262,8 +262,8 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
   );
 
   return (
-    <div className={`flex min-h-0 flex-col overflow-hidden ${isDialog ? 'h-full' : 'h-full rounded-lg border border-slate-200 bg-slate-50 shadow-sm'}`}>
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4">
+    <div className={`flex min-h-0 flex-col overflow-hidden ${isDialog ? 'h-full' : 'app-surface h-full rounded-lg border shadow-sm'}`}>
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#ead7b7] bg-[#fffdf8] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#9a563f] text-white">
             <Settings className="h-5 w-5" />
@@ -287,7 +287,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
 
       {!hasToken ? (
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
-          <div className="mx-auto max-w-md rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="app-surface mx-auto max-w-md rounded-lg border p-5 shadow-sm">
             <div className="mb-4 flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
                 <KeyRound className="h-5 w-5" />
@@ -336,7 +336,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                     </div>
                   )}
                   {modelGroups.map((group) => renderModelGroup(group.title, group.description, group.key, group.target, group.badge))}
-                  <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                  <section className="app-surface rounded-lg border p-4 shadow-sm">
                     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <h3 className="text-sm font-semibold text-slate-950">运维与存储</h3>
@@ -386,7 +386,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                 </div>
 
                 <aside className="space-y-4">
-                  <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                  <section className="app-surface rounded-lg border p-4 shadow-sm">
                     <h3 className="text-sm font-semibold text-slate-950">当前配置范围</h3>
                     <div className="mt-4 space-y-3 text-sm">
                       <div className="flex items-center gap-3 text-slate-600">
@@ -428,7 +428,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
               </div>
             )}
           </div>
-          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4">
+          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#ead7b7] bg-[#fffdf8] px-5 py-4">
             <button
               type="button"
               onClick={() => {

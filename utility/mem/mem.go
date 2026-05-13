@@ -38,19 +38,23 @@ func (c *SimpleMemory) SetMessages(msg *schema.Message) {
 	defer c.mu.Unlock()
 	c.Messages = append(c.Messages, msg)
 	if len(c.Messages) > c.MaxWindowSize {
-		// 确保成对丢弃消息，保持对话配对关系
-		// 计算需要丢弃的消息数量（必须是偶数）
+		// 只保留最近窗口，避免历史无限增长
 		excess := len(c.Messages) - c.MaxWindowSize
-		if excess%2 != 0 {
-			excess++ // 确保丢弃偶数条消息
-		}
-		// 丢弃前面的消息，保持对话配对
 		c.Messages = c.Messages[excess:]
 	}
 }
+
+func (c *SimpleMemory) SetUserMessage(content string) {
+	c.SetMessages(schema.UserMessage(content))
+}
+
+func (c *SimpleMemory) SetAssistantMessage(content string) {
+	c.SetMessages(schema.AssistantMessage(content, nil))
+}
+
 func (c *SimpleMemory) GetMessages() []*schema.Message {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	return c.Messages
+	return append([]*schema.Message(nil), c.Messages...)
 }

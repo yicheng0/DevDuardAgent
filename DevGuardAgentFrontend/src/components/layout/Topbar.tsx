@@ -23,7 +23,7 @@ const Topbar = () => {
                   : '系统设置';
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 shadow-sm">
+    <header className="app-surface flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4 shadow-sm">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"

@@ -1,12 +1,10 @@
 package tools
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
+	"strings"
 
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
@@ -25,41 +23,42 @@ func NewMysqlCrudTool() tool.InvokableTool {
 		"mysql_crud",
 		"Execute SQL queries against the MySQL database and return results in JSON format. Use this tool when you need to query, insert, update or delete data from the database. The results will be formatted as JSON for easy parsing.",
 		func(ctx context.Context, input *MysqlCrudInput, opts ...tool.Option) (output string, err error) {
+			if input == nil {
+				return "", fmt.Errorf("mysql tool input is empty")
+			}
+			if input.SQL == "" {
+				return "", fmt.Errorf("sql is required")
+			}
+			operateType := strings.ToLower(strings.TrimSpace(input.OperateType))
+			if operateType == "" {
+				operateType = "query"
+			}
 			// 1. 建立数据库连接
 			db, err := gorm.Open(mysql.Open(input.DSN), &gorm.Config{})
 			if err != nil {
-				log.Fatal(err)
-			}
-
-			scanner := bufio.NewScanner(os.Stdin)
-			fmt.Print("\n请确定是否执行本sql(y/n): ", input.SQL)
-			scanner.Scan()
-			fmt.Println()
-			nInput := scanner.Text()
-			if nInput != "y" {
-				return "用户取消执行sql", nil
+				return "", fmt.Errorf("open mysql failed: %w", err)
 			}
 
 			// 2. 执行 SQL 查询
-			err = db.Exec(input.SQL).Error
-			if err != nil {
-				log.Fatal(err)
-			}
-			if input.OperateType == "query" {
+			if operateType == "query" {
 				// 3. 获取查询结果
 				var results []interface{}
 				err = db.Raw(input.SQL).Scan(&results).Error
 				if err != nil {
-					log.Fatal(err)
+					return "", fmt.Errorf("query mysql failed: %w", err)
 				}
 				// 4. 将结果格式化为 JSON
 				resBytes, err := json.Marshal(results)
 				return string(resBytes), err
 			}
+			err = db.Exec(input.SQL).Error
+			if err != nil {
+				return "", fmt.Errorf("exec mysql failed: %w", err)
+			}
 			return "", nil
 		})
 	if err != nil {
-		log.Fatal(err)
+		return nil
 	}
 	return t
 }

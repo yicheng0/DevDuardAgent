@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/cloudwego/eino/compose"
-	"github.com/cloudwego/eino/schema"
 )
 
 func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatRes, err error) {
@@ -48,8 +47,8 @@ func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatR
 	res = &v1.ChatRes{
 		Answer: out.Content,
 	}
-	mem.GetSimpleMemory(id).SetMessages(schema.UserMessage(msg))
-	mem.GetSimpleMemory(id).SetMessages(schema.SystemMessage(out.Content))
+	mem.GetSimpleMemory(id).SetUserMessage(msg)
+	mem.GetSimpleMemory(id).SetAssistantMessage(out.Content)
 
 	return res, nil
 }

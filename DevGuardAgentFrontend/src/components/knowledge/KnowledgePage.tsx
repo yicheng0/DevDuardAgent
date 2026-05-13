@@ -227,10 +227,10 @@ const KnowledgePage = () => {
       : '当前无运行任务';
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-3 xl:overflow-hidden">
+    <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:overflow-hidden">
       <div className="grid h-full min-h-[760px] gap-3 xl:grid-cols-[minmax(620px,1fr)_320px]">
-        <main className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <header className="shrink-0 border-b border-slate-200 px-5 py-4">
+        <main className="app-surface flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm">
+          <header className="shrink-0 border-b border-[#ead7b7] px-5 py-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="mb-2 inline-flex items-center gap-2 rounded-md border border-[#ead1c5] bg-[#fbf7f4] px-2.5 py-1 text-xs font-semibold text-[#7f432f]">
@@ -272,7 +272,7 @@ const KnowledgePage = () => {
             </div>
           </header>
 
-          <section className="grid shrink-0 gap-3 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-4">
+          <section className="grid shrink-0 gap-3 border-b border-[#ead7b7] bg-[#fff6e8] p-4 sm:grid-cols-4">
             <StatCard label="可检索文档" value={stats.ready} tone="emerald" />
             <StatCard label="索引中" value={stats.indexing} tone="amber" />
             <StatCard label="异常文档" value={stats.failed} tone="red" />
@@ -306,7 +306,7 @@ const KnowledgePage = () => {
               <EmptyState onUpload={() => fileInputRef.current?.click()} isUploading={isUploading} />
             ) : (
               <div className="overflow-hidden rounded-lg border border-slate-200">
-                <div className="hidden grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500 lg:grid">
+                <div className="hidden grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] gap-3 border-b border-slate-200 bg-[#fff6e8] px-4 py-3 text-xs font-semibold text-slate-500 lg:grid">
                   <span>文档</span>
                   <span>大小</span>
                   <span>状态</span>
@@ -332,8 +332,8 @@ const KnowledgePage = () => {
           </div>
         </main>
 
-        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:min-h-0">
-          <div className="border-b border-slate-200 px-4 py-4">
+        <aside className="app-surface flex min-h-[520px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
+          <div className="border-b border-[#ead7b7] px-4 py-4">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
               <SearchCheck className="h-4 w-4 text-[#9a563f]" />
               运行状态
@@ -341,7 +341,7 @@ const KnowledgePage = () => {
             <p className="mt-1 text-xs leading-5 text-slate-500">索引任务会自动轮询刷新，完成后停止。</p>
           </div>
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
-            <section className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <section className="app-surface-muted rounded-lg border p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
                 {hasActiveTasks ? <Loader2 className="h-4 w-4 animate-spin text-amber-600" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
                 {hasActiveTasks ? '任务执行中' : '任务空闲'}
@@ -349,7 +349,7 @@ const KnowledgePage = () => {
               <p className="mt-2 break-all text-xs leading-5 text-slate-600">{activeTaskLabel}</p>
             </section>
 
-            <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <section className="app-surface rounded-lg border p-4">
               <h3 className="text-sm font-semibold text-slate-950">上传规则</h3>
               <div className="mt-3 space-y-2 text-sm text-slate-600">
                 <RuleItem icon={FileText} text="支持 TXT、MD、Markdown 文件" />

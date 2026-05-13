@@ -277,9 +277,9 @@ const MetricsHealthPage = () => {
   const latestTrend = aggregateTrend[aggregateTrend.length - 1];
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-3 xl:grid xl:grid-cols-[minmax(680px,1fr)_340px] xl:gap-3 xl:overflow-hidden">
-      <main className="mb-3 flex min-h-[760px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:mb-0 xl:min-h-0">
-        <div className="border-b border-slate-200 bg-white p-4">
+    <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:grid xl:grid-cols-[minmax(680px,1fr)_340px] xl:gap-3 xl:overflow-hidden">
+      <main className="app-surface mb-3 flex min-h-[760px] flex-col overflow-hidden rounded-lg border shadow-sm xl:mb-0 xl:min-h-0">
+        <div className="border-b border-[#ead7b7] bg-[#fffdf8] p-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <h1 className="flex items-center gap-2 text-base font-semibold text-slate-950">
@@ -304,14 +304,14 @@ const MetricsHealthPage = () => {
                   </option>
                 ))}
               </select>
-              <div className="grid grid-cols-4 overflow-hidden rounded-md border border-slate-200 bg-slate-50">
+              <div className="grid grid-cols-4 overflow-hidden rounded-md border border-[#ead7b7] bg-[#fff6e8]">
                 {(['15m', '1h', '6h', '24h'] as TimeRange[]).map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => setTimeRange(item)}
                     className={`h-10 px-3 text-xs font-semibold transition-colors ${
-                      timeRange === item ? 'bg-[#f7ebe5] text-[#7f432f]' : 'text-slate-500 hover:bg-white'
+                      timeRange === item ? 'bg-[#f7ebe5] text-[#7f432f]' : 'text-slate-500 hover:bg-[#fffdf8]'
                     }`}
                   >
                     {item}
@@ -331,7 +331,7 @@ const MetricsHealthPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-3 border-b border-slate-200 bg-slate-50 p-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-3 border-b border-[#ead7b7] bg-[#fff6e8] p-4 md:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-lg border border-slate-200 bg-white p-3">
             <p className="text-xs font-semibold text-slate-500">健康服务</p>
             <p className="mt-1 text-2xl font-semibold text-slate-950">{summary.healthyServices}/{summary.totalServices}</p>
@@ -476,8 +476,8 @@ const MetricsHealthPage = () => {
         </div>
       </main>
 
-      <aside className="flex min-h-[620px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:min-h-0">
-        <div className="border-b border-slate-200 px-4 py-3">
+      <aside className="app-surface flex min-h-[620px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
+        <div className="border-b border-[#ead7b7] px-4 py-3">
           <h2 className="text-sm font-semibold text-slate-950">健康上下文</h2>
           <p className="mt-0.5 text-xs text-slate-500">风险服务、资源压力与最近异常</p>
         </div>

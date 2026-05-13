@@ -3,9 +3,9 @@ import SettingsPage from '@/components/config/SettingsPage';
 import OpsWorkbench from '@/components/ops/OpsWorkbench';
 import ChatContainer from '@/components/chat/ChatContainer';
 import LogsAnalysisPage from '@/components/logs/LogsAnalysisPage';
-import { TraceTimeline } from '@/components/aiops/TraceTimeline';
-import MetricsHealthPage from '@/components/metrics/MetricsHealthPage';
 import KnowledgePage from '@/components/knowledge/KnowledgePage';
+import MetricsHealthPage from '@/components/metrics/MetricsHealthPage';
+import { TraceTimeline } from '@/components/aiops/TraceTimeline';
 import { useChatStore } from '@/stores/chatStore';
 import { useAIOpsStore } from '@/stores/aiopsStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -97,10 +97,10 @@ const runtimeStats = [
 ];
 
 const OverviewPage = () => (
-  <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-3 xl:overflow-hidden">
+  <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:overflow-hidden">
     <div className="grid h-full min-h-[760px] gap-3 xl:grid-cols-[minmax(360px,0.82fr)_minmax(520px,1.18fr)]">
-      <section className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-5 py-5">
+      <section className="app-surface flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm">
+        <div className="border-b border-[#ead7b7] px-5 py-5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-[#ead1c5] bg-[#fbf7f4] px-2.5 py-1 text-xs font-semibold text-[#7f432f]">
@@ -114,8 +114,8 @@ const OverviewPage = () => (
                 这个项目把智能对话、知识库检索、告警分析和 Agent Trace 放在同一个运维控制台里，用于辅助定位故障、整理证据并生成处置建议。
               </p>
             </div>
-            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white sm:flex">
-              <Zap className="h-6 w-6 text-[#d9a08a]" />
+            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-[#ead1c5] bg-[#fff6e8] text-[#7f432f] sm:flex">
+              <Zap className="h-6 w-6 text-[#9a563f]" />
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ const OverviewPage = () => (
             {projectHighlights.map((item) => {
               const Icon = item.icon;
               return (
-                <article key={item.title} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <article key={item.title} className="app-surface rounded-lg border p-4 shadow-sm">
                   <div className="flex items-start gap-3">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#f7ebe5] text-[#7f432f]">
                       <Icon className="h-4 w-4" />
@@ -140,11 +140,11 @@ const OverviewPage = () => (
             })}
           </div>
 
-          <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <div className="app-surface-muted mt-5 rounded-lg border p-4">
             <h2 className="text-sm font-semibold text-slate-950">当前接入状态</h2>
             <div className="mt-3 grid gap-2">
               {runtimeStats.map((stat) => (
-                <div key={stat.label} className="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 ring-1 ring-slate-200">
+                <div key={stat.label} className="flex items-center justify-between gap-3 rounded-md bg-[#fffdf8] px-3 py-2 ring-1 ring-[#ead7b7]">
                   <span className="text-xs font-medium text-slate-500">{stat.label}</span>
                   <span className="truncate text-sm font-semibold text-slate-800">{stat.value}</span>
                 </div>
@@ -154,8 +154,8 @@ const OverviewPage = () => (
         </div>
       </section>
 
-      <section className="flex min-h-[620px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:min-h-0">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+      <section className="app-surface flex min-h-[620px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
+        <div className="flex items-center justify-between gap-3 border-b border-[#ead7b7] px-5 py-4">
           <div className="min-w-0">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
               <MessageSquareText className="h-4 w-4 text-[#9a563f]" />
@@ -183,8 +183,8 @@ const ModulePlaceholder = ({ activeNav }: { activeNav: Exclude<NavItemId, 'alert
   const Icon = view.icon;
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-4">
-      <section className="flex min-h-[calc(100vh-7rem)] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
+    <div className="app-bg h-full min-h-0 overflow-y-auto p-4">
+      <section className="app-surface flex min-h-[calc(100vh-7rem)] items-center justify-center rounded-lg border border-dashed px-6 py-12 text-center shadow-sm">
         <div className="max-w-xl">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-[#ead1c5] bg-[#fbf7f4] text-[#7f432f]">
             <Icon className="h-6 w-6" />
@@ -196,7 +196,7 @@ const ModulePlaceholder = ({ activeNav }: { activeNav: Exclude<NavItemId, 'alert
             {view.title}
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">{view.description}</p>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-[#ead7b7] bg-[#fff6e8] px-3 py-2 text-sm font-medium text-slate-600">
             <BarChart3 className="h-4 w-4 text-[#9a563f]" />
             告警队列仅在“告警处置”模块显示
           </div>
@@ -213,9 +213,9 @@ const AgentTracePage = () => {
   const tools = steps.filter((step) => step.toolName).length;
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-4">
+    <div className="app-bg h-full min-h-0 overflow-y-auto p-4">
       <section className="mx-auto flex max-w-6xl flex-col gap-4">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="app-surface rounded-lg border p-5 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="min-w-0">
               <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-[#ead1c5] bg-[#fbf7f4] px-2.5 py-1 text-xs font-semibold text-[#7f432f]">
@@ -230,15 +230,15 @@ const AgentTracePage = () => {
               </p>
             </div>
             <div className="grid min-w-[260px] grid-cols-3 gap-2">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div className="app-surface-muted rounded-lg border p-3">
                 <p className="text-lg font-semibold text-slate-950">{completed}/{steps.length}</p>
                 <p className="text-xs text-slate-500">完成阶段</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div className="app-surface-muted rounded-lg border p-3">
                 <p className="text-lg font-semibold text-slate-950">{tools}</p>
                 <p className="text-xs text-slate-500">工具调用</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div className="app-surface-muted rounded-lg border p-3">
                 <p className="text-lg font-semibold text-slate-950">
                   {isRunning ? '运行中' : steps.length ? '已归档' : '等待中'}
                 </p>
@@ -248,17 +248,17 @@ const AgentTracePage = () => {
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-slate-950 p-4 shadow-sm">
+        <div className="agent-workbench rounded-lg border p-4 shadow-sm">
           {steps.length ? (
             <TraceTimeline steps={steps} />
           ) : (
             <div className="flex min-h-[360px] items-center justify-center text-center">
               <div className="max-w-md">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-[#d9a08a]/30 bg-[#9a563f]/15 text-[#f3c7b4]">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-[#d9a08a] bg-[#f7ebe5] text-[#7f432f]">
                   <Route className="h-6 w-6" />
                 </div>
-                <p className="text-base font-medium text-white">暂无 Trace</p>
-                <p className="mt-2 text-sm leading-6 text-slate-400">
+                <p className="text-base font-medium text-[#2f2119]">暂无 Trace</p>
+                <p className="mt-2 text-sm leading-6 text-[#6f5b4b]">
                   发送一条流式 Agent 请求后，这里会展示后端真实 callback 事件生成的链路。
                 </p>
               </div>
@@ -278,6 +278,7 @@ const AgentTracePage = () => {
     </div>
   );
 };
+
 const renderActiveView = (activeNav: NavItemId) => {
   if (activeNav === 'settings') {
     return <SettingsPage />;
@@ -295,16 +296,16 @@ const renderActiveView = (activeNav: NavItemId) => {
     return <LogsAnalysisPage />;
   }
 
-  if (activeNav === 'trace') {
-    return <AgentTracePage />;
-  }
-
   if (activeNav === 'metrics') {
     return <MetricsHealthPage />;
   }
 
   if (activeNav === 'knowledge') {
     return <KnowledgePage />;
+  }
+
+  if (activeNav === 'trace') {
+    return <AgentTracePage />;
   }
 
   return <ModulePlaceholder activeNav={activeNav} />;

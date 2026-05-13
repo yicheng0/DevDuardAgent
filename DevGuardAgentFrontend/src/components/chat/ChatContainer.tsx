@@ -7,7 +7,7 @@ interface ChatContainerProps {
 
 const ChatContainer = ({ compact = false }: ChatContainerProps) => {
   return (
-    <div className="flex h-full min-h-0 flex-col bg-white">
+    <div className="flex h-full min-h-0 flex-col bg-[#fffdf8]">
       <MessageList compact={compact} />
       <InputArea compact={compact} />
     </div>

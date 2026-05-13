@@ -182,9 +182,9 @@ const OpsWorkbench = () => {
   const agentStatus = isRunning ? '运行中' : result?.finalReport ? '已完成' : '待命';
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto p-3 xl:grid xl:grid-cols-[260px_minmax(520px,1fr)_320px] xl:gap-3 xl:overflow-hidden">
-      <section className="mb-3 min-h-[260px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:mb-0 xl:min-h-0">
-        <div className="border-b border-slate-200 px-4 py-3">
+    <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:grid xl:grid-cols-[260px_minmax(520px,1fr)_320px] xl:gap-3 xl:overflow-hidden">
+      <section className="app-surface mb-3 min-h-[260px] overflow-hidden rounded-lg border shadow-sm xl:mb-0 xl:min-h-0">
+        <div className="border-b border-[#ead7b7] px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-slate-950">生产事件队列</h2>
@@ -208,7 +208,7 @@ const OpsWorkbench = () => {
               className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors hover:border-[#d9a08a] hover:bg-[#f7ebe5]/70 focus:outline-none focus:ring-2 focus:ring-[#9a563f]/30 ${
                 selectedIncident.id === incident.id
                   ? 'border-[#d9a08a] bg-[#f7ebe5]'
-                  : 'border-slate-200 bg-white'
+                  : 'border-[#ead7b7] bg-[#fffdf8]'
               }`}
             >
               <div className="mb-2 flex items-start justify-between gap-2">
@@ -239,8 +239,8 @@ const OpsWorkbench = () => {
         </div>
       </section>
 
-      <main className="mb-3 flex min-h-[620px] flex-col overflow-hidden rounded-lg border border-slate-800 bg-slate-950 shadow-sm xl:mb-0 xl:min-h-0">
-        <div className="border-b border-slate-800 bg-slate-900 px-5 py-4">
+      <main className="agent-workbench mb-3 flex min-h-[620px] flex-col overflow-hidden rounded-lg border shadow-sm xl:mb-0 xl:min-h-0">
+        <div className="border-b border-[#ead7b7] bg-[#fff6e8] px-5 py-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -250,19 +250,19 @@ const OpsWorkbench = () => {
                   {statusLabel[selectedIncident.status]}
                 </span>
                 <RiskBadge level={selectedIncident.severity} />
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs font-semibold text-slate-300">
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-[#d9a08a] bg-[#fffdf8] px-2 py-1 text-xs font-semibold text-[#7f432f]">
                   {isRunning ? (
-                    <PlayCircle className="h-3.5 w-3.5 text-[#d9a08a]" />
+                    <PlayCircle className="h-3.5 w-3.5 text-[#9a563f]" />
                   ) : (
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                   )}
                   Agent {agentStatus}
                 </span>
               </div>
-              <h1 className="text-xl font-semibold tracking-tight text-white">
+              <h1 className="text-xl font-semibold tracking-tight text-[#2f2119]">
                 {selectedIncident.title}
               </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6f5b4b]">
                 {selectedIncident.summary}
               </p>
             </div>
@@ -278,41 +278,41 @@ const OpsWorkbench = () => {
           </div>
         </div>
 
-        <div className="grid gap-3 border-b border-slate-800 bg-slate-950/75 p-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
-            <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-400">
-              <Server className="h-4 w-4 text-[#d9a08a]" />
+        <div className="grid gap-3 border-b border-[#ead7b7] bg-[#fffaf0] p-4 sm:grid-cols-3">
+          <div className="rounded-lg border border-[#ead7b7] bg-[#fffdf8] p-3">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-[#6f5b4b]">
+              <Server className="h-4 w-4 text-[#9a563f]" />
               受影响服务
             </div>
-            <p className="truncate text-lg font-semibold text-white">{selectedIncident.service}</p>
-            <p className="mt-1 truncate text-xs text-slate-500">{selectedIncident.owner}</p>
+            <p className="truncate text-lg font-semibold text-[#2f2119]">{selectedIncident.service}</p>
+            <p className="mt-1 truncate text-xs text-[#8a7562]">{selectedIncident.owner}</p>
           </div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
-            <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-400">
-              <AlertTriangle className="h-4 w-4 text-orange-300" />
+          <div className="rounded-lg border border-[#ead7b7] bg-[#fffdf8] p-3">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-[#6f5b4b]">
+              <AlertTriangle className="h-4 w-4 text-orange-600" />
               影响范围
             </div>
-            <p className="truncate text-lg font-semibold text-white">{selectedIncident.affectedUsers}</p>
-            <p className="mt-1 text-xs text-slate-500">指标与日志估算</p>
+            <p className="truncate text-lg font-semibold text-[#2f2119]">{selectedIncident.affectedUsers}</p>
+            <p className="mt-1 text-xs text-[#8a7562]">指标与日志估算</p>
           </div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
-            <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-400">
-              <Clock3 className="h-4 w-4 text-slate-300" />
+          <div className="rounded-lg border border-[#ead7b7] bg-[#fffdf8] p-3">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-[#6f5b4b]">
+              <Clock3 className="h-4 w-4 text-[#9a563f]" />
               最近更新
             </div>
-            <p className="truncate text-lg font-semibold text-white">{selectedIncident.updatedAt}</p>
-            <p className="mt-1 text-xs text-slate-500">持续自动刷新</p>
+            <p className="truncate text-lg font-semibold text-[#2f2119]">{selectedIncident.updatedAt}</p>
+            <p className="mt-1 text-xs text-[#8a7562]">持续自动刷新</p>
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                <MessageSquareText className="h-4 w-4 text-[#d9a08a]" />
+              <h2 className="flex items-center gap-2 text-sm font-semibold text-[#2f2119]">
+                <MessageSquareText className="h-4 w-4 text-[#9a563f]" />
                 Agent 推理轨迹
               </h2>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-[#8a7562]">
                 展示任务理解、证据检索、运行态查询、风险研判和响应生成过程
               </p>
             </div>
@@ -321,11 +321,11 @@ const OpsWorkbench = () => {
           {result?.steps ? (
             <TraceTimeline steps={result.steps} />
           ) : (
-            <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center">
+            <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-dashed border-[#d9a08a] bg-[#fff6e8] p-8 text-center">
               <div className="max-w-md">
-                <Bot className="mx-auto h-10 w-10 text-[#d9a08a]" />
-                <p className="mt-4 text-base font-semibold text-white">选择告警并运行 Agent</p>
-                <p className="mt-2 text-sm leading-6 text-slate-400">
+                <Bot className="mx-auto h-10 w-10 text-[#9a563f]" />
+                <p className="mt-4 text-base font-semibold text-[#2f2119]">选择告警并运行 Agent</p>
+                <p className="mt-2 text-sm leading-6 text-[#6f5b4b]">
                   中间主舞台会同步展示推理链路，便于比赛演示时说明 Agent 如何调用工具、归因和生成处置建议。
                 </p>
               </div>
@@ -333,12 +333,12 @@ const OpsWorkbench = () => {
           )}
 
           {result?.finalReport && (
-            <div className="mt-4 rounded-lg border border-emerald-300/30 bg-emerald-300/10 p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-emerald-100">
+            <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-emerald-900">
                 <Database className="h-4 w-4" />
                 最终处置摘要
               </div>
-              <p className="whitespace-pre-wrap text-sm leading-6 text-emerald-50">
+              <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">
                 {result.finalReport}
               </p>
             </div>
@@ -346,8 +346,8 @@ const OpsWorkbench = () => {
         </div>
       </main>
 
-      <aside className="flex min-h-[640px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:min-h-0">
-        <div className="border-b border-slate-200 px-4 py-3">
+      <aside className="app-surface flex min-h-[640px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
+        <div className="border-b border-[#ead7b7] px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-slate-950">处置上下文</h2>
@@ -377,7 +377,7 @@ const OpsWorkbench = () => {
                 return (
                   <article
                     key={item.id}
-                    className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+                    className="app-surface rounded-lg border p-3 shadow-sm"
                   >
                     <div className="mb-2 flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-2">
@@ -406,9 +406,9 @@ const OpsWorkbench = () => {
             <h3 className="mb-3 text-sm font-semibold text-slate-950">推荐处置步骤</h3>
             <div className="space-y-3">
               {remediationSteps.map((step, index) => (
-                <article key={step.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <article key={step.id} className="app-surface-muted rounded-lg border p-3">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#fffdf8] text-xs font-semibold text-slate-700 ring-1 ring-[#ead7b7]">
                       {index + 1}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -421,7 +421,7 @@ const OpsWorkbench = () => {
                         >
                           {step.status}
                         </span>
-                        <span className="rounded-md bg-white px-1.5 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
+                        <span className="rounded-md bg-[#fffdf8] px-1.5 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-[#ead7b7]">
                           {step.risk} risk
                         </span>
                       </div>
@@ -441,8 +441,8 @@ const OpsWorkbench = () => {
           </section>
         </div>
 
-        <div className="flex h-[460px] min-h-[420px] shrink-0 flex-col border-t border-slate-200 bg-white xl:h-[46vh] xl:max-h-[560px]">
-          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
+        <div className="flex h-[460px] min-h-[420px] shrink-0 flex-col border-t border-[#ead7b7] bg-[#fffdf8] xl:h-[46vh] xl:max-h-[560px]">
+          <div className="flex items-center justify-between gap-3 border-b border-[#ead7b7] px-4 py-2.5">
             <div className="min-w-0">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
                 <MessageSquareText className="h-4 w-4 text-[#9a563f]" />

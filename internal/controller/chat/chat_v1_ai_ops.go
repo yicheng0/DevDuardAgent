@@ -5,24 +5,31 @@ import (
 	"SuperBizAgent/internal/ai/agent/plan_execute_replan"
 	"context"
 	"errors"
+	"fmt"
+	"time"
 )
 
 func (c *ControllerV1) AIOps(ctx context.Context, req *v1.AIOpsReq) (res *v1.AIOpsRes, err error) {
-	query := `
-"1. 你是一个智能的服务告警分析助手,首先调用工具query_prometheus_alerts获取所有活跃的告警。"
-"2. 分别根据告警的名称调用工具query_internal_docs，获取告警名对应的处理方案。"
-"3. 完全遵循内部文档的内容进行查询和分析,不允许使用文档外的任何信息。"
-"4. 涉及到时间的参数都需要先通过工具get_current_time获取当前时间,再结合工具的时间要求进行传参。"
-"5. 涉及到日志的查询,需要先通过日志工具获取相关日志信息，参数必须携带地域和日志主题。"
-"6. 分别将告警对应查询到的信息进行总结分析,最后生成告警运维分析报告，格式如下：
-告警分析报告
----
-# 告警处理详情
-## 活跃告警清单
-## 告警根因分析N(第N个告警)
-## 处理方案执行N(第N个告警)
-## 结论
-`
+	query := fmt.Sprintf(`
+你是一个智能的服务告警分析助手，请严格按以下顺序执行：
+1. 调用工具 query_prometheus_alerts 获取当前活跃告警。
+2. 对每个告警，调用 query_internal_docs 检索对应处理方案。
+3. 如果需要时间参数，先调用 get_current_time，再构造时间范围。
+4. 如果需要日志，先调用日志工具，必须携带地域和日志主题。
+5. 分析时只允许依据工具返回和内部文档，不允许引入外部知识。
+6. 最终输出结构化报告，必须包含：
+   - 告警摘要
+   - 活跃告警清单
+   - 根因分析
+   - 处理建议
+   - 结论
+
+输出要求：
+- 结果要可直接给运维人员执行
+- 每条结论都要给出证据来源
+- 若工具返回为空，明确写出原因和下一步建议
+当前时间：%s
+`, time.Now().Format("2006-01-02 15:04:05"))
 
 	resp, detail, err := plan_execute_replan.BuildPlanAgent(ctx, query)
 	if err != nil {

@@ -70,12 +70,12 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`flex h-full flex-col overflow-hidden border-r border-slate-200 bg-white shadow-sm transition-[width] duration-200 ${
+      className={`app-surface flex h-full flex-col overflow-hidden border-r shadow-sm transition-[width] duration-200 ${
         isSidebarCollapsed ? 'w-[72px]' : 'w-64'
       }`}
       aria-label="主导航"
     >
-      <div className={`border-b border-slate-200 py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
+      <div className={`border-b border-[#ead7b7] py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
         <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
           <BrandMark collapsed={isSidebarCollapsed} />
           {!isSidebarCollapsed && (
@@ -101,23 +101,27 @@ const Sidebar = () => {
               onClick={() => setActiveNav(item.id)}
               title={isSidebarCollapsed ? item.label : undefined}
               aria-label={item.label}
-              className={`group brand-focus-ring relative flex w-full cursor-pointer items-center overflow-hidden rounded-lg transition-colors ${
+              className={`sidebar-nav-item group brand-focus-ring relative flex w-full cursor-pointer items-center overflow-hidden rounded-lg border transition-all duration-200 ${
                 isSidebarCollapsed ? 'h-11 justify-center px-0 py-0' : 'min-h-11 gap-3 px-3 py-2.5 pl-4 text-left'
               } ${
                 isActive
-                  ? 'bg-[#fbf5f1] text-[#7f432f]'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
+                  ? 'sidebar-nav-active text-[#7f432f]'
+                  : 'border-transparent text-slate-600 hover:text-slate-950'
               }`}
             >
               <span
-                className={`absolute bottom-2 left-0 top-2 w-[3px] rounded-r-full transition-opacity ${
-                  isActive ? 'bg-[#9a563f] opacity-100' : 'opacity-0'
+                className={`absolute bottom-2 left-0 top-2 w-[3px] rounded-r-full transition-all duration-200 ${
+                  isActive ? 'bg-[#9a563f] opacity-100 shadow-[0_0_12px_rgba(154,86,63,0.55)]' : 'opacity-0'
                 }`}
               />
               <span
-                className={`flex shrink-0 items-center justify-center transition-colors ${
+                className={`flex shrink-0 items-center justify-center rounded-md transition-all duration-200 ${
                   isSidebarCollapsed ? 'h-9 w-9' : 'h-6 w-6'
-                } ${isActive ? 'text-[#7f432f]' : 'text-slate-400 group-hover:text-slate-700'}`}
+                } ${
+                  isActive
+                    ? 'bg-white/45 text-[#7f432f] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]'
+                    : 'text-slate-400 group-hover:bg-white/35 group-hover:text-slate-700'
+                }`}
               >
                 <Icon className={isSidebarCollapsed ? 'h-[18px] w-[18px]' : 'h-[17px] w-[17px]'} />
               </span>
@@ -142,14 +146,14 @@ const Sidebar = () => {
                 </span>
               )}
               {!isSidebarCollapsed && isActive && (
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9a563f]" />
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9a563f] shadow-[0_0_10px_rgba(154,86,63,0.65)]" />
               )}
             </button>
           );
         })}
       </nav>
 
-      <div className={`border-t border-slate-200 ${isSidebarCollapsed ? 'p-2' : 'p-3'}`}>
+      <div className={`border-t border-[#ead7b7] ${isSidebarCollapsed ? 'p-2' : 'p-3'}`}>
         {isSidebarCollapsed ? (
           <div
             className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700"

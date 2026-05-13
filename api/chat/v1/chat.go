@@ -44,6 +44,7 @@ type AIOpsRes struct {
 	Result string   `json:"result"`
 	Detail []string `json:"detail"`
 }
+
 type LogAnalyzeReq struct {
 	g.Meta    `path:"/logs/analyze" method:"post" summary:"日志分析"`
 	Region    string `json:"region"`

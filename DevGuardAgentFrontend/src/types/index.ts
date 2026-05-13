@@ -85,6 +85,7 @@ export interface RemediationStep {
   requiresApproval?: boolean;
   command?: string;
 }
+
 export interface LogAnalyzeRequest {
   region: string;
   topicId: string;
@@ -153,6 +154,7 @@ export interface MetricHealthSummary {
   activeAlerts: number;
   worstBurnRate: number;
 }
+
 export interface ConfigSecret {
   hasValue: boolean;
   value: string;
@@ -186,6 +188,7 @@ export interface ConfigTestResult {
   ok: boolean;
   message: string;
 }
+
 export type KnowledgeDocumentStatus =
   | 'indexing'
   | 'ready'

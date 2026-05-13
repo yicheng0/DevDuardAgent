@@ -28,7 +28,7 @@ const phaseIcon = {
 };
 
 const statusClass = {
-  pending: 'border-slate-700 bg-slate-900 text-slate-400',
+  pending: 'border-[#dec39d] bg-[#fffaf0] text-[#8a7562]',
   running: 'border-[#d9a08a] bg-[#f7ebe5] text-[#7f432f] shadow-[0_0_0_4px_rgba(154,86,63,0.12)]',
   completed: 'border-emerald-300 bg-emerald-50 text-emerald-700',
   error: 'border-red-300 bg-red-50 text-red-700',
@@ -52,7 +52,7 @@ const getStatusIcon = (step: AIOpsStep) => {
 export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
   return (
     <div className="relative space-y-3">
-      <div className="absolute left-4 top-5 h-[calc(100%-40px)] w-px bg-slate-700" />
+      <div className="absolute left-4 top-5 h-[calc(100%-40px)] w-px bg-[#dec39d]" />
       {steps.map((step, index) => (
         <motion.div
           key={step.id}
@@ -71,19 +71,19 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
             className={`min-w-0 flex-1 rounded-lg border p-3 transition-colors ${
               step.status === 'running'
                 ? 'border-[#d9a08a] bg-[#f7ebe5]'
-                : 'border-slate-700 bg-slate-900/85'
+                : 'border-[#ead7b7] bg-[#fffdf8]'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className={`text-sm font-semibold ${step.status === 'running' ? 'text-[#3f2116]' : 'text-white'}`}>
+                  <h3 className={`text-sm font-semibold ${step.status === 'running' ? 'text-[#3f2116]' : 'text-[#2f2119]'}`}>
                     {step.title}
                   </h3>
                   <RiskBadge level={step.riskLevel} />
                 </div>
                 {step.description && (
-                  <p className={`mt-1 text-sm leading-5 ${step.status === 'running' ? 'text-[#6f3b2a]' : 'text-slate-300'}`}>
+                  <p className={`mt-1 text-sm leading-5 ${step.status === 'running' ? 'text-[#6f3b2a]' : 'text-[#6f5b4b]'}`}>
                     {step.description}
                   </p>
                 )}
@@ -93,7 +93,7 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
                   className={`rounded-md border px-2 py-1 text-xs ${
                     step.status === 'running'
                       ? 'border-[#d9a08a] bg-white/70 text-[#7f432f]'
-                      : 'border-slate-700 bg-slate-950 text-slate-400'
+                      : 'border-[#ead7b7] bg-[#fff6e8] text-[#8a7562]'
                   }`}
                 >
                   {(step.durationMs / 1000).toFixed(1)}s
@@ -106,7 +106,7 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
                 className={`mt-3 inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold ${
                   step.status === 'running'
                     ? 'border-[#d9a08a] bg-white/70 text-[#7f432f]'
-                    : 'border-[#d9a08a]/40 bg-[#9a563f]/15 text-[#f3c7b4]'
+                    : 'border-[#d9a08a] bg-[#f7ebe5] text-[#7f432f]'
                 }`}
               >
                 <FileSearch className="h-3.5 w-3.5" />
@@ -121,7 +121,7 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
                 className={`mt-3 rounded-md px-3 py-2 text-sm leading-5 ${
                   step.status === 'running'
                     ? 'bg-white/70 text-[#4f281b]'
-                    : 'bg-slate-950/80 text-slate-200'
+                    : 'bg-[#fff6e8] text-[#4f281b]'
                 }`}
               >
                 {step.result}

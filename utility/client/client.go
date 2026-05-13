@@ -5,14 +5,23 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gogf/gf/v2/frame/g"
 	cli "github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 )
 
 func NewMilvusClient(ctx context.Context) (cli.Client, error) {
+	address, err := g.Cfg().Get(ctx, "milvus.address")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read milvus address: %w", err)
+	}
+	milvusAddress := address.String()
+	if milvusAddress == "" {
+		milvusAddress = "localhost:19530"
+	}
 	// 1. 先连接default数据库
 	defaultClient, err := cli.NewClient(ctx, cli.Config{
-		Address: "localhost:19530",
+		Address: milvusAddress,
 		DBName:  "default",
 	})
 	if err != nil {
@@ -39,7 +48,7 @@ func NewMilvusClient(ctx context.Context) (cli.Client, error) {
 
 	// 3. 创建连接到agent数据库的客户端
 	agentClient, err := cli.NewClient(ctx, cli.Config{
-		Address: "localhost:19530",
+		Address: milvusAddress,
 		DBName:  common.MilvusDBName,
 	})
 	if err != nil {
@@ -114,7 +123,7 @@ var fields = []*entity.Field{
 		Name:     "id",
 		DataType: entity.FieldTypeVarChar,
 		TypeParams: map[string]string{
-			"max_length": "256",
+			"max_length": "255",
 		},
 		PrimaryKey: true,
 	},
