@@ -82,11 +82,7 @@ services:
       GF_GCFG_FILE: config.yaml
       TZ: Asia/Shanghai
     volumes:
-      - type: bind
-        source: ${DEVGUARD_CONFIG_FILE:-./manifest/config/config.docker.yaml}
-        target: /app/manifest/config/config.yaml
-        bind:
-          create_host_path: false
+      - ${DEVGUARD_CONFIG_FILE:-./manifest/config/config.docker.yaml}:/app/manifest/config/config.yaml
       - ${DEVGUARD_UPLOAD_DIR:-/data/devguard/uploads}:/app/data/uploads
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8000/api.json >/dev/null"]
