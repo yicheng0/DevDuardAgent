@@ -1,6 +1,15 @@
 .git
+.github
+.gitignore
 .env
 .env.*
+
+CLAUDE.md
+codex.md
+REFACTOR-REPORT.md
+UI.md
+docs
+hack
 
 manifest/config/config.yaml
 manifest/config/config.prod.yaml

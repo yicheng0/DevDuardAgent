@@ -38,6 +38,14 @@ Do not commit `.env` or `manifest/config/config.yaml`.
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
+If dependency downloads are slow, set build mirrors before starting:
+
+```bash
+export GOPROXY=https://goproxy.cn,direct
+export NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
 The public entry point is:
 
 ```text

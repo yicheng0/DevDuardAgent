@@ -72,6 +72,9 @@ services:
     build:
       context: .
       dockerfile: manifest/docker/Dockerfile.backend
+      args:
+        GOPROXY: ${GOPROXY:-https://proxy.golang.org,direct}
+        GOSUMDB: ${GOSUMDB:-sum.golang.org}
     image: devguard-agent-backend:prod
     container_name: devguard-backend
     restart: unless-stopped
@@ -98,6 +101,8 @@ services:
     build:
       context: .
       dockerfile: manifest/docker/Dockerfile.frontend
+      args:
+        NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-https://registry.npmjs.org/}
     image: devguard-agent-nginx:prod
     container_name: devguard-nginx
     restart: unless-stopped
