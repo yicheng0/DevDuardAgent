@@ -83,7 +83,7 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - type: bind
-        source: ${DEVGUARD_CONFIG_FILE:?set DEVGUARD_CONFIG_FILE in .env}
+        source: ${DEVGUARD_CONFIG_FILE:-./manifest/config/config.docker.yaml}
         target: /app/manifest/config/config.yaml
         bind:
           create_host_path: false

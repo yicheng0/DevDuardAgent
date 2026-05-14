@@ -1,0 +1,33 @@
+server:
+    address: :8000
+    openapiPath: /api.json
+    swaggerPath: /swagger
+logger:
+    level: all
+    stdout: true
+admin:
+    config_token: devguard-admin
+ds_think_chat_model:
+    api_key: ""
+    base_url: https://api.openai.com/v1
+    model: gpt-5.5
+ds_quick_chat_model:
+    api_key: ""
+    base_url: https://api.openai.com/v1
+    model: gpt-5.5
+doubao_embedding_model:
+    api_key: ""
+    base_url: https://api.openai.com/v1
+    model: text-embedding-3-large
+file_dir: data/uploads
+mcp_url: ""
+milvus:
+    address: localhost:19530
+knowledge:
+    retrieval_top_k: 5
+    max_upload_mb: 20
+    index_timeout_seconds: 600
+    allowed_extensions:
+        - .md
+        - .markdown
+        - .txt

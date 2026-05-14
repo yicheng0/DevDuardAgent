@@ -6,16 +6,24 @@ This is the fastest first-version deployment path for one Linux server.
 
 The production files are already present locally:
 
-- `.env`
+- `manifest/config/config.docker.yaml`
 - `manifest/config/config.yaml`
 
-Before exposing the service, check `.env`:
+`docker-compose.prod.yml` can start without a `.env` file. If `.env` is missing, it uses:
+
+```text
+manifest/config/config.docker.yaml
+```
+
+This default file contains no API keys. After the first start, open the frontend settings page and configure model, embedding, MCP, and Milvus settings.
+
+If you need to override deploy paths or public port, create `.env`:
 
 - Keep `HTTP_PORT=80` for temporary IP access.
 - Keep data directories under `/data/devguard` unless the server has a different disk layout.
-- `DEVGUARD_CONFIG_FILE` should stay `./manifest/config/config.yaml`.
+- `DEVGUARD_CONFIG_FILE` may point to `./manifest/config/config.yaml` or another local config file.
 
-Check `manifest/config/config.yaml`:
+Check the active config file:
 
 - Keep `file_dir: data/uploads`.
 - Keep `milvus.address: localhost:19530`.
