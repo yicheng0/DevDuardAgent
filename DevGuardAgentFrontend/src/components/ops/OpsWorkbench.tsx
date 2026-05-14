@@ -8,11 +8,14 @@ import {
   Database,
   FileSearch,
   Gauge,
+  GitBranch,
+  ListChecks,
   MessageSquareText,
   Radio,
   PlayCircle,
   Server,
   ShieldCheck,
+  Target,
   TerminalSquare,
 } from 'lucide-react';
 import { useAIOpsStore } from '@/stores/aiopsStore';
@@ -123,6 +126,176 @@ const remediationSteps: RemediationStep[] = [
   },
 ];
 
+interface IncidentContext {
+  hypothesis: string;
+  assessment: string;
+  nextAction: string;
+  evidence: EvidenceItem[];
+  remediation: RemediationStep[];
+}
+
+const incidentContexts: Record<string, IncidentContext> = {
+  'inc-2471': {
+    hypothesis: '14:05 发布批次扩大了数据库写入路径的连接占用，checkout-api 在支付确认链路触发连接池耗尽。',
+    assessment: '用户下单确认已受影响，应先降低错误率并保留发布窗口证据，再决定回滚或扩容。',
+    nextAction: '运行 Agent 汇总 Prometheus、Loki 和 trace 证据，优先执行低风险连接池止血方案。',
+    evidence: evidenceItems,
+    remediation: remediationSteps,
+  },
+  'inc-2468': {
+    hypothesis: 'order-worker 消费者重启后并发未恢复，重试任务放大队列积压，导致异步通知持续延迟。',
+    assessment: '业务链路未完全中断，但积压继续扩大时会影响发货通知和补偿任务时效。',
+    nextAction: '先确认消费者实例数、死信比例和重试策略，再分批扩容消费者并暂停高频重试。',
+    evidence: [
+      {
+        id: 'ev-worker-1',
+        type: 'metric',
+        source: 'Prometheus / order-worker',
+        content: 'queue depth 保持在 46k 附近，consumer lag 持续超过 18 分钟。',
+        confidence: 90,
+      },
+      {
+        id: 'ev-worker-2',
+        type: 'log',
+        source: 'Loki / worker logs',
+        content: '同一批订单任务重复进入 retry，部分消费者启动后未成功注册分片。',
+        confidence: 83,
+      },
+      {
+        id: 'ev-worker-3',
+        type: 'doc',
+        source: 'Runbook / queue backlog',
+        content: '历史手册建议先冻结重试风暴，再按分片扩容消费者避免重复消费。',
+        confidence: 78,
+      },
+    ],
+    remediation: [
+      {
+        id: 'step-worker-1',
+        title: '临时扩容 order-worker 消费者副本',
+        status: 'ready',
+        risk: 'medium',
+        requiresApproval: true,
+        command: 'kubectl scale deploy/order-worker --replicas=12',
+      },
+      {
+        id: 'step-worker-2',
+        title: '暂停高频失败任务的自动重试',
+        status: 'ready',
+        risk: 'medium',
+        requiresApproval: true,
+        command: 'queuectl retry pause --topic order-events --reason backlog',
+      },
+      {
+        id: 'step-worker-3',
+        title: '导出积压峰值和消费者恢复时间用于复盘',
+        status: 'ready',
+        risk: 'low',
+      },
+    ],
+  },
+  'inc-2461': {
+    hypothesis: '登录失败请求集中来自单一 ASN，疑似撞库或自动化探测，当前还未形成明确用户影响。',
+    assessment: '需要先区分误报、压测流量和攻击流量，避免直接封禁影响正常企业出口。',
+    nextAction: '拉取 WAF、登录失败样本和 ASN 维度分布，确认后再收紧策略或加入临时挑战。',
+    evidence: [
+      {
+        id: 'ev-auth-1',
+        type: 'metric',
+        source: 'Prometheus / auth-gateway',
+        content: '401 比例较基线增加 31%，成功登录率没有同步下跌。',
+        confidence: 86,
+      },
+      {
+        id: 'ev-auth-2',
+        type: 'log',
+        source: 'Loki / auth logs',
+        content: '失败请求集中在相近 UA 和 ASN，用户名枚举模式明显但来源 IP 分散。',
+        confidence: 82,
+      },
+      {
+        id: 'ev-auth-3',
+        type: 'trace',
+        source: 'WAF audit trail',
+        content: 'WAF 命中率偏低，现有规则未覆盖该类低频分散登录失败。',
+        confidence: 74,
+      },
+    ],
+    remediation: [
+      {
+        id: 'step-auth-1',
+        title: '对异常 ASN 启用登录挑战策略',
+        status: 'ready',
+        risk: 'medium',
+        requiresApproval: true,
+        command: 'wafctl challenge enable --asn suspicious --path /login',
+      },
+      {
+        id: 'step-auth-2',
+        title: '拉取失败登录样本并比对账号命中分布',
+        status: 'ready',
+        risk: 'low',
+      },
+      {
+        id: 'step-auth-3',
+        title: '直接封禁整个 ASN',
+        status: 'blocked',
+        risk: 'high',
+        requiresApproval: true,
+      },
+    ],
+  },
+  'inc-2457': {
+    hypothesis: '日志索引节点在峰值写入期间 CPU 升高，采集延迟随扩容后恢复。',
+    assessment: '当前服务已恢复，重点转为验证索引容量水位和补充复盘材料。',
+    nextAction: '归档恢复时间线，补充容量阈值和下次扩容触发条件。',
+    evidence: [
+      {
+        id: 'ev-log-1',
+        type: 'metric',
+        source: 'Prometheus / log-pipeline',
+        content: 'ingest lag 峰值约 7 分钟，扩容后回落到 1 分钟以内。',
+        confidence: 88,
+      },
+      {
+        id: 'ev-log-2',
+        type: 'log',
+        source: 'Indexer logs',
+        content: '索引节点在峰值期间出现写入排队，未发现数据丢弃记录。',
+        confidence: 81,
+      },
+      {
+        id: 'ev-log-3',
+        type: 'doc',
+        source: 'Postmortem draft',
+        content: '上次复盘建议将 index CPU 75% 作为提前扩容观察阈值。',
+        confidence: 76,
+      },
+    ],
+    remediation: [
+      {
+        id: 'step-log-1',
+        title: '确认日志采集延迟已持续回落',
+        status: 'done',
+        risk: 'low',
+      },
+      {
+        id: 'step-log-2',
+        title: '补充 index CPU 容量预警阈值',
+        status: 'ready',
+        risk: 'low',
+        command: 'alertctl set log-indexer-cpu --threshold 75',
+      },
+      {
+        id: 'step-log-3',
+        title: '生成日志采集延迟复盘摘要',
+        status: 'ready',
+        risk: 'low',
+      },
+    ],
+  },
+};
+
 const severityStyle = {
   low: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   medium: 'border-sky-200 bg-sky-50 text-sky-700',
@@ -175,6 +348,8 @@ const OpsWorkbench = () => {
     () => incidents.find((incident) => incident.id === selectedIncidentId) || incidents[0],
     [selectedIncidentId]
   );
+
+  const selectedContext = incidentContexts[selectedIncident.id] || incidentContexts[incidents[0].id];
 
   const incidentsByStatus = useMemo(
     () =>
@@ -337,6 +512,44 @@ const OpsWorkbench = () => {
           </div>
         </div>
 
+        <div className="grid gap-3 border-b border-[#ead7b7] bg-[#fffdf8] p-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.55fr)]">
+          <div className="rounded-lg border border-[#ead7b7] bg-[#fffaf0] p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#2f2119]">
+              <GitBranch className="h-4 w-4 text-[#9a563f]" />
+              根因假设
+            </div>
+            <p className="text-sm leading-6 text-[#5f4a3a]">{selectedContext.hypothesis}</p>
+            <div className="mt-3 rounded-md bg-[#fffdf8] px-3 py-2 text-sm leading-6 text-[#6f5b4b] ring-1 ring-[#ead7b7]">
+              {selectedContext.assessment}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-[#ead7b7] bg-[#fffaf0] p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#2f2119]">
+              <Target className="h-4 w-4 text-[#9a563f]" />
+              下一步
+            </div>
+            <p className="text-sm leading-6 text-[#5f4a3a]">{selectedContext.nextAction}</p>
+          </div>
+        </div>
+
+        <div className="border-b border-[#ead7b7] bg-[#fffaf0] px-4 py-3">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#6f5b4b]">
+            <ListChecks className="h-4 w-4 text-[#9a563f]" />
+            核心信号
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selectedIncident.signals.map((signal) => (
+              <span
+                key={signal}
+                className="rounded-md border border-[#ead7b7] bg-[#fffdf8] px-2.5 py-1.5 text-xs font-semibold text-[#5f4a3a]"
+              >
+                {signal}
+              </span>
+            ))}
+          </div>
+        </div>
+
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
@@ -404,7 +617,7 @@ const OpsWorkbench = () => {
               </button>
             </div>
             <div className="space-y-3">
-              {evidenceItems.map((item) => {
+              {selectedContext.evidence.map((item) => {
                 const Icon = evidenceIcon[item.type];
                 return (
                   <article
@@ -437,7 +650,7 @@ const OpsWorkbench = () => {
           <section className="mt-5">
             <h3 className="mb-3 text-sm font-semibold text-slate-950">推荐处置步骤</h3>
             <div className="space-y-3">
-              {remediationSteps.map((step, index) => (
+              {selectedContext.remediation.map((step, index) => (
                 <article key={step.id} className="app-surface-muted rounded-lg border p-3">
                   <div className="flex items-start gap-3">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#fffdf8] text-xs font-semibold text-slate-700 ring-1 ring-[#ead7b7]">
