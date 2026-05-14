@@ -18,3 +18,8 @@ temp.yaml
 bin
 
 manifest/docker/volumes
+data/uploads
+.env
+.env.local
+manifest/config/config.yaml
+manifest/config/config.prod.yaml

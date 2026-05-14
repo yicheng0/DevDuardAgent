@@ -1,0 +1,32 @@
+FROM golang:1.24-alpine AS build
+
+WORKDIR /src
+
+RUN apk add --no-cache ca-certificates git
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY main.go ./
+COPY api ./api
+COPY internal ./internal
+COPY utility ./utility
+
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/devguard-agent ./main.go
+
+FROM alpine:3.20
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates tzdata wget grep \
+    && mkdir -p /app/manifest/config /app/data/uploads
+
+COPY --from=build /out/devguard-agent /app/devguard-agent
+
+ENV PORT=8000
+ENV GF_GCFG_PATH=/app/manifest/config
+ENV GF_GCFG_FILE=config.yaml
+
+EXPOSE 8000
+
+CMD ["/app/devguard-agent"]

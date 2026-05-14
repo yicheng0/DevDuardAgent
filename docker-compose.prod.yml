@@ -1,0 +1,118 @@
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    container_name: devguard-etcd
+    restart: unless-stopped
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: "1000"
+      ETCD_QUOTA_BACKEND_BYTES: "4294967296"
+      ETCD_SNAPSHOT_COUNT: "50000"
+    volumes:
+      - ${DEVGUARD_ETCD_DIR:-/data/devguard/etcd}:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    container_name: devguard-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    expose:
+      - "9000"
+      - "9001"
+    volumes:
+      - ${DEVGUARD_MINIO_DIR:-/data/devguard/minio}:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  standalone:
+    image: milvusdb/milvus:v2.5.10
+    container_name: devguard-milvus
+    restart: unless-stopped
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    expose:
+      - "19530"
+      - "9091"
+    ports:
+      - "127.0.0.1:19530:19530"
+      - "127.0.0.1:9091:9091"
+    volumes:
+      - ${DEVGUARD_MILVUS_DIR:-/data/devguard/milvus}:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: manifest/docker/Dockerfile.backend
+    image: devguard-agent-backend:prod
+    container_name: devguard-backend
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      PORT: "8000"
+      GF_GCFG_PATH: /app/manifest/config
+      GF_GCFG_FILE: config.yaml
+      TZ: Asia/Shanghai
+    volumes:
+      - type: bind
+        source: ${DEVGUARD_CONFIG_FILE:?set DEVGUARD_CONFIG_FILE in .env}
+        target: /app/manifest/config/config.yaml
+        bind:
+          create_host_path: false
+      - ${DEVGUARD_UPLOAD_DIR:-/data/devguard/uploads}:/app/data/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8000/api.json >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      standalone:
+        condition: service_healthy
+
+  nginx:
+    build:
+      context: .
+      dockerfile: manifest/docker/Dockerfile.frontend
+    image: devguard-agent-nginx:prod
+    container_name: devguard-nginx
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+networks:
+  default:
+    name: devguard-prod
