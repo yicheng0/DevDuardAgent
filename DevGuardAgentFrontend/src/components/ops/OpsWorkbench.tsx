@@ -138,11 +138,18 @@ const statusLabel = {
 };
 
 const statusStyle = {
-  open: 'bg-slate-100 text-slate-700',
+  open: 'bg-[#fff6e8] text-[#6f5b4b]',
   investigating: 'bg-[#f7ebe5] text-[#7f432f]',
   mitigating: 'bg-orange-100 text-orange-700',
   resolved: 'bg-emerald-100 text-emerald-700',
 };
+
+const statusLaneOrder: IncidentItem['status'][] = [
+  'open',
+  'investigating',
+  'mitigating',
+  'resolved',
+];
 
 const stepStatusStyle = {
   ready: 'bg-[#f7ebe5] text-[#7f432f]',
@@ -169,6 +176,15 @@ const OpsWorkbench = () => {
     [selectedIncidentId]
   );
 
+  const incidentsByStatus = useMemo(
+    () =>
+      statusLaneOrder.map((status) => ({
+        status,
+        items: incidents.filter((incident) => incident.status === status),
+      })),
+    []
+  );
+
   const handleRunAgent = () => {
     const prompt = `分析告警：${selectedIncident.title}`;
     if (!currentSessionId) {
@@ -187,8 +203,8 @@ const OpsWorkbench = () => {
         <div className="border-b border-[#ead7b7] px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-950">生产事件队列</h2>
-              <p className="mt-0.5 text-xs text-slate-500">按影响面排序</p>
+              <h2 className="text-sm font-semibold text-slate-950">生产事件看板</h2>
+              <p className="mt-0.5 text-xs text-slate-500">按处置状态分组</p>
             </div>
             <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-700">
               {incidents.filter((incident) => incident.status !== 'resolved').length} open
@@ -196,45 +212,61 @@ const OpsWorkbench = () => {
           </div>
         </div>
 
-        <div className="h-[calc(100%-61px)] space-y-2 overflow-y-auto p-3">
-          {incidents.map((incident) => (
-            <button
-              key={incident.id}
-              type="button"
-              onClick={() => {
-                setSelectedIncidentId(incident.id);
-                setActiveNav('alerts');
-              }}
-              className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors hover:border-[#d9a08a] hover:bg-[#f7ebe5]/70 focus:outline-none focus:ring-2 focus:ring-[#9a563f]/30 ${
-                selectedIncident.id === incident.id
-                  ? 'border-[#d9a08a] bg-[#f7ebe5]'
-                  : 'border-[#ead7b7] bg-[#fffdf8]'
-              }`}
-            >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <span className="text-sm font-semibold leading-5 text-slate-950">
-                  {incident.title}
-                </span>
-                <span
-                  className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${severityStyle[incident.severity]}`}
-                >
-                  {incident.severity}
+        <div className="h-[calc(100%-61px)] space-y-3 overflow-y-auto p-3">
+          {incidentsByStatus.map(({ status, items }) => (
+            <section key={status} className="rounded-lg border border-[#ead7b7] bg-[#fffaf0] p-2.5">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold text-[#2f2119]">{statusLabel[status]}</h3>
+                <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${statusStyle[status]}`}>
+                  {items.length}
                 </span>
               </div>
-              <div className="mt-3 flex items-center justify-between gap-2 text-xs text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <Server className="h-3.5 w-3.5" />
-                  {incident.service}
-                </span>
-                <span className={`rounded px-1.5 py-0.5 ${statusStyle[incident.status]}`}>
-                  {statusLabel[incident.status]}
-                </span>
+
+              <div className="space-y-2">
+                {items.length ? (
+                  items.map((incident) => (
+                    <button
+                      key={incident.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedIncidentId(incident.id);
+                        setActiveNav('alerts');
+                      }}
+                      className={`w-full cursor-pointer rounded-lg border p-2.5 text-left transition-colors hover:border-[#d9a08a] hover:bg-[#f7ebe5]/70 focus:outline-none focus:ring-2 focus:ring-[#9a563f]/30 ${
+                        selectedIncident.id === incident.id
+                          ? 'border-[#d9a08a] bg-[#f7ebe5]'
+                          : 'border-[#ead7b7] bg-[#fffdf8]'
+                      }`}
+                    >
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                        <span className="min-w-0 text-sm font-semibold leading-5 text-slate-950">
+                          {incident.title}
+                        </span>
+                        <span
+                          className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${severityStyle[incident.severity]}`}
+                        >
+                          {incident.severity}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          <Server className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">{incident.service}</span>
+                        </span>
+                        <span className="flex shrink-0 items-center gap-1.5">
+                          <Clock3 className="h-3.5 w-3.5" />
+                          {incident.updatedAt}
+                        </span>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="rounded-md border border-dashed border-[#ead7b7] bg-[#fffdf8] px-3 py-2 text-xs text-slate-400">
+                    暂无事件
+                  </div>
+                )}
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                <Clock3 className="h-3.5 w-3.5" />
-                {incident.updatedAt}
-              </div>
-            </button>
+            </section>
           ))}
         </div>
       </section>
@@ -391,7 +423,7 @@ const OpsWorkbench = () => {
                           <p className="text-xs uppercase text-slate-500">{item.type}</p>
                         </div>
                       </div>
-                      <span className="shrink-0 rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                      <span className="shrink-0 rounded-md bg-[#fff6e8] px-2 py-1 text-xs font-medium text-[#6f5b4b]">
                         {item.confidence}%
                       </span>
                     </div>
