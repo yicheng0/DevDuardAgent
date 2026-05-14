@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:22-alpine AS build
 
 WORKDIR /src
@@ -8,7 +10,8 @@ ENV npm_config_audit=false
 ENV npm_config_fund=false
 
 COPY DevGuardAgentFrontend/package*.json ./
-RUN npm ci --prefer-offline --no-audit --fund=false
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --fund=false
 
 COPY DevGuardAgentFrontend/ ./
 RUN npm run build

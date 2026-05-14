@@ -35,14 +35,25 @@ Do not commit `.env` or `manifest/config/config.yaml`.
 ## 2. Start
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --build
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+docker-compose -f docker-compose.prod.yml pull
+docker-compose -f docker-compose.prod.yml build --parallel backend nginx
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-If dependency downloads are slow, set build mirrors before starting:
+If your Docker Compose plugin is v2, `docker compose` also works:
 
 ```bash
-export GOPROXY=https://goproxy.cn,direct
-export NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
+export DOCKER_BUILDKIT=1
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml build --parallel backend nginx
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Fallback if the server does not support BuildKit cache mounts:
+
+```bash
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
@@ -57,7 +68,7 @@ Only ports `80` and SSH need to be open to the public internet.
 ## 3. Verify
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
+docker-compose -f docker-compose.prod.yml ps
 curl -i http://127.0.0.1/
 curl -i http://127.0.0.1/api/config/runtime
 ```
