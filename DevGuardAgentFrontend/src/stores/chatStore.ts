@@ -14,7 +14,8 @@ interface ChatStore {
   switchSession: (id: string) => void;
   addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
   updateStreamingMessage: (content: string) => void;
-  setStreaming: (isStreaming: boolean) => void;
+  setStreaming: (isStreaming: boolean, metadata?: Pick<Message, 'taskId' | 'traceId' | 'important'>) => void;
+  updateMessageImportant: (taskId: string, important: boolean) => void;
   restoreSessionFromTask: (task: AgentTask) => void;
   clearMessages: () => void;
   getCurrentSession: () => ChatSession | null;
@@ -93,16 +94,28 @@ export const useChatStore = create<ChatStore>()(
         set({ streamingContent: content });
       },
 
-      setStreaming: (isStreaming: boolean) => {
+      setStreaming: (isStreaming: boolean, metadata = {}) => {
         set({ isStreaming });
         if (!isStreaming && get().streamingContent) {
           // Finalize streaming message
           get().addMessage({
             role: 'assistant',
             content: get().streamingContent,
+            ...metadata,
           });
           set({ streamingContent: '' });
         }
+      },
+
+      updateMessageImportant: (taskId: string, important: boolean) => {
+        set((state) => ({
+          sessions: state.sessions.map((session) => ({
+            ...session,
+            messages: session.messages.map((message) =>
+              message.taskId === taskId ? { ...message, important } : message
+            ),
+          })),
+        }));
       },
 
       restoreSessionFromTask: (task) => {
@@ -129,6 +142,9 @@ export const useChatStore = create<ChatStore>()(
             role: 'assistant',
             content: task.answer,
             timestamp: assistantTime,
+            taskId: task.id,
+            traceId: task.traceId,
+            important: task.important,
           });
         }
 

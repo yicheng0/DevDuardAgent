@@ -11,7 +11,9 @@ type ChatReq struct {
 }
 
 type ChatRes struct {
-	Answer string `json:"answer"`
+	Answer  string `json:"answer"`
+	TaskID  string `json:"taskId"`
+	TraceID string `json:"traceId"`
 }
 
 type ChatStreamReq struct {
@@ -208,20 +210,23 @@ type AgentTaskStep struct {
 }
 
 type AgentTask struct {
-	ID         string          `json:"id"`
-	SessionID  string          `json:"sessionId"`
-	TraceID    string          `json:"traceId"`
-	Title      string          `json:"title"`
-	Question   string          `json:"question"`
-	Answer     string          `json:"answer,omitempty"`
-	Mode       string          `json:"mode"`
-	Status     string          `json:"status"`
-	Steps      []AgentTaskStep `json:"steps,omitempty"`
-	Error      string          `json:"error,omitempty"`
-	CreatedAt  string          `json:"createdAt"`
-	UpdatedAt  string          `json:"updatedAt"`
-	StartedAt  string          `json:"startedAt,omitempty"`
-	FinishedAt string          `json:"finishedAt,omitempty"`
+	ID          string          `json:"id"`
+	SessionID   string          `json:"sessionId"`
+	TraceID     string          `json:"traceId"`
+	Title       string          `json:"title"`
+	Question    string          `json:"question"`
+	Answer      string          `json:"answer,omitempty"`
+	Mode        string          `json:"mode"`
+	Status      string          `json:"status"`
+	Important   bool            `json:"important,omitempty"`
+	ImportantAt string          `json:"importantAt,omitempty"`
+	MemoryID    string          `json:"memoryId,omitempty"`
+	Steps       []AgentTaskStep `json:"steps,omitempty"`
+	Error       string          `json:"error,omitempty"`
+	CreatedAt   string          `json:"createdAt"`
+	UpdatedAt   string          `json:"updatedAt"`
+	StartedAt   string          `json:"startedAt,omitempty"`
+	FinishedAt  string          `json:"finishedAt,omitempty"`
 }
 
 type AgentTasksReq struct {
@@ -242,4 +247,32 @@ type AgentTaskDetailReq struct {
 
 type AgentTaskDetailRes struct {
 	Task AgentTask `json:"task"`
+}
+
+type AgentTaskDeleteReq struct {
+	g.Meta `path:"/tasks" method:"delete" summary:"删除Agent任务记录"`
+	ID     string `json:"id"`
+}
+
+type AgentTaskDeleteRes struct {
+	Task AgentTask `json:"task"`
+}
+
+type AgentTaskImportantReq struct {
+	g.Meta    `path:"/tasks/important" method:"post" summary:"标记Agent任务为重要记录"`
+	ID        string `json:"id"`
+	Important bool   `json:"important"`
+}
+
+type AgentTaskImportantRes struct {
+	Task AgentTask `json:"task"`
+}
+
+type ChatSessionDeleteReq struct {
+	g.Meta `path:"/chat/sessions" method:"delete" summary:"删除聊天会话记录"`
+	ID     string `json:"id"`
+}
+
+type ChatSessionDeleteRes struct {
+	DeletedTaskIDs []string `json:"deletedTaskIds"`
 }

@@ -4,6 +4,9 @@ export interface Message {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  taskId?: string;
+  traceId?: string;
+  important?: boolean;
 }
 
 export interface ChatSession {
@@ -247,6 +250,9 @@ export interface AgentTask {
   answer?: string;
   mode: AgentTaskMode;
   status: AgentTaskStatus;
+  important?: boolean;
+  importantAt?: string;
+  memoryId?: string;
   steps?: AIOpsStep[];
   error?: string;
   createdAt: string;

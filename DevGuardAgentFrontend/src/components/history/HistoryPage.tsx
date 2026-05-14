@@ -9,6 +9,8 @@ import {
   RefreshCw,
   Route,
   Search,
+  Star,
+  Trash2,
   XCircle,
 } from 'lucide-react';
 import { AgentTask, AgentTaskStatus, AIOpsStep } from '@/types';
@@ -91,8 +93,9 @@ const HistoryPage = () => {
   const [status, setStatus] = useState<StatusFilter>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [actionTaskId, setActionTaskId] = useState('');
   const [error, setError] = useState('');
-  const { sessions, switchSession, restoreSessionFromTask } = useChatStore();
+  const { sessions, switchSession, restoreSessionFromTask, updateMessageImportant } = useChatStore();
   const { setActiveNav } = useUIStore();
 
   const listSelectedTask = tasks.find((task) => task.id === selectedId) || tasks[0] || null;
@@ -194,6 +197,68 @@ const HistoryPage = () => {
       restoreSessionFromTask(task);
     }
     setActiveNav('overview');
+  };
+
+  const toggleImportant = async (task: AgentTask) => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 35000);
+    setActionTaskId(task.id);
+    setError('');
+    try {
+      const response = await fetch('/api/tasks/important', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: task.id, important: !task.important }),
+        signal: controller.signal,
+      });
+      const contentType = response.headers.get('content-type') || '';
+      const body = contentType.includes('application/json')
+        ? ((await response.json()) as ApiResponse<{ task: AgentTask }>)
+        : ({ message: await response.text(), data: undefined as unknown as { task: AgentTask } } as ApiResponse<{ task: AgentTask }>);
+      if (!response.ok || body.message !== 'OK') {
+        throw new Error(body.message || '标记重要失败');
+      }
+      const updatedTask = body.data.task;
+      setTasks((current) => current.map((item) => (item.id === updatedTask.id ? updatedTask : item)));
+      setSelectedTaskDetail(updatedTask);
+      updateMessageImportant(updatedTask.id, Boolean(updatedTask.important));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '标记重要失败');
+    } finally {
+      window.clearTimeout(timeout);
+      setActionTaskId('');
+    }
+  };
+
+  const deleteTask = async (task: AgentTask) => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 35000);
+    setActionTaskId(task.id);
+    setError('');
+    try {
+      const response = await fetch(`/api/tasks?id=${encodeURIComponent(task.id)}`, {
+        method: 'DELETE',
+        signal: controller.signal,
+      });
+      const contentType = response.headers.get('content-type') || '';
+      const body = contentType.includes('application/json')
+        ? ((await response.json()) as ApiResponse<{ task: AgentTask }>)
+        : ({ message: await response.text(), data: undefined as unknown as { task: AgentTask } } as ApiResponse<{ task: AgentTask }>);
+      if (!response.ok || body.message !== 'OK') {
+        throw new Error(body.message || '删除任务失败');
+      }
+      const nextTasks = tasks.filter((item) => item.id !== task.id);
+      setTasks(nextTasks);
+      const nextSelectedId = nextTasks[0]?.id || '';
+      setSelectedId(nextSelectedId);
+      setSelectedTaskDetail(null);
+      if (nextSelectedId) void loadTaskDetail(nextSelectedId, true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '删除任务失败');
+    } finally {
+      window.clearTimeout(timeout);
+      setActionTaskId('');
+    }
   };
 
   return (
@@ -367,6 +432,30 @@ const HistoryPage = () => {
                 >
                   <MessageSquareText className="h-4 w-4" />
                   打开会话
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleImportant(selectedTask)}
+                  disabled={actionTaskId === selectedTask.id}
+                  className={`brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:opacity-60 ${
+                    selectedTask.important ? 'border-amber-200 bg-amber-50 text-amber-700' : ''
+                  }`}
+                >
+                  {actionTaskId === selectedTask.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Star className={`h-4 w-4 ${selectedTask.important ? 'fill-current' : ''}`} />
+                  )}
+                  {selectedTask.important ? '已重要' : '重要'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteTask(selectedTask)}
+                  disabled={actionTaskId === selectedTask.id}
+                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold text-red-700 disabled:opacity-60"
+                >
+                  {actionTaskId === selectedTask.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  删除
                 </button>
               </div>
             </div>

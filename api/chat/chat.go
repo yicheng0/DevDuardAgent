@@ -25,4 +25,7 @@ type IChatV1 interface {
 	KnowledgeDelete(ctx context.Context, req *v1.KnowledgeDeleteReq) (res *v1.KnowledgeDeleteRes, err error)
 	AgentTasks(ctx context.Context, req *v1.AgentTasksReq) (res *v1.AgentTasksRes, err error)
 	AgentTaskDetail(ctx context.Context, req *v1.AgentTaskDetailReq) (res *v1.AgentTaskDetailRes, err error)
+	AgentTaskDelete(ctx context.Context, req *v1.AgentTaskDeleteReq) (res *v1.AgentTaskDeleteRes, err error)
+	AgentTaskImportant(ctx context.Context, req *v1.AgentTaskImportantReq) (res *v1.AgentTaskImportantRes, err error)
+	ChatSessionDelete(ctx context.Context, req *v1.ChatSessionDeleteReq) (res *v1.ChatSessionDeleteRes, err error)
 }

@@ -123,3 +123,104 @@ func TestStoreCompleteFailedTask(t *testing.T) {
 		t.Fatalf("Complete() failed task = %#v", task)
 	}
 }
+
+func TestStoreSetImportant(t *testing.T) {
+	store := NewStore(t.TempDir())
+	if _, err := store.Create(CreateInput{ID: "task-1", Question: "test"}); err != nil {
+		t.Fatalf("Create() error = %v", err)
+	}
+
+	task, err := store.SetImportant(ImportantInput{
+		ID:        "task-1",
+		Important: true,
+		MemoryID:  "chat-memory-task-1",
+	})
+	if err != nil {
+		t.Fatalf("SetImportant(true) error = %v", err)
+	}
+	if !task.Important || task.MemoryID != "chat-memory-task-1" || task.ImportantAt == nil {
+		t.Fatalf("SetImportant(true) task = %#v", task)
+	}
+
+	task, err = store.SetImportant(ImportantInput{ID: "task-1", Important: false})
+	if err != nil {
+		t.Fatalf("SetImportant(false) error = %v", err)
+	}
+	if task.Important || task.MemoryID != "" || task.ImportantAt != nil {
+		t.Fatalf("SetImportant(false) task = %#v", task)
+	}
+}
+
+func TestStoreDeleteTask(t *testing.T) {
+	store := NewStore(t.TempDir())
+	if _, err := store.Create(CreateInput{ID: "task-1", Question: "test"}); err != nil {
+		t.Fatalf("Create() error = %v", err)
+	}
+
+	deleted, err := store.Delete("task-1")
+	if err != nil {
+		t.Fatalf("Delete() error = %v", err)
+	}
+	if deleted.ID != "task-1" {
+		t.Fatalf("Delete() = %#v, want task-1", deleted)
+	}
+	if _, err := store.Task("task-1"); err != ErrTaskNotFound {
+		t.Fatalf("Task() after delete error = %v, want ErrTaskNotFound", err)
+	}
+}
+
+func TestStoreDeleteBySession(t *testing.T) {
+	store := NewStore(t.TempDir())
+	for _, input := range []CreateInput{
+		{ID: "task-1", SessionID: "session-1", Question: "one"},
+		{ID: "task-2", SessionID: "session-2", Question: "two"},
+		{ID: "task-3", SessionID: "session-1", Question: "three"},
+	} {
+		if _, err := store.Create(input); err != nil {
+			t.Fatalf("Create(%s) error = %v", input.ID, err)
+		}
+	}
+
+	deleted, err := store.DeleteBySession("session-1")
+	if err != nil {
+		t.Fatalf("DeleteBySession() error = %v", err)
+	}
+	if len(deleted) != 2 {
+		t.Fatalf("DeleteBySession() len = %d, want 2", len(deleted))
+	}
+	if _, err := store.Task("task-1"); err != ErrTaskNotFound {
+		t.Fatalf("Task(task-1) error = %v, want ErrTaskNotFound", err)
+	}
+	if _, err := store.Task("task-3"); err != ErrTaskNotFound {
+		t.Fatalf("Task(task-3) error = %v, want ErrTaskNotFound", err)
+	}
+	if task, err := store.Task("task-2"); err != nil || task.SessionID != "session-2" {
+		t.Fatalf("Task(task-2) = %#v, %v; want session-2", task, err)
+	}
+}
+
+func TestStoreTasksBySession(t *testing.T) {
+	store := NewStore(t.TempDir())
+	for _, input := range []CreateInput{
+		{ID: "task-1", SessionID: "session-1", Question: "one"},
+		{ID: "task-2", SessionID: "session-2", Question: "two"},
+		{ID: "task-3", SessionID: "session-1", Question: "three"},
+	} {
+		if _, err := store.Create(input); err != nil {
+			t.Fatalf("Create(%s) error = %v", input.ID, err)
+		}
+	}
+
+	tasks, err := store.TasksBySession("session-1")
+	if err != nil {
+		t.Fatalf("TasksBySession() error = %v", err)
+	}
+	if len(tasks) != 2 {
+		t.Fatalf("TasksBySession() len = %d, want 2", len(tasks))
+	}
+	for _, task := range tasks {
+		if task.SessionID != "session-1" {
+			t.Fatalf("TasksBySession() included wrong task = %#v", task)
+		}
+	}
+}

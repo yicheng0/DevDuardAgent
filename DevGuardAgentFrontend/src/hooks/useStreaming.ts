@@ -60,9 +60,10 @@ export const useStreaming = () => {
       }
     });
 
-    eventSource.addEventListener('done', () => {
+    eventSource.addEventListener('done', (event) => {
+      const data = parseSSEData((event as MessageEvent<string>).data || '{}');
       closeStream();
-      setStreaming(false);
+      setStreaming(false, { taskId: data.taskId, traceId: data.traceId });
       completeTrace('Agent 已完成流式分析，并生成可执行的处置建议。');
     });
 
@@ -172,7 +173,8 @@ const handleStreamingEvent = (eventName: string, rawData: string) => {
       return;
     }
     if (eventName === 'done') {
-      setStreaming(false);
+      const data = parseSSEData(rawData);
+      setStreaming(false, { taskId: data.taskId, traceId: data.traceId });
       completeTrace('Agent 已完成附件解析、证据归纳和处置建议生成。');
       return;
     }
@@ -191,7 +193,7 @@ const handleStreamingEvent = (eventName: string, rawData: string) => {
   }
 };
 
-const parseSSEData = (raw: string): { content?: string } => {
+const parseSSEData = (raw: string): { content?: string; taskId?: string; traceId?: string } => {
   try {
     const parsed = JSON.parse(raw);
     if (typeof parsed === 'string') {

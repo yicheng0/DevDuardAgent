@@ -57,7 +57,9 @@ func (c *ControllerV1) Chat(ctx context.Context, req *v1.ChatReq) (res *v1.ChatR
 		RiskLevel:   agenttrace.RiskLow,
 	})
 	res = &v1.ChatRes{
-		Answer: out.Content,
+		Answer:  out.Content,
+		TaskID:  taskID,
+		TraceID: traceID,
 	}
 	mem.GetSimpleMemory(id).SetUserMessage(msg)
 	mem.GetSimpleMemory(id).SetAssistantMessage(out.Content)

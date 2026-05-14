@@ -100,6 +100,33 @@ func (s *Store) Complete(input CompleteInput) (*Task, error) {
 	return out, nil
 }
 
+func (s *Store) SetImportant(input ImportantInput) (*Task, error) {
+	var out *Task
+	err := s.Update(func(state *State) error {
+		task, ok := state.Tasks[strings.TrimSpace(input.ID)]
+		if !ok || task == nil {
+			return ErrTaskNotFound
+		}
+		now := time.Now()
+		task.Important = input.Important
+		if input.Important {
+			task.MemoryID = strings.TrimSpace(input.MemoryID)
+			task.ImportantAt = &now
+		} else {
+			task.MemoryID = ""
+			task.ImportantAt = nil
+		}
+		task.UpdatedAt = now
+		cp := *task
+		out = &cp
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (s *Store) List(filter ListFilter) ([]Task, error) {
 	if filter.Status != "" && !IsValidStatus(filter.Status) {
 		return nil, ErrInvalidTaskStatus
@@ -153,6 +180,67 @@ func (s *Store) Task(id string) (*Task, error) {
 	}
 	cp := *task
 	return &cp, nil
+}
+
+func (s *Store) TasksBySession(sessionID string) ([]Task, error) {
+	sessionID = strings.TrimSpace(sessionID)
+	if sessionID == "" {
+		return nil, nil
+	}
+	state, err := s.Load()
+	if err != nil {
+		return nil, err
+	}
+	tasks := make([]Task, 0)
+	for _, task := range state.Tasks {
+		if task == nil || task.SessionID != sessionID {
+			continue
+		}
+		tasks = append(tasks, *task)
+	}
+	sortTasks(tasks)
+	return tasks, nil
+}
+
+func (s *Store) Delete(id string) (*Task, error) {
+	var out *Task
+	err := s.Update(func(state *State) error {
+		task, ok := state.Tasks[strings.TrimSpace(id)]
+		if !ok || task == nil {
+			return ErrTaskNotFound
+		}
+		cp := *task
+		out = &cp
+		delete(state.Tasks, task.ID)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s *Store) DeleteBySession(sessionID string) ([]Task, error) {
+	sessionID = strings.TrimSpace(sessionID)
+	if sessionID == "" {
+		return nil, nil
+	}
+	var deleted []Task
+	err := s.Update(func(state *State) error {
+		for id, task := range state.Tasks {
+			if task == nil || task.SessionID != sessionID {
+				continue
+			}
+			deleted = append(deleted, *task)
+			delete(state.Tasks, id)
+		}
+		sortTasks(deleted)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return deleted, nil
 }
 
 func (s *Store) Load() (*State, error) {

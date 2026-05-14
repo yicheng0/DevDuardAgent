@@ -65,6 +65,8 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       addMessage({
         role: 'assistant',
         content: data.answer || data.response || '抱歉，我无法回答这个问题。',
+        taskId: data.taskId,
+        traceId: data.traceId,
       });
       completeTrace('Agent 已完成任务分析，并生成可执行的处置建议。');
     } catch (error) {

@@ -89,7 +89,7 @@ func (c *ControllerV1) ChatStream(ctx context.Context, req *v1.ChatStreamReq) (r
 			c.traces.UpsertStep(traceID, respond)
 			client.SendJSON("trace", agenttrace.Event{TraceID: traceID, Step: respond})
 			_ = completeAgentTask(taskStore, c.traces, taskID, traceID, taskrecord.StatusSucceeded, fullResponse.String(), "")
-			client.SendJSON("done", map[string]string{"traceId": traceID, "message": "Stream completed"})
+			client.SendJSON("done", map[string]string{"traceId": traceID, "taskId": taskID, "message": "Stream completed"})
 			return &v1.ChatStreamRes{}, nil
 		}
 		if err != nil {

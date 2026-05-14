@@ -1,10 +1,11 @@
 import { Message as MessageType } from '@/types';
 import { motion } from 'framer-motion';
-import { User, Bot } from 'lucide-react';
+import { User, Bot, Loader2, Star } from 'lucide-react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useChatStore } from '@/stores/chatStore';
 
 interface MessageProps {
   message: MessageType;
@@ -18,7 +19,10 @@ marked.setOptions({
 
 const Message = ({ message, compact = false }: MessageProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isSavingImportant, setIsSavingImportant] = useState(false);
   const isUser = message.role === 'user';
+  const canToggleImportant = message.role === 'assistant' && Boolean(message.taskId) && !message.isStreaming;
+  const { updateMessageImportant } = useChatStore();
 
   useEffect(() => {
     if (contentRef.current && message.role === 'assistant') {
@@ -40,6 +44,33 @@ const Message = ({ message, compact = false }: MessageProps) => {
       );
     }
     return <p className="whitespace-pre-wrap text-white">{message.content}</p>;
+  };
+
+  const toggleImportant = async () => {
+    if (!message.taskId || isSavingImportant) return;
+    const nextImportant = !message.important;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 35000);
+    setIsSavingImportant(true);
+    try {
+      const response = await fetch('/api/tasks/important', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: message.taskId, important: nextImportant }),
+        signal: controller.signal,
+      });
+      const body = await response.json();
+      if (!response.ok || body.message !== 'OK') {
+        throw new Error(body.message || '标记重要失败');
+      }
+      const task = body.data?.task;
+      updateMessageImportant(message.taskId, Boolean(task?.important ?? nextImportant));
+    } catch (error) {
+      console.error('Toggle important failed:', error);
+    } finally {
+      window.clearTimeout(timeout);
+      setIsSavingImportant(false);
+    }
   };
 
   return (
@@ -68,6 +99,30 @@ const Message = ({ message, compact = false }: MessageProps) => {
             : 'border-slate-200 bg-slate-50 text-slate-800'
         }`}
       >
+        {canToggleImportant && (
+          <div className="mb-1 flex justify-end">
+            <button
+              type="button"
+              onClick={toggleImportant}
+              disabled={isSavingImportant}
+              className={`brand-focus-ring inline-flex shrink-0 items-center justify-center rounded-md border transition-colors ${
+                compact ? 'h-7 w-7' : 'h-8 w-8'
+              } ${
+                message.important
+                  ? 'border-amber-200 bg-amber-50 text-amber-600'
+                  : 'border-[#ead7b7] bg-[#fffdf8] text-slate-400 hover:text-[#9a563f]'
+              } disabled:opacity-60`}
+              aria-label={message.important ? '取消重要记录' : '标记为重要记录'}
+              title={message.important ? '取消重要记录' : '标记为重要记录'}
+            >
+              {isSavingImportant ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Star className={`h-3.5 w-3.5 ${message.important ? 'fill-current' : ''}`} />
+              )}
+            </button>
+          </div>
+        )}
         {renderContent()}
         {message.isStreaming && (
           <motion.span
