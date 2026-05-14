@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/gogf/gf/v2/container/gmap"
@@ -16,6 +17,7 @@ type Client struct {
 	Id          string
 	Request     *ghttp.Request
 	messageChan chan string
+	writeMu     sync.Mutex
 }
 
 // Service SSE服务
@@ -59,6 +61,8 @@ func (s *Service) Create(ctx context.Context, r *ghttp.Request) (*Client, error)
 // SendToClient 向指定客户端发送消息
 func (c *Client) SendToClient(eventType, data string) bool {
 	msg := fmt.Sprintf("id: %d\nevent: %s\ndata: %s\n\n", time.Now().UnixNano(), eventType, data)
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
 	c.Request.Response.WriteString(msg)
 	c.Request.Response.Flush()
 	return true

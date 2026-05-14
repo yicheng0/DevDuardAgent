@@ -32,7 +32,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-slate-950/40 md:hidden"
+          className="fixed inset-0 z-20 bg-[#3f2116]/35 md:hidden"
           onClick={() => useUIStore.getState().toggleSidebar()}
         />
       )}

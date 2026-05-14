@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/cloudwego/eino-ext/components/indexer/milvus"
+	"github.com/cloudwego/eino/schema"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 )
 
@@ -30,6 +31,14 @@ func NewMilvusIndexer(ctx context.Context) (*milvus.Indexer, error) {
 		return nil, err
 	}
 	return indexer, nil
+}
+
+func StoreDocuments(ctx context.Context, docs []*schema.Document) ([]string, error) {
+	indexer, err := NewMilvusIndexer(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return indexer.Store(ctx, docs)
 }
 
 var fields = []*entity.Field{

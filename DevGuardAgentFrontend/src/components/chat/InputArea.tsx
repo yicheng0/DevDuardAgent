@@ -61,6 +61,9 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       });
 
       const body = await response.json();
+      if (!response.ok || body.message !== 'OK') {
+        throw new Error(body.message || '请求失败');
+      }
       const data = body.data || body;
       addMessage({
         role: 'assistant',
@@ -71,9 +74,10 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       completeTrace('Agent 已完成任务分析，并生成可执行的处置建议。');
     } catch (error) {
       console.error('Chat error:', error);
+      const message = error instanceof Error ? error.message : '发生了未知错误';
       addMessage({
         role: 'assistant',
-        content: '抱歉，发生了错误，请稍后重试。',
+        content: `请求失败：${message}`,
       });
       failTrace('请求后端分析失败，Agent 未能完成本次处置链路。');
     }
@@ -102,14 +106,14 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
   };
 
   return (
-    <div className={`border-t border-slate-200 bg-white ${compact ? 'p-2.5' : 'p-3'}`}>
+    <div className={`border-t border-[#ead7b7] bg-[#fff6e8] ${compact ? 'p-2.5' : 'p-3'}`}>
       <div
         className={`mb-2 grid grid-cols-1 gap-2 sm:items-center ${
           compact ? 'sm:grid-cols-1' : 'sm:grid-cols-[minmax(0,1fr)_auto]'
         }`}
       >
         <div
-          className={`grid w-full grid-cols-2 gap-1 rounded-md bg-slate-100 p-1 ${
+          className={`grid w-full grid-cols-2 gap-1 rounded-md bg-[#f4e3ca] p-1 ${
             compact ? '' : 'sm:w-[184px]'
           }`}
           aria-label="响应模式"
@@ -121,7 +125,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
               onClick={() => setChatMode(mode)}
               className={`brand-focus-ring inline-flex h-8 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded px-2 text-xs font-semibold transition-colors ${
                 chatMode === mode
-                  ? 'bg-white text-[#7f432f] shadow-sm'
+                  ? 'bg-[#fffdf8] text-[#7f432f] shadow-sm'
                   : 'text-slate-500 hover:text-[#7f432f]'
               }`}
             >
@@ -136,7 +140,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       </div>
 
       {file && (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3 py-2 text-xs text-slate-600">
           <span className="flex min-w-0 items-center gap-2">
             <Paperclip className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{file.name}</span>
@@ -153,7 +157,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       )}
 
       <div
-        className={`brand-focus-within grid items-end gap-2 rounded-lg border border-slate-300 bg-white ${
+        className={`brand-focus-within grid items-end gap-2 rounded-lg border border-[#dec39d] bg-[#fffdf8] ${
           compact ? 'grid-cols-[36px_minmax(0,1fr)_36px] p-1.5' : 'grid-cols-[40px_minmax(0,1fr)_40px] p-2'
         }`}
       >

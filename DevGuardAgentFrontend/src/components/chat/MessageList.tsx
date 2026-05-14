@@ -25,7 +25,7 @@ const MessageList = ({ compact = false }: MessageListProps) => {
       {session.messages.length === 0 && !isStreaming ? (
         <div className="flex h-full items-center justify-center">
           <div
-            className={`w-full rounded-lg border border-dashed border-slate-300 bg-slate-50 text-center ${
+            className={`w-full rounded-lg border border-dashed border-[#dec39d] bg-[#fff6e8] text-center ${
               compact ? 'p-3' : 'p-5'
             }`}
           >

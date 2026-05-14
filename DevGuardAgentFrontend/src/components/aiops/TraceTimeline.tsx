@@ -92,7 +92,7 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
                 <span
                   className={`rounded-md border px-2 py-1 text-xs ${
                     step.status === 'running'
-                      ? 'border-[#d9a08a] bg-white/70 text-[#7f432f]'
+                      ? 'border-[#d9a08a] bg-[#fffdf8] text-[#7f432f]'
                       : 'border-[#ead7b7] bg-[#fff6e8] text-[#8a7562]'
                   }`}
                 >
@@ -105,7 +105,7 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
               <div
                 className={`mt-3 inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold ${
                   step.status === 'running'
-                    ? 'border-[#d9a08a] bg-white/70 text-[#7f432f]'
+                    ? 'border-[#d9a08a] bg-[#fffdf8] text-[#7f432f]'
                     : 'border-[#d9a08a] bg-[#f7ebe5] text-[#7f432f]'
                 }`}
               >
@@ -120,7 +120,7 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
               <p
                 className={`mt-3 rounded-md px-3 py-2 text-sm leading-5 ${
                   step.status === 'running'
-                    ? 'bg-white/70 text-[#4f281b]'
+                    ? 'bg-[#fffdf8] text-[#4f281b]'
                     : 'bg-[#fff6e8] text-[#4f281b]'
                 }`}
               >

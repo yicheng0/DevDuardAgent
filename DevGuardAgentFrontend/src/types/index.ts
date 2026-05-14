@@ -182,6 +182,7 @@ export interface RuntimeConfig {
   mcpUrl: string;
   milvusAddress: string;
   fileDir: string;
+  indexTimeoutSeconds: number;
 }
 
 export type ConfigTestTarget = 'quick_model' | 'think_model' | 'embedding' | 'milvus';
@@ -197,9 +198,10 @@ export type KnowledgeDocumentStatus =
   | 'ready'
   | 'failed'
   | 'delete_failed'
-  | 'deleted';
+  | 'deleted'
+  | 'canceled';
 
-export type KnowledgeTaskStatus = 'queued' | 'running' | 'succeeded' | 'failed';
+export type KnowledgeTaskStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'canceled';
 
 export interface KnowledgeDocument {
   id: string;
@@ -209,6 +211,7 @@ export interface KnowledgeDocument {
   sha256: string;
   size: number;
   status: KnowledgeDocumentStatus;
+  enabled: boolean;
   chunkCount: number;
   activeTaskId?: string;
   createdAt: string;
@@ -220,7 +223,7 @@ export interface KnowledgeDocument {
 export interface KnowledgeTask {
   id: string;
   documentId: string;
-  type: 'index' | 'delete' | 'reindex';
+  type: 'index' | 'delete' | 'reindex' | 'cleanup';
   status: KnowledgeTaskStatus;
   startedAt?: string;
   finishedAt?: string;
@@ -236,6 +239,36 @@ export interface KnowledgeUploadResult {
   documentId: string;
   taskId: string;
   status: KnowledgeDocumentStatus;
+}
+
+export interface KnowledgeHealth {
+  address: string;
+  ok: boolean;
+  tcpOk: boolean;
+  sdkOk: boolean;
+  databaseOk: boolean;
+  collectionOk: boolean;
+  collectionLoaded: boolean;
+  message: string;
+  error?: string;
+  suggestion?: string;
+  durationMs: number;
+}
+
+export interface KnowledgeSearchDocument {
+  id: string;
+  content: string;
+  score: number;
+  documentId?: string;
+  fileName?: string;
+  source: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface KnowledgeSearchResult {
+  query: string;
+  topK: number;
+  documents: KnowledgeSearchDocument[];
 }
 
 export type AgentTaskStatus = 'running' | 'succeeded' | 'failed';

@@ -4,7 +4,7 @@
 
 This repository is a GoFrame + Eino based intelligent operations agent. The Go module name is `SuperBizAgent`.
 
-The backend exposes chat, streaming chat, file upload, and AI Ops APIs under `/api`. The frontend in `SuperBizAgentFrontend` is a plain HTML/CSS/JavaScript chat UI that talks to `http://localhost:6872/api`.
+The backend exposes chat, streaming chat, file upload, and AI Ops APIs under `/api`. The frontend talks to the backend through the Vite `/api` proxy, which currently targets `http://localhost:8000`.
 
 Core capabilities:
 
@@ -21,7 +21,7 @@ Core capabilities:
   - Registers routes under `/api`.
   - Applies CORS and response middleware.
   - Binds `chat.NewV1()`.
-  - Sets the runtime port to `6872`.
+  - Reads `server.address` from GoFrame config; the current default is `:8000`.
 - `api/chat/v1/chat.go`
   - Defines public request/response structs and route metadata.
   - Current routes:
@@ -37,8 +37,8 @@ Core capabilities:
   - Builds the indexing graph: file loader, markdown splitter, and Milvus indexer.
 - `internal/ai/agent/plan_execute_replan`
   - Builds the AI Ops planning and execution workflow.
-- `SuperBizAgentFrontend`
-  - Plain frontend app. `app.js` uses `http://localhost:6872/api` as the API base URL.
+- `DevGuardAgentFrontend`
+  - React frontend app. `vite.config.ts` proxies `/api` to `http://localhost:8000` in development.
 
 ## Runtime Dependencies
 
@@ -116,6 +116,21 @@ Start Milvus stack:
 docker compose -f manifest/docker/docker-compose.yml up -d
 ```
 
+Local ports:
+
+- Backend API: `http://localhost:8000`
+- Frontend dev server: `http://localhost:8080`
+- Milvus gRPC: `localhost:19530`
+- Attu UI: `http://localhost:8001`
+
+Milvus quick diagnostics on Windows:
+
+```powershell
+docker compose -f manifest/docker/docker-compose.yml ps
+Test-NetConnection 127.0.0.1 -Port 19530
+Invoke-RestMethod http://127.0.0.1:8000/api/knowledge/health
+```
+
 Run frontend:
 
 ```bash
@@ -123,7 +138,7 @@ cd DevGuardAgentFrontend
 ./start.sh
 ```
 
-On Windows, if `start.sh` is inconvenient, serve the directory with any static server or open `index.html` directly. The frontend expects the backend at `http://localhost:6872`.
+On Windows, if `start.sh` is inconvenient, use `start.ps1` or `npm start`. The React frontend expects the backend at `http://localhost:8000` through the Vite proxy.
 
 ## API Behavior
 
@@ -197,7 +212,7 @@ The prompt requires the agent to query active alerts, retrieve matching internal
 
 ## Known Cautions
 
-- `manifest/config/config.yaml` has `server.address: ":8000"`, but `main.go` explicitly calls `s.SetPort(6872)`. Treat `6872` as the effective backend port unless the code changes.
+- `manifest/config/config.yaml` has `server.address: ":8000"`. Keep frontend proxy and visible runtime text aligned with this port.
 - `SuperBizAgentFrontend/README.md` mentions broader upload formats, but current `app.js` only accepts text and Markdown extensions.
 - Milvus vector configuration uses `FieldTypeBinaryVector` with dimension `65536`; embedding/indexer changes must preserve compatibility or include a migration plan.
 - `FileUpload` saves into `common.FileDir` and then indexes `common.FileDir + "/" + newFileName`; keep path handling consistent when modifying upload logic.

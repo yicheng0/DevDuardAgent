@@ -2,6 +2,7 @@ package chat
 
 import (
 	"SuperBizAgent/api/chat/v1"
+	milvushelper "SuperBizAgent/utility/client"
 	"SuperBizAgent/utility/common"
 	"context"
 	"errors"
@@ -12,7 +13,11 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
+	chatopenai "github.com/cloudwego/eino-ext/components/model/openai"
+	embeddingopenai "github.com/cloudwego/eino-ext/libs/acl/openai"
+	"github.com/cloudwego/eino/schema"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
@@ -21,8 +26,12 @@ import (
 )
 
 const (
-	maskedSecret      = "********"
-	defaultAdminToken = "devguard-admin"
+	maskedSecret               = "********"
+	defaultAdminToken          = "devguard-admin"
+	configTestTimeout          = 15 * time.Second
+	defaultIndexTimeoutSeconds = int64(600)
+	minIndexTimeoutSeconds     = int64(30)
+	maxIndexTimeoutSeconds     = int64(3600)
 )
 
 var configWriteMu sync.Mutex
@@ -58,9 +67,10 @@ type yamlRuntimeConfig struct {
 		Address string `yaml:"address"`
 	} `yaml:"milvus"`
 	Knowledge struct {
-		RetrievalTopK     int      `yaml:"retrieval_top_k"`
-		MaxUploadMB       int64    `yaml:"max_upload_mb"`
-		AllowedExtensions []string `yaml:"allowed_extensions"`
+		RetrievalTopK       int      `yaml:"retrieval_top_k"`
+		MaxUploadMB         int64    `yaml:"max_upload_mb"`
+		IndexTimeoutSeconds int64    `yaml:"index_timeout_seconds"`
+		AllowedExtensions   []string `yaml:"allowed_extensions"`
 	} `yaml:"knowledge"`
 }
 
@@ -107,6 +117,7 @@ func (c *ControllerV1) UpdateRuntimeConfig(ctx context.Context, req *v1.UpdateRu
 	cfg.MCPURL = strings.TrimSpace(next.MCPURL)
 	cfg.Milvus.Address = strings.TrimSpace(next.MilvusAddress)
 	cfg.FileDir = strings.TrimSpace(next.FileDir)
+	cfg.Knowledge.IndexTimeoutSeconds = next.IndexTimeoutSeconds
 
 	if err := validateRuntimeConfig(cfg); err != nil {
 		return nil, err
@@ -138,26 +149,123 @@ func (c *ControllerV1) ConfigTest(ctx context.Context, req *v1.ConfigTestReq) (r
 
 	switch target {
 	case "quick_model", "think_model":
-		if target == "quick_model" && cfg.QuickModel.APIKey == maskedSecret {
-			return &v1.ConfigTestRes{Target: target, OK: false, Message: "请先输入快速模型 API Key"}, nil
+		if target == "quick_model" {
+			return testChatModelConnection(ctx, target, "快速模型", cfg.QuickModel.APIKey, cfg.QuickModel.BaseURL, cfg.QuickModel.Model, cfg), nil
 		}
-		if target == "think_model" && cfg.ThinkModel.APIKey == maskedSecret {
-			return &v1.ConfigTestRes{Target: target, OK: false, Message: "请先输入深度模型 API Key"}, nil
-		}
-		return &v1.ConfigTestRes{Target: target, OK: true, Message: "模型配置格式有效"}, nil
+		return testChatModelConnection(ctx, target, "深度模型", cfg.ThinkModel.APIKey, cfg.ThinkModel.BaseURL, cfg.ThinkModel.Model, cfg), nil
 	case "embedding":
-		if cfg.Embedding.APIKey == maskedSecret {
-			return &v1.ConfigTestRes{Target: target, OK: false, Message: "请先输入 Embedding API Key"}, nil
-		}
-		return &v1.ConfigTestRes{Target: target, OK: true, Message: "Embedding 配置格式有效"}, nil
+		return testEmbeddingConnection(ctx, target, cfg), nil
 	case "milvus":
-		if cfg.Milvus.Address == "" {
-			return &v1.ConfigTestRes{Target: target, OK: false, Message: "Milvus 地址不能为空"}, nil
-		}
-		return &v1.ConfigTestRes{Target: target, OK: true, Message: "Milvus 地址格式有效"}, nil
+		return testMilvusConnection(ctx, target, cfg), nil
 	default:
 		return nil, gerror.New("未知测试目标")
 	}
+}
+
+func testChatModelConnection(ctx context.Context, target, label, apiKey, baseURL, modelName string, cfg *yamlRuntimeConfig) *v1.ConfigTestRes {
+	if strings.TrimSpace(apiKey) == "" || apiKey == maskedSecret {
+		return &v1.ConfigTestRes{Target: target, OK: false, Message: fmt.Sprintf("请先输入%s API Key", label)}
+	}
+	started := time.Now()
+	testCtx, cancel := context.WithTimeout(ctx, configTestTimeout)
+	defer cancel()
+
+	cm, err := chatopenai.NewChatModel(testCtx, &chatopenai.ChatModelConfig{
+		Model:      modelName,
+		APIKey:     apiKey,
+		BaseURL:    baseURL,
+		HTTPClient: &http.Client{Timeout: configTestTimeout},
+	})
+	if err != nil {
+		return configTestFailure(target, fmt.Sprintf("%s客户端创建失败: %s", label, sanitizeConfigTestError(err, cfg)))
+	}
+	msg, err := cm.Generate(testCtx, []*schema.Message{
+		schema.UserMessage("连通测试。请只回复 ok。"),
+	})
+	if err != nil {
+		return configTestFailure(target, fmt.Sprintf("%s连通失败: %s", label, sanitizeConfigTestError(err, cfg)))
+	}
+	if msg == nil || strings.TrimSpace(msg.Content) == "" {
+		return configTestFailure(target, fmt.Sprintf("%s连通失败: 响应为空", label))
+	}
+	return &v1.ConfigTestRes{
+		Target:  target,
+		OK:      true,
+		Message: fmt.Sprintf("%s连通成功，用时 %dms", label, time.Since(started).Milliseconds()),
+	}
+}
+
+func testEmbeddingConnection(ctx context.Context, target string, cfg *yamlRuntimeConfig) *v1.ConfigTestRes {
+	if strings.TrimSpace(cfg.Embedding.APIKey) == "" || cfg.Embedding.APIKey == maskedSecret {
+		return &v1.ConfigTestRes{Target: target, OK: false, Message: "请先输入 Embedding API Key"}
+	}
+	started := time.Now()
+	testCtx, cancel := context.WithTimeout(ctx, configTestTimeout)
+	defer cancel()
+
+	dim := 2048
+	encodingFmt := embeddingopenai.EmbeddingEncodingFormatFloat
+	eb, err := embeddingopenai.NewEmbeddingClient(testCtx, &embeddingopenai.EmbeddingConfig{
+		Model:          cfg.Embedding.Model,
+		APIKey:         cfg.Embedding.APIKey,
+		BaseURL:        cfg.Embedding.BaseURL,
+		HTTPClient:     &http.Client{Timeout: configTestTimeout},
+		EncodingFormat: &encodingFmt,
+		Dimensions:     &dim,
+	})
+	if err != nil {
+		return configTestFailure(target, fmt.Sprintf("Embedding 客户端创建失败: %s", sanitizeConfigTestError(err, cfg)))
+	}
+	vectors, err := eb.EmbedStrings(testCtx, []string{"devguard connectivity test"})
+	if err != nil {
+		return configTestFailure(target, fmt.Sprintf("Embedding 连通失败: %s", sanitizeConfigTestError(err, cfg)))
+	}
+	if len(vectors) == 0 || len(vectors[0]) == 0 {
+		return configTestFailure(target, "Embedding 连通失败: 返回向量为空")
+	}
+	return &v1.ConfigTestRes{
+		Target:  target,
+		OK:      true,
+		Message: fmt.Sprintf("Embedding 连通成功，维度 %d，用时 %dms", len(vectors[0]), time.Since(started).Milliseconds()),
+	}
+}
+
+func testMilvusConnection(ctx context.Context, target string, cfg *yamlRuntimeConfig) *v1.ConfigTestRes {
+	if strings.TrimSpace(cfg.Milvus.Address) == "" {
+		return &v1.ConfigTestRes{Target: target, OK: false, Message: "Milvus 地址不能为空"}
+	}
+	health := milvushelper.CheckMilvusHealth(ctx, cfg.Milvus.Address)
+	if !health.OK {
+		message := health.Message
+		if strings.TrimSpace(health.Error) != "" {
+			message += ": " + sanitizeConfigTestError(errors.New(health.Error), cfg)
+		}
+		return configTestFailure(target, message)
+	}
+	return &v1.ConfigTestRes{
+		Target:  target,
+		OK:      true,
+		Message: fmt.Sprintf("Milvus 健康，用时 %dms", health.DurationMs),
+	}
+}
+
+func configTestFailure(target, message string) *v1.ConfigTestRes {
+	return &v1.ConfigTestRes{Target: target, OK: false, Message: message}
+}
+
+func sanitizeConfigTestError(err error, cfg *yamlRuntimeConfig) string {
+	message := strings.TrimSpace(err.Error())
+	for _, secret := range []string{
+		cfg.QuickModel.APIKey,
+		cfg.ThinkModel.APIKey,
+		cfg.Embedding.APIKey,
+	} {
+		secret = strings.TrimSpace(secret)
+		if secret != "" && secret != maskedSecret {
+			message = strings.ReplaceAll(message, secret, maskedSecret)
+		}
+	}
+	return message
 }
 
 func requireConfigAdmin(ctx context.Context) error {
@@ -244,6 +352,9 @@ func applyRuntimeDefaults(cfg *yamlRuntimeConfig) {
 	if cfg.Knowledge.MaxUploadMB <= 0 {
 		cfg.Knowledge.MaxUploadMB = 20
 	}
+	if cfg.Knowledge.IndexTimeoutSeconds <= 0 {
+		cfg.Knowledge.IndexTimeoutSeconds = defaultIndexTimeoutSeconds
+	}
 	if len(cfg.Knowledge.AllowedExtensions) == 0 {
 		cfg.Knowledge.AllowedExtensions = []string{".md", ".markdown", ".txt"}
 	}
@@ -278,6 +389,9 @@ func validateRuntimeConfig(cfg *yamlRuntimeConfig) error {
 			return fmt.Errorf("%s格式不正确", name)
 		}
 	}
+	if cfg.Knowledge.IndexTimeoutSeconds < minIndexTimeoutSeconds || cfg.Knowledge.IndexTimeoutSeconds > maxIndexTimeoutSeconds {
+		return fmt.Errorf("索引超时秒数必须在 %d-%d 之间", minIndexTimeoutSeconds, maxIndexTimeoutSeconds)
+	}
 	return nil
 }
 
@@ -307,9 +421,10 @@ func toRuntimeConfig(cfg *yamlRuntimeConfig, mask bool) v1.RuntimeConfig {
 			BaseURL: cfg.Embedding.BaseURL,
 			Model:   cfg.Embedding.Model,
 		},
-		MCPURL:        cfg.MCPURL,
-		MilvusAddress: cfg.Milvus.Address,
-		FileDir:       cfg.FileDir,
+		MCPURL:              cfg.MCPURL,
+		MilvusAddress:       cfg.Milvus.Address,
+		FileDir:             cfg.FileDir,
+		IndexTimeoutSeconds: cfg.Knowledge.IndexTimeoutSeconds,
 	}
 }
 
@@ -327,6 +442,7 @@ func fromRuntimeConfig(in v1.RuntimeConfig) *yamlRuntimeConfig {
 	cfg.MCPURL = strings.TrimSpace(in.MCPURL)
 	cfg.Milvus.Address = strings.TrimSpace(in.MilvusAddress)
 	cfg.FileDir = strings.TrimSpace(in.FileDir)
+	cfg.Knowledge.IndexTimeoutSeconds = in.IndexTimeoutSeconds
 	applyRuntimeDefaults(cfg)
 	return cfg
 }

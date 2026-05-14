@@ -24,6 +24,7 @@ const emptyConfig: RuntimeConfig = {
   mcpUrl: '',
   milvusAddress: '',
   fileDir: '',
+  indexTimeoutSeconds: 600,
 };
 
 const tokenKey = 'devguard-config-token';
@@ -234,7 +235,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
             value={config[key].baseUrl}
             onChange={(event) => updateModel(key, 'baseUrl', event.target.value)}
             placeholder={key === 'embedding' ? 'https://dashscope.aliyuncs.com/compatible-mode/v1' : 'https://ark.cn-beijing.volces.com/api/v3'}
-            className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+            className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
           />
         </label>
         <label className="block">
@@ -243,7 +244,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
             value={config[key].model}
             onChange={(event) => updateModel(key, 'model', event.target.value)}
             placeholder={key === 'embedding' ? 'text-embedding-v4' : 'deepseek-v3-1-terminus'}
-            className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+            className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
           />
         </label>
         <label className="block md:col-span-2">
@@ -253,7 +254,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
             value={config[key].apiKey.value}
             onChange={(event) => updateModel(key, 'apiKey', event.target.value)}
             placeholder={config[key].apiKey.hasValue ? '已配置，留空或保持 ******** 表示不修改' : '请输入 API Key'}
-            className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+            className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
           />
         </label>
       </div>
@@ -289,7 +290,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
           <div className="app-surface mx-auto max-w-md rounded-lg border p-5 shadow-sm">
             <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fff6e8] text-[#7f432f]">
                 <KeyRound className="h-5 w-5" />
               </span>
               <div>
@@ -304,7 +305,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
               onKeyDown={(event) => {
                 if (event.key === 'Enter') handleTokenSubmit();
               }}
-              className="brand-input h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+              className="brand-input h-10 w-full rounded-md border px-3 text-sm"
               placeholder="输入管理员口令"
             />
             {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
@@ -359,7 +360,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                           value={config.mcpUrl}
                           onChange={(event) => setConfig((current) => ({ ...current, mcpUrl: event.target.value }))}
                           placeholder="https://mcp-api.tencent-cloud.com/sse/XXXX"
-                          className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+                          className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
                         />
                       </label>
                       <label className="block">
@@ -368,7 +369,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                           value={config.milvusAddress}
                           onChange={(event) => setConfig((current) => ({ ...current, milvusAddress: event.target.value }))}
                           placeholder="localhost:19530"
-                          className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+                          className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
                         />
                       </label>
                       <label className="block">
@@ -377,7 +378,25 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                           value={config.fileDir}
                           onChange={(event) => setConfig((current) => ({ ...current, fileDir: event.target.value }))}
                           placeholder="/path/to/knowledge_cmd/docs"
-                          className="brand-input mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+                          className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-xs font-medium text-slate-600">Index Timeout Seconds</span>
+                        <input
+                          type="number"
+                          min={30}
+                          max={3600}
+                          step={1}
+                          value={config.indexTimeoutSeconds}
+                          onChange={(event) =>
+                            setConfig((current) => ({
+                              ...current,
+                              indexTimeoutSeconds: Number.parseInt(event.target.value, 10) || 0,
+                            }))
+                          }
+                          placeholder="600"
+                          className="brand-input mt-1 h-10 w-full rounded-md border px-3 text-sm"
                         />
                       </label>
                     </div>

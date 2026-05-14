@@ -3,6 +3,7 @@ package chat_pipeline
 import (
 	"SuperBizAgent/internal/ai/tools"
 	"context"
+	"log"
 
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/flow/agent/react"
@@ -23,7 +24,7 @@ func newReactAgentLambda(ctx context.Context) (lba *compose.Lambda, err error) {
 	//}
 	mcpTool, err := tools.GetLogMcpTool()
 	if err != nil {
-		return nil, err
+		log.Printf("chat mcp tools disabled: %v", err)
 	}
 	config.ToolsConfig.Tools = mcpTool
 	config.ToolsConfig.Tools = append(config.ToolsConfig.Tools, tools.NewPrometheusAlertsQueryTool())

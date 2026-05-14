@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
+  Ban,
   CheckCircle2,
   Clock3,
   Database,
   FileText,
   Loader2,
+  Search,
+  ShieldX,
   RefreshCcw,
   RotateCcw,
   SearchCheck,
+  Server,
   Trash2,
   Upload,
 } from 'lucide-react';
-import { KnowledgeDocument, KnowledgeTask, KnowledgeUploadResult } from '@/types';
+import { KnowledgeDocument, KnowledgeHealth, KnowledgeSearchResult, KnowledgeTask, KnowledgeUploadResult } from '@/types';
 
 type ApiResponse<T> = {
   message: string;
@@ -21,7 +25,7 @@ type ApiResponse<T> = {
 
 type PendingAction = {
   documentId: string;
-  type: 'reindex' | 'delete';
+  type: 'reindex' | 'delete' | 'cancel' | 'cleanup' | 'toggle';
 };
 
 const acceptedExtensions = '.md,.markdown,.txt';
@@ -32,6 +36,7 @@ const statusLabel: Record<KnowledgeDocument['status'], string> = {
   failed: '索引失败',
   delete_failed: '删除失败',
   deleted: '已删除',
+  canceled: '已取消',
 };
 
 const statusStyle: Record<KnowledgeDocument['status'], string> = {
@@ -39,10 +44,13 @@ const statusStyle: Record<KnowledgeDocument['status'], string> = {
   ready: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   failed: 'border-red-200 bg-red-50 text-red-700',
   delete_failed: 'border-red-200 bg-red-50 text-red-700',
-  deleted: 'border-slate-200 bg-slate-50 text-slate-500',
+  deleted: 'border-[#ead7b7] bg-[#fff6e8] text-slate-500',
+  canceled: 'border-slate-200 bg-slate-50 text-slate-600',
 };
 
 const request = async <T,>(url: string, options: RequestInit = {}) => {
+  const method = (options.method || 'GET').toUpperCase();
+  const requestLabel = `${method} ${url}`;
   const response = await fetch(url, options);
   const rawBody = await response.text();
   let body: ApiResponse<T> | null = null;
@@ -52,21 +60,25 @@ const request = async <T,>(url: string, options: RequestInit = {}) => {
       body = JSON.parse(rawBody) as ApiResponse<T>;
     } catch {
       if (response.status === 404) {
-        throw new Error('知识库接口未找到，请确认后端已重启并包含 /api/knowledge 路由。');
+        throw new Error(
+          `知识库接口未找到：${requestLabel} 返回 404。请确认后端已重启，且前端代理指向 http://localhost:8000。`
+        );
       }
-      throw new Error(`接口返回非 JSON 响应：${response.status} ${rawBody}`);
+      throw new Error(`${requestLabel} 返回非 JSON 响应：HTTP ${response.status} ${rawBody}`);
     }
   }
 
   if (!body) {
     if (response.status === 404) {
-      throw new Error('知识库接口未找到，请确认后端已重启并包含 /api/knowledge 路由。');
+      throw new Error(
+        `知识库接口未找到：${requestLabel} 返回 404。请确认后端已重启，且前端代理指向 http://localhost:8000。`
+      );
     }
-    throw new Error(`接口无响应内容：${response.status}`);
+    throw new Error(`${requestLabel} 无响应内容：HTTP ${response.status}`);
   }
 
   if (!response.ok || body.message !== 'OK') {
-    throw new Error(body.message || '请求失败');
+    throw new Error(`${requestLabel} 请求失败：${body.message || `HTTP ${response.status}`}`);
   }
   return body.data;
 };
@@ -90,27 +102,51 @@ const formatDate = (value?: string) => {
   });
 };
 
+const formatScore = (score: number) => {
+  if (!Number.isFinite(score) || score <= 0) return '-';
+  return score.toFixed(3);
+};
+
+const scoreToneClass = (score: number) => {
+  if (score >= 0.75) return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (score >= 0.45) return 'border-amber-200 bg-amber-50 text-amber-700';
+  return 'border-slate-200 bg-slate-50 text-slate-500';
+};
+
 const isActiveDocument = (doc: KnowledgeDocument) => doc.status === 'indexing' || Boolean(doc.activeTaskId);
+const isCancelableDocument = (doc: KnowledgeDocument) => doc.status === 'indexing' && Boolean(doc.activeTaskId);
+const isCleanableDocument = (doc: KnowledgeDocument) =>
+  doc.status === 'failed' || doc.status === 'canceled' || doc.status === 'delete_failed';
 
 const KnowledgePage = () => {
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [latestTask, setLatestTask] = useState<KnowledgeTask | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isReindexingAll, setIsReindexingAll] = useState(false);
+  const [isCheckingHealth, setIsCheckingHealth] = useState(false);
+  const [health, setHealth] = useState<KnowledgeHealth | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTopK, setSearchTopK] = useState(5);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState<KnowledgeSearchResult | null>(null);
+  const [searchError, setSearchError] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const hasActiveTasks = documents.some(isActiveDocument);
+  const hasReadyDocuments = documents.some((doc) => doc.status === 'ready');
 
   const stats = useMemo(() => {
     const ready = documents.filter((doc) => doc.status === 'ready').length;
+    const enabled = documents.filter((doc) => doc.enabled && doc.status === 'ready').length;
     const indexing = documents.filter((doc) => doc.status === 'indexing').length;
     const failed = documents.filter((doc) => doc.status === 'failed' || doc.status === 'delete_failed').length;
     const chunks = documents.reduce((sum, doc) => sum + doc.chunkCount, 0);
-    return { ready, indexing, failed, chunks };
+    return { ready, enabled, indexing, failed, chunks };
   }, [documents]);
 
   const loadDocuments = useCallback(async (silent = false) => {
@@ -130,9 +166,33 @@ const KnowledgePage = () => {
     }
   }, []);
 
+  const loadHealth = useCallback(async () => {
+    setIsCheckingHealth(true);
+    try {
+      const data = await request<KnowledgeHealth>('/api/knowledge/health');
+      setHealth(data);
+    } catch (err) {
+      setHealth({
+        address: '-',
+        ok: false,
+        tcpOk: false,
+        sdkOk: false,
+        databaseOk: false,
+        collectionOk: false,
+        collectionLoaded: false,
+        message: err instanceof Error ? err.message : 'Milvus 健康检查失败',
+        suggestion: '确认后端已启动，并检查 /api 代理是否指向 http://localhost:8000。',
+        durationMs: 0,
+      });
+    } finally {
+      setIsCheckingHealth(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadDocuments();
-  }, [loadDocuments]);
+    loadHealth();
+  }, [loadDocuments, loadHealth]);
 
   useEffect(() => {
     if (!hasActiveTasks) return undefined;
@@ -197,6 +257,44 @@ const KnowledgePage = () => {
     }
   };
 
+  const handleReindexAll = async () => {
+    setIsReindexingAll(true);
+    setError('');
+    setSuccess('');
+    try {
+      const data = await request<{ tasks: KnowledgeTask[] }>('/api/knowledge/documents/reindex_all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setLatestTask(data.tasks[0] ?? null);
+      setSuccess(data.tasks.length > 0 ? `已创建 ${data.tasks.length} 个重建任务` : '没有需要重建的启用文档');
+      await loadDocuments(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '重建全部失败');
+    } finally {
+      setIsReindexingAll(false);
+    }
+  };
+
+  const handleToggleEnabled = async (doc: KnowledgeDocument) => {
+    setPendingAction({ documentId: doc.id, type: 'toggle' });
+    setError('');
+    setSuccess('');
+    try {
+      const data = await request<{ document: KnowledgeDocument }>('/api/knowledge/documents/enabled', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documentId: doc.id, enabled: !doc.enabled }),
+      });
+      setDocuments((current) => current.map((item) => (item.id === data.document.id ? data.document : item)));
+      setSuccess(data.document.enabled ? '文档已启用检索' : '文档已禁用检索');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '更新文档检索状态失败');
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
   const handleDelete = async (documentId: string) => {
     if (confirmDeleteId !== documentId) {
       setConfirmDeleteId(documentId);
@@ -220,11 +318,85 @@ const KnowledgePage = () => {
     }
   };
 
+  const handleCancelTask = async (doc: KnowledgeDocument) => {
+    if (!doc.activeTaskId) return;
+    setPendingAction({ documentId: doc.id, type: 'cancel' });
+    setError('');
+    setSuccess('');
+    try {
+      const data = await request<{ task: KnowledgeTask }>('/api/knowledge/tasks/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: doc.activeTaskId }),
+      });
+      setLatestTask(data.task);
+      setSuccess('已发送取消任务请求');
+      await loadDocuments(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '取消任务失败');
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
+  const handleCleanup = async (documentId: string) => {
+    setPendingAction({ documentId, type: 'cleanup' });
+    setError('');
+    setSuccess('');
+    try {
+      const data = await request<{ task: KnowledgeTask }>('/api/knowledge/documents/cleanup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documentId }),
+      });
+      setLatestTask(data.task);
+      setSuccess('已创建清理索引任务');
+      await loadDocuments(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '清理索引失败');
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
+  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) {
+      setSearchError('请输入要检索的问题');
+      return;
+    }
+    if (!hasReadyDocuments) {
+      setSearchError('需要至少一份状态为“可检索”的文档');
+      return;
+    }
+    if (health && !health.ok) {
+      setSearchError(`${health.message}${health.error ? `：${health.error}` : ''}`);
+      return;
+    }
+    setIsSearching(true);
+    setSearchError('');
+    setSearchResult(null);
+    try {
+      const data = await request<KnowledgeSearchResult>('/api/knowledge/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, topK: searchTopK }),
+      });
+      setSearchResult(data);
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : '知识库检索失败');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const activeTaskLabel = latestTask
     ? `${latestTask.type} · ${latestTask.status} · ${formatDate(latestTask.updatedAt)}`
     : hasActiveTasks
       ? '有任务正在执行'
       : '当前无运行任务';
+  const isSearchDisabled = isSearching || !hasReadyDocuments || !searchQuery.trim();
 
   return (
     <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:overflow-hidden">
@@ -246,11 +418,20 @@ const KnowledgePage = () => {
                 <button
                   type="button"
                   onClick={() => loadDocuments()}
-                  disabled={isLoading || isUploading}
+                  disabled={isLoading || isUploading || isReindexingAll}
                   className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
                   刷新
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReindexAll}
+                  disabled={isLoading || isUploading || isReindexingAll || hasActiveTasks || stats.enabled === 0}
+                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isReindexingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                  重建全部
                 </button>
                 <button
                   type="button"
@@ -274,13 +455,13 @@ const KnowledgePage = () => {
 
           <section className="grid shrink-0 gap-3 border-b border-[#ead7b7] bg-[#fff6e8] p-4 sm:grid-cols-4">
             <StatCard label="可检索文档" value={stats.ready} tone="emerald" />
+            <StatCard label="已启用" value={stats.enabled} tone="slate" />
             <StatCard label="索引中" value={stats.indexing} tone="amber" />
             <StatCard label="异常文档" value={stats.failed} tone="red" />
-            <StatCard label="知识片段" value={stats.chunks} tone="slate" />
           </section>
 
           {(error || success) && (
-            <div className="shrink-0 border-b border-slate-200 px-4 py-3">
+            <div className="shrink-0 border-b border-[#ead7b7] px-4 py-3">
               {error && (
                 <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -305,8 +486,8 @@ const KnowledgePage = () => {
             ) : documents.length === 0 ? (
               <EmptyState onUpload={() => fileInputRef.current?.click()} isUploading={isUploading} />
             ) : (
-              <div className="overflow-hidden rounded-lg border border-slate-200">
-                <div className="hidden grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] gap-3 border-b border-slate-200 bg-[#fff6e8] px-4 py-3 text-xs font-semibold text-slate-500 lg:grid">
+              <div className="overflow-hidden rounded-lg border border-[#ead7b7]">
+                <div className="hidden grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] gap-3 border-b border-[#ead7b7] bg-[#fff6e8] px-4 py-3 text-xs font-semibold text-slate-500 lg:grid">
                   <span>文档</span>
                   <span>大小</span>
                   <span>状态</span>
@@ -322,7 +503,10 @@ const KnowledgePage = () => {
                       pendingAction={pendingAction}
                       confirmDeleteId={confirmDeleteId}
                       onReindex={handleReindex}
+                      onToggleEnabled={handleToggleEnabled}
                       onDelete={handleDelete}
+                      onCancelTask={handleCancelTask}
+                      onCleanup={handleCleanup}
                       onCancelDelete={() => setConfirmDeleteId(null)}
                     />
                   ))}
@@ -347,6 +531,151 @@ const KnowledgePage = () => {
                 {hasActiveTasks ? '任务执行中' : '任务空闲'}
               </div>
               <p className="mt-2 break-all text-xs leading-5 text-slate-600">{activeTaskLabel}</p>
+            </section>
+
+            <section className="app-surface rounded-lg border p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                    <Server className="h-4 w-4 text-[#9a563f]" />
+                    向量库状态
+                  </h3>
+                  <p className="mt-1 truncate text-xs text-slate-500">{health?.address || '未检测'}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={loadHealth}
+                  disabled={isCheckingHealth}
+                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isCheckingHealth ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCcw className="h-3.5 w-3.5" />}
+                  检测
+                </button>
+              </div>
+              <div
+                className={`mt-3 rounded-md border px-3 py-2 text-xs leading-5 ${
+                  health?.ok
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                    : health
+                      ? 'border-red-200 bg-red-50 text-red-700'
+                      : 'border-slate-200 bg-slate-50 text-slate-600'
+                }`}
+              >
+                <div className="flex items-center gap-2 font-semibold">
+                  {isCheckingHealth ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : health?.ok ? (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  ) : (
+                    <AlertCircle className="h-3.5 w-3.5" />
+                  )}
+                  {isCheckingHealth ? '正在检测 Milvus' : health?.message || '等待检测'}
+                </div>
+                {health?.error && <p className="mt-1 break-words font-normal">{health.error}</p>}
+                {health?.suggestion && (
+                  <p className="mt-2 rounded border border-current/20 bg-white/50 px-2 py-1.5 font-normal">
+                    {health.suggestion}
+                  </p>
+                )}
+                {health && (
+                  <p className="mt-2 text-[11px] opacity-80">
+                    TCP {health.tcpOk ? 'OK' : 'FAIL'} · SDK {health.sdkOk ? 'OK' : 'FAIL'} · Collection{' '}
+                    {health.collectionLoaded ? 'Loaded' : 'Unloaded'} · {health.durationMs}ms
+                  </p>
+                )}
+              </div>
+            </section>
+
+            <section className="app-surface rounded-lg border p-4">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                  <Search className="h-4 w-4 text-[#9a563f]" />
+                  检索测试
+                </h3>
+                <span className="text-xs font-medium text-slate-500">TopK {searchTopK}</span>
+              </div>
+              <form className="mt-3 space-y-3" onSubmit={handleSearch}>
+                <label className="block text-xs font-semibold text-slate-500" htmlFor="knowledge-search-query">
+                  查询内容
+                </label>
+                <textarea
+                  id="knowledge-search-query"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  rows={3}
+                  placeholder="例如：接口失败率过高怎么处理"
+                  className="min-h-[88px] w-full resize-none rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3 py-2 text-sm leading-6 text-slate-900 outline-none transition focus:border-[#c77c58] focus:ring-2 focus:ring-[#f1c7b0]"
+                />
+                <div className="flex items-end gap-2">
+                  <label className="min-w-0 flex-1 text-xs font-semibold text-slate-500" htmlFor="knowledge-search-topk">
+                    返回片段
+                    <select
+                      id="knowledge-search-topk"
+                      value={searchTopK}
+                      onChange={(event) => setSearchTopK(Number(event.target.value))}
+                      className="mt-1 h-11 w-full cursor-pointer rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#c77c58] focus:ring-2 focus:ring-[#f1c7b0]"
+                    >
+                      {[3, 5, 8, 10, 20].map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={isSearchDisabled}
+                    className="brand-button h-11 shrink-0 px-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <SearchCheck className="h-4 w-4" />}
+                    测试
+                  </button>
+                </div>
+              </form>
+              {!hasReadyDocuments && (
+                <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                  当前没有可检索文档，上传并等待索引完成后再测试。
+                </p>
+              )}
+              {searchError && (
+                <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                  {searchError}
+                </p>
+              )}
+              {searchResult && (
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>命中 {searchResult.documents.length} 条</span>
+                    <span className="truncate">{searchResult.query}</span>
+                  </div>
+                  {searchResult.documents.length === 0 ? (
+                    <p className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-600">
+                      没有召回片段，可以换一个更贴近文档措辞的问题。
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {searchResult.documents.map((doc, index) => (
+                        <article
+                          key={`${doc.id || doc.source}-${index}`}
+                          className={`rounded-md border p-3 ${doc.score > 0 && doc.score < 0.45 ? 'border-slate-200 bg-slate-50 opacity-80' : 'border-[#ead7b7] bg-[#fffdf8]'}`}
+                        >
+                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-[#f7ebe5] text-[#7f432f]">
+                              {index + 1}
+                            </span>
+                            <span className={`shrink-0 rounded border px-1.5 py-0.5 ${scoreToneClass(doc.score)}`}>
+                              {formatScore(doc.score)}
+                            </span>
+                            <span className="truncate">{doc.fileName || doc.source || '未知来源'}</span>
+                          </div>
+                          {doc.source && <p className="mt-1 truncate text-[11px] text-slate-400">{doc.source}</p>}
+                          <p className="mt-2 line-clamp-4 break-words text-xs leading-5 text-slate-700">{doc.content}</p>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
 
             <section className="app-surface rounded-lg border p-4">
@@ -377,18 +706,18 @@ const statToneClass: Record<StatTone, string> = {
   emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   amber: 'bg-amber-50 text-amber-700 border-amber-200',
   red: 'bg-red-50 text-red-700 border-red-200',
-  slate: 'bg-slate-100 text-slate-700 border-slate-200',
+  slate: 'bg-[#fff6e8] text-slate-700 border-[#ead7b7]',
 };
 
 const StatCard = ({ label, value, tone }: { label: string; value: number; tone: StatTone }) => (
-  <div className={`rounded-lg border bg-white p-3 ${statToneClass[tone]}`}>
+  <div className={`rounded-lg border p-3 ${statToneClass[tone]}`}>
     <p className="text-xs font-semibold opacity-80">{label}</p>
     <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
   </div>
 );
 
 const EmptyState = ({ onUpload, isUploading }: { onUpload: () => void; isUploading: boolean }) => (
-  <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+  <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-dashed border-[#dec39d] bg-[#fff6e8] px-6 py-12 text-center">
     <div className="max-w-md">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-[#ead1c5] bg-[#fbf7f4] text-[#7f432f]">
         <FileText className="h-6 w-6" />
@@ -413,23 +742,32 @@ const DocumentRow = ({
   pendingAction,
   confirmDeleteId,
   onReindex,
+  onToggleEnabled,
   onDelete,
+  onCancelTask,
+  onCleanup,
   onCancelDelete,
 }: {
   doc: KnowledgeDocument;
   pendingAction: PendingAction | null;
   confirmDeleteId: string | null;
   onReindex: (documentId: string) => void;
+  onToggleEnabled: (doc: KnowledgeDocument) => void;
   onDelete: (documentId: string) => void;
+  onCancelTask: (doc: KnowledgeDocument) => void;
+  onCleanup: (documentId: string) => void;
   onCancelDelete: () => void;
 }) => {
   const isActive = isActiveDocument(doc);
   const isReindexing = pendingAction?.documentId === doc.id && pendingAction.type === 'reindex';
   const isDeleting = pendingAction?.documentId === doc.id && pendingAction.type === 'delete';
+  const isCanceling = pendingAction?.documentId === doc.id && pendingAction.type === 'cancel';
+  const isCleaning = pendingAction?.documentId === doc.id && pendingAction.type === 'cleanup';
+  const isToggling = pendingAction?.documentId === doc.id && pendingAction.type === 'toggle';
   const isConfirmingDelete = confirmDeleteId === doc.id;
 
   return (
-    <article className="grid gap-3 bg-white px-4 py-4 lg:grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] lg:items-center">
+    <article className="grid gap-3 bg-[#fffdf8] px-4 py-4 lg:grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] lg:items-center">
       <div className="min-w-0">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f7ebe5] text-[#7f432f]">
@@ -438,6 +776,9 @@ const DocumentRow = ({
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold text-slate-950">{doc.fileName}</h3>
             <p className="mt-1 truncate text-xs text-slate-500">{doc.filePath}</p>
+            <p className={`mt-2 text-xs font-semibold ${doc.enabled ? 'text-emerald-700' : 'text-slate-400'}`}>
+              {doc.enabled ? '参与检索' : '已禁用检索'}
+            </p>
             {doc.lastError && <p className="mt-2 line-clamp-2 text-xs leading-5 text-red-700">{doc.lastError}</p>}
           </div>
         </div>
@@ -454,21 +795,56 @@ const DocumentRow = ({
       <div className="flex flex-wrap justify-start gap-2 lg:justify-end">
         <button
           type="button"
+          onClick={() => onToggleEnabled(doc)}
+          disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning || isToggling}
+          className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+            doc.enabled
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          {isToggling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : doc.enabled ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Ban className="h-3.5 w-3.5" />}
+          {doc.enabled ? '启用' : '禁用'}
+        </button>
+        {isCancelableDocument(doc) && (
+          <button
+            type="button"
+            onClick={() => onCancelTask(doc)}
+            disabled={!doc.activeTaskId || isCanceling || isDeleting}
+            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-amber-300 bg-amber-50 px-2.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isCanceling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />}
+            取消
+          </button>
+        )}
+        <button
+          type="button"
           onClick={() => onReindex(doc.id)}
-          disabled={isActive || isReindexing || isDeleting}
+          disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning}
           className="brand-subtle-button inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isReindexing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
           重建
         </button>
+        {isCleanableDocument(doc) && (
+          <button
+            type="button"
+            onClick={() => onCleanup(doc.id)}
+            disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning}
+            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isCleaning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldX className="h-3.5 w-3.5" />}
+            清理索引
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onDelete(doc.id)}
-          disabled={isActive || isReindexing || isDeleting}
+          disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning}
           className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
             isConfirmingDelete
               ? 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100'
-              : 'border-slate-200 bg-white text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700'
+              : 'border-[#ead7b7] bg-[#fffdf8] text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700'
           }`}
         >
           {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}

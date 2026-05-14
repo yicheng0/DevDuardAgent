@@ -5,7 +5,7 @@
 echo "启动 DevGuardAgent Frontend..."
 #echo "📁 当前目录: $(pwd)"
 echo "前端服务将在 http://localhost:8080 启动"
-echo "请确保后端服务运行在 http://localhost:6872"
+echo "请确保后端服务运行在 http://localhost:8000"
 echo ""
 
 # 检查 Python 是否可用

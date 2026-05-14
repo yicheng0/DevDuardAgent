@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
@@ -21,11 +22,13 @@ func NewQueryInternalDocsTool() tool.InvokableTool {
 		func(ctx context.Context, input *QueryInternalDocsInput, opts ...tool.Option) (output string, err error) {
 			rr, err := retriever.NewMilvusRetriever(ctx)
 			if err != nil {
-				return "", fmt.Errorf("build retriever failed: %w", err)
+				log.Printf("query internal docs disabled: %v", err)
+				return fmt.Sprintf(`{"success":false,"message":"知识库暂不可用，已跳过内部文档检索","error":%q}`, err.Error()), nil
 			}
-			resp, err := rr.Retrieve(ctx, input.Query)
+			resp, err := rr.Retrieve(ctx, input.Query, retriever.WithEnabledDocumentsOnly(ctx))
 			if err != nil {
-				return "", fmt.Errorf("retrieve internal docs failed: %w", err)
+				log.Printf("query internal docs failed: %v", err)
+				return fmt.Sprintf(`{"success":false,"message":"知识库检索失败，已跳过内部文档检索","error":%q}`, err.Error()), nil
 			}
 			respBytes, _ := json.Marshal(resp)
 			output = string(respBytes)

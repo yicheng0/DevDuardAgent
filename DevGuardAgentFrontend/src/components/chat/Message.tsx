@@ -96,7 +96,7 @@ const Message = ({ message, compact = false }: MessageProps) => {
         className={`${compact ? 'max-w-[88%] px-2.5 py-1.5 text-xs leading-5' : 'max-w-[82%] px-3 py-2 text-sm leading-6'} rounded-lg border ${
           isUser
             ? 'border-[#9a563f] bg-[#9a563f] text-white'
-            : 'border-slate-200 bg-slate-50 text-slate-800'
+            : 'border-[#ead7b7] bg-[#fff6e8] text-slate-800'
         }`}
       >
         {canToggleImportant && (
@@ -136,7 +136,7 @@ const Message = ({ message, compact = false }: MessageProps) => {
       {isUser && (
         <div className="shrink-0">
           <div
-            className={`flex items-center justify-center rounded-md bg-slate-100 text-slate-700 ring-1 ring-slate-200 ${
+            className={`flex items-center justify-center rounded-md bg-[#fff6e8] text-[#7f432f] ring-1 ring-[#ead7b7] ${
               compact ? 'h-7 w-7' : 'h-8 w-8'
             }`}
           >

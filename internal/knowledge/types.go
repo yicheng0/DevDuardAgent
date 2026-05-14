@@ -10,6 +10,7 @@ const (
 	DocumentStatusFailed       DocumentStatus = "failed"
 	DocumentStatusDeleteFailed DocumentStatus = "delete_failed"
 	DocumentStatusDeleted      DocumentStatus = "deleted"
+	DocumentStatusCanceled     DocumentStatus = "canceled"
 )
 
 type TaskType string
@@ -18,6 +19,7 @@ const (
 	TaskTypeIndex   TaskType = "index"
 	TaskTypeDelete  TaskType = "delete"
 	TaskTypeReindex TaskType = "reindex"
+	TaskTypeCleanup TaskType = "cleanup"
 )
 
 type TaskStatus string
@@ -27,6 +29,7 @@ const (
 	TaskStatusRunning   TaskStatus = "running"
 	TaskStatusSucceeded TaskStatus = "succeeded"
 	TaskStatusFailed    TaskStatus = "failed"
+	TaskStatusCanceled  TaskStatus = "canceled"
 )
 
 type Document struct {
@@ -37,6 +40,7 @@ type Document struct {
 	SHA256        string         `json:"sha256"`
 	Size          int64          `json:"size"`
 	Status        DocumentStatus `json:"status"`
+	Enabled       *bool          `json:"enabled,omitempty"`
 	ChunkCount    int            `json:"chunkCount"`
 	ActiveTaskID  string         `json:"activeTaskId,omitempty"`
 	CreatedAt     time.Time      `json:"createdAt"`

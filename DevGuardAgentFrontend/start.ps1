@@ -4,7 +4,7 @@ $Port = if ($env:PORT) { [int]$env:PORT } else { 8080 }
 
 Write-Host "Starting DevGuardAgent Frontend..."
 Write-Host "Frontend URL: http://localhost:$Port"
-Write-Host "Make sure the backend is running at http://localhost:6872"
+Write-Host "Make sure the backend is running at http://localhost:8000"
 Write-Host ""
 
 function Test-Command {

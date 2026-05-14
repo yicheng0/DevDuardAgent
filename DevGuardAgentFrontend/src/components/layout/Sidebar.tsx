@@ -119,8 +119,8 @@ const Sidebar = () => {
                   isSidebarCollapsed ? 'h-9 w-9' : 'h-6 w-6'
                 } ${
                   isActive
-                    ? 'bg-white/45 text-[#7f432f] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]'
-                    : 'bg-white/25 text-[#8a695a] group-hover:bg-white/45 group-hover:text-[#6f3b2a]'
+                    ? 'bg-[#fff6e8] text-[#7f432f] shadow-[inset_0_1px_0_rgba(255,248,232,0.85)]'
+                    : 'bg-[#fffaf0] text-[#8a695a] group-hover:bg-[#fff6e8] group-hover:text-[#6f3b2a]'
                 }`}
               >
                 <Icon className={isSidebarCollapsed ? 'h-[18px] w-[18px]' : 'h-[17px] w-[17px]'} />

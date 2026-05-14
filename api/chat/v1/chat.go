@@ -94,12 +94,13 @@ type EmbeddingRuntimeConfig struct {
 }
 
 type RuntimeConfig struct {
-	QuickModel    ModelRuntimeConfig     `json:"quickModel"`
-	ThinkModel    ModelRuntimeConfig     `json:"thinkModel"`
-	Embedding     EmbeddingRuntimeConfig `json:"embedding"`
-	MCPURL        string                 `json:"mcpUrl"`
-	MilvusAddress string                 `json:"milvusAddress"`
-	FileDir       string                 `json:"fileDir"`
+	QuickModel          ModelRuntimeConfig     `json:"quickModel"`
+	ThinkModel          ModelRuntimeConfig     `json:"thinkModel"`
+	Embedding           EmbeddingRuntimeConfig `json:"embedding"`
+	MCPURL              string                 `json:"mcpUrl"`
+	MilvusAddress       string                 `json:"milvusAddress"`
+	FileDir             string                 `json:"fileDir"`
+	IndexTimeoutSeconds int64                  `json:"indexTimeoutSeconds"`
 }
 
 type GetRuntimeConfigReq struct {
@@ -139,6 +140,7 @@ type KnowledgeDocument struct {
 	SHA256        string `json:"sha256"`
 	Size          int64  `json:"size"`
 	Status        string `json:"status"`
+	Enabled       bool   `json:"enabled"`
 	ChunkCount    int    `json:"chunkCount"`
 	ActiveTaskID  string `json:"activeTaskId,omitempty"`
 	CreatedAt     string `json:"createdAt"`
@@ -167,6 +169,24 @@ type KnowledgeDocumentsRes struct {
 	Documents []KnowledgeDocument `json:"documents"`
 }
 
+type KnowledgeHealthReq struct {
+	g.Meta `path:"/knowledge/health" method:"get" summary:"知识库向量库健康状态"`
+}
+
+type KnowledgeHealthRes struct {
+	Address          string `json:"address"`
+	OK               bool   `json:"ok"`
+	TCPOK            bool   `json:"tcpOk"`
+	SDKOK            bool   `json:"sdkOk"`
+	DatabaseOK       bool   `json:"databaseOk"`
+	CollectionOK     bool   `json:"collectionOk"`
+	CollectionLoaded bool   `json:"collectionLoaded"`
+	Message          string `json:"message"`
+	Error            string `json:"error,omitempty"`
+	Suggestion       string `json:"suggestion,omitempty"`
+	DurationMs       int64  `json:"durationMs"`
+}
+
 type KnowledgeTaskReq struct {
 	g.Meta `path:"/knowledge/tasks" method:"get" summary:"知识库任务详情"`
 	ID     string `json:"id"`
@@ -185,6 +205,24 @@ type KnowledgeReindexRes struct {
 	Task KnowledgeTask `json:"task"`
 }
 
+type KnowledgeReindexAllReq struct {
+	g.Meta `path:"/knowledge/documents/reindex_all" method:"post" summary:"重建全部知识库文档索引"`
+}
+
+type KnowledgeReindexAllRes struct {
+	Tasks []KnowledgeTask `json:"tasks"`
+}
+
+type KnowledgeSetEnabledReq struct {
+	g.Meta     `path:"/knowledge/documents/enabled" method:"put" summary:"启用或禁用知识库文档检索"`
+	DocumentID string `json:"documentId"`
+	Enabled    bool   `json:"enabled"`
+}
+
+type KnowledgeSetEnabledRes struct {
+	Document KnowledgeDocument `json:"document"`
+}
+
 type KnowledgeDeleteReq struct {
 	g.Meta `path:"/knowledge/documents" method:"delete" summary:"删除知识库文档"`
 	ID     string `json:"id"`
@@ -192,6 +230,46 @@ type KnowledgeDeleteReq struct {
 
 type KnowledgeDeleteRes struct {
 	Task KnowledgeTask `json:"task"`
+}
+
+type KnowledgeCancelTaskReq struct {
+	g.Meta `path:"/knowledge/tasks/cancel" method:"post" summary:"取消知识库任务"`
+	TaskID string `json:"taskId"`
+}
+
+type KnowledgeCancelTaskRes struct {
+	Task KnowledgeTask `json:"task"`
+}
+
+type KnowledgeCleanupReq struct {
+	g.Meta     `path:"/knowledge/documents/cleanup" method:"post" summary:"清理异常知识库文档索引"`
+	DocumentID string `json:"documentId"`
+}
+
+type KnowledgeCleanupRes struct {
+	Task KnowledgeTask `json:"task"`
+}
+
+type KnowledgeSearchReq struct {
+	g.Meta `path:"/knowledge/search" method:"post" summary:"知识库检索测试"`
+	Query  string `json:"query"`
+	TopK   int    `json:"topK"`
+}
+
+type KnowledgeSearchDocument struct {
+	ID         string         `json:"id"`
+	Content    string         `json:"content"`
+	Score      float64        `json:"score"`
+	DocumentID string         `json:"documentId,omitempty"`
+	FileName   string         `json:"fileName,omitempty"`
+	Source     string         `json:"source"`
+	Metadata   map[string]any `json:"metadata,omitempty"`
+}
+
+type KnowledgeSearchRes struct {
+	Query     string                    `json:"query"`
+	TopK      int                       `json:"topK"`
+	Documents []KnowledgeSearchDocument `json:"documents"`
 }
 
 type AgentTaskStatus string

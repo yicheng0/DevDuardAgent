@@ -28,7 +28,7 @@ const Topbar = () => {
         <button
           type="button"
           onClick={toggleSidebar}
-          className="brand-icon-button flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 md:hidden"
+          className="brand-icon-button flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-[#ead7b7] text-slate-600 md:hidden"
           aria-label="打开侧边栏"
         >
           <PanelLeftOpen className="h-5 w-5" />
@@ -36,7 +36,7 @@ const Topbar = () => {
         <button
           type="button"
           onClick={toggleSidebarCollapsed}
-          className="brand-icon-button hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-600 md:flex"
+          className="brand-icon-button hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-[#ead7b7] text-slate-600 md:flex"
           aria-label={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
           title={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
         >

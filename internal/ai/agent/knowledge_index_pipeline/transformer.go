@@ -9,7 +9,7 @@ import (
 )
 
 // newDocumentTransformer component initialization function of node 'MarkdownSplitter' in graph 'KnowledgeIndexing'
-func newDocumentTransformer(ctx context.Context) (tfr document.Transformer, err error) {
+func NewDocumentTransformer(ctx context.Context) (tfr document.Transformer, err error) {
 	config := &markdown.HeaderConfig{
 		Headers: map[string]string{
 			"#": "title",
@@ -24,4 +24,9 @@ func newDocumentTransformer(ctx context.Context) (tfr document.Transformer, err 
 		return nil, err
 	}
 	return tfr, nil
+}
+
+// newDocumentTransformer component initialization function of node 'MarkdownSplitter' in graph 'KnowledgeIndexing'
+func newDocumentTransformer(ctx context.Context) (tfr document.Transformer, err error) {
+	return NewDocumentTransformer(ctx)
 }

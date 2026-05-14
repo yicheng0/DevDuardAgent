@@ -55,7 +55,7 @@ const WelcomeScreen = () => {
   };
 
   return (
-    <div className="flex h-full items-center justify-center p-6">
+    <div className="flex h-full items-center justify-center bg-[#fffdf8] p-6">
       <div className="max-w-4xl w-full">
         {/* Header */}
         <motion.div
@@ -64,12 +64,12 @@ const WelcomeScreen = () => {
           transition={{ duration: 0.5 }}
           className="mb-10 text-center"
         >
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d9a08a]/30 bg-[#9a563f]/15 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-[#f3c7b4]">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d9a08a] bg-[#f7ebe5] px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-[#7f432f]">
             <Radar className="h-4 w-4" />
             Agent Reasoning Workspace
           </div>
-          <h1 className="mb-4 text-5xl font-semibold tracking-tight text-white">DevGuard Agent</h1>
-          <p className="mx-auto max-w-2xl text-lg leading-7 text-slate-400">
+          <h1 className="mb-4 text-5xl font-semibold tracking-tight text-[#2f2119]">DevGuard Agent</h1>
+          <p className="mx-auto max-w-2xl text-lg leading-7 text-[#6f5b4b]">
             面向安全运维场景的 Agent 工作台，展示任务理解、工具调用、证据沉淀和处置建议。
           </p>
         </motion.div>
@@ -85,7 +85,7 @@ const WelcomeScreen = () => {
               whileHover={{ y: -8, scale: 1.02 }}
             >
               <div
-                className="group h-full cursor-pointer rounded-2xl border border-white/10 bg-slate-950/62 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all hover:border-[#d9a08a]/45 hover:bg-white/[0.07]"
+                className="group h-full cursor-pointer rounded-2xl border border-[#ead7b7] bg-[#fff6e8] p-6 shadow-[0_20px_46px_rgba(127,67,47,0.12)] backdrop-blur-xl transition-all hover:border-[#d9a08a] hover:bg-[#fffdf8]"
                 onClick={() => handleFeatureClick(feature.prompt)}
               >
                 <div
@@ -93,9 +93,9 @@ const WelcomeScreen = () => {
                 >
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-sm text-slate-400">{feature.description}</p>
-                <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#f3c7b4] opacity-0 transition-opacity group-hover:opacity-100">
+                <h3 className="text-lg font-semibold text-[#2f2119] mb-2">{feature.title}</h3>
+                <p className="text-sm text-[#6f5b4b]">{feature.description}</p>
+                <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#7f432f] opacity-0 transition-opacity group-hover:opacity-100">
                   <FileSearch className="h-3.5 w-3.5" />
                   启动推理轨迹
                 </div>

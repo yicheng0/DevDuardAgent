@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -19,6 +20,9 @@ func ConfigFromRuntime(ctx context.Context) Config {
 	if v, err := g.Cfg().Get(ctx, "knowledge.max_upload_mb"); err == nil && v.Int64() > 0 {
 		cfg.MaxUploadBytes = v.Int64() * 1024 * 1024
 	}
+	if v, err := g.Cfg().Get(ctx, "knowledge.index_timeout_seconds"); err == nil && v.Int64() > 0 {
+		cfg.IndexTimeout = time.Duration(v.Int64()) * time.Second
+	}
 	if v, err := g.Cfg().Get(ctx, "knowledge.allowed_extensions"); err == nil {
 		cfg.AllowedExtensions = normalizeAllowedExtensions(v.Strings())
 	}
@@ -27,7 +31,7 @@ func ConfigFromRuntime(ctx context.Context) Config {
 
 func (c Config) Key() string {
 	c = normalizeConfig(c)
-	return fmt.Sprintf("%s|%d|%s", c.FileDir, c.MaxUploadBytes, strings.Join(c.AllowedExtensions, ","))
+	return fmt.Sprintf("%s|%d|%d|%s", c.FileDir, c.MaxUploadBytes, c.IndexTimeout, strings.Join(c.AllowedExtensions, ","))
 }
 
 func RetrievalTopK(ctx context.Context) int {

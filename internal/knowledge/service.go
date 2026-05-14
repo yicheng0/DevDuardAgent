@@ -2,10 +2,10 @@ package knowledge
 
 import (
 	"SuperBizAgent/internal/ai/agent/knowledge_index_pipeline"
+	indexer2 "SuperBizAgent/internal/ai/indexer"
 	loader2 "SuperBizAgent/internal/ai/loader"
 	"SuperBizAgent/utility/client"
 	"SuperBizAgent/utility/common"
-	"SuperBizAgent/utility/log_call_back"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -19,7 +19,6 @@ import (
 	"time"
 
 	"github.com/cloudwego/eino/components/document"
-	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 	"github.com/google/uuid"
 )
@@ -29,12 +28,21 @@ var (
 	ErrTaskNotFound         = errors.New("knowledge task not found")
 	ErrUnsupportedExtension = errors.New("unsupported knowledge file extension")
 	ErrUploadTooLarge       = errors.New("knowledge file exceeds size limit")
+	ErrTaskNotCancelable    = errors.New("knowledge task is not cancelable")
+	ErrDocumentNotCleanable = errors.New("knowledge document is not cleanable")
+)
+
+const (
+	defaultIndexTimeout = 10 * time.Minute
+	cancelMessage       = "任务已取消"
+	timeoutMessage      = "索引超时"
 )
 
 type Config struct {
 	FileDir           string
 	AllowedExtensions []string
 	MaxUploadBytes    int64
+	IndexTimeout      time.Duration
 }
 
 type UploadResult struct {
@@ -43,24 +51,34 @@ type UploadResult struct {
 	Deduped  bool
 }
 
+type ReindexAllResult struct {
+	Tasks []Task
+}
+
 type indexResult struct {
 	chunkCount int
 	source     string
 }
 
 type Service struct {
-	cfg      Config
-	store    *StateStore
-	taskCh   chan string
-	startOne sync.Once
+	cfg               Config
+	store             *StateStore
+	taskCh            chan string
+	startOne          sync.Once
+	runningMu         sync.Mutex
+	runningTasks      map[string]context.CancelFunc
+	indexDocumentFn   func(context.Context, string) (indexResult, error)
+	deleteDocumentFn  func(context.Context, string) error
+	cleanupDocumentFn func(context.Context, string) error
 }
 
 func NewService(cfg Config) *Service {
 	cfg = normalizeConfig(cfg)
 	return &Service{
-		cfg:    cfg,
-		store:  NewStateStore(cfg.FileDir),
-		taskCh: make(chan string, 128),
+		cfg:          cfg,
+		store:        NewStateStore(cfg.FileDir),
+		taskCh:       make(chan string, 128),
+		runningTasks: make(map[string]context.CancelFunc),
 	}
 }
 
@@ -111,13 +129,17 @@ func (s *Service) Upload(ctx context.Context, fileName string, content io.Reader
 
 		doc := findDocumentByName(state, baseName)
 		if doc == nil {
+			enabled := true
 			doc = &Document{
 				ID:        uuid.NewString(),
 				FileName:  baseName,
+				Enabled:   &enabled,
 				CreatedAt: now,
 			}
 			state.Documents[doc.ID] = doc
 		}
+		enabled := true
+		doc.Enabled = &enabled
 		if err := os.Rename(tmpPath, targetPath); err != nil {
 			return fmt.Errorf("store upload file: %w", err)
 		}
@@ -158,6 +180,26 @@ func (s *Service) Upload(ctx context.Context, fileName string, content io.Reader
 
 func (s *Service) Documents() ([]Document, error) {
 	return s.store.Documents()
+}
+
+func DisabledDocumentSources(ctx context.Context) ([]string, error) {
+	cfg := ConfigFromRuntime(ctx)
+	docs, err := NewStateStore(cfg.FileDir).Documents()
+	if err != nil {
+		return nil, err
+	}
+	sources := make([]string, 0)
+	for _, doc := range docs {
+		doc := doc
+		if documentEnabled(&doc) {
+			continue
+		}
+		source := cleanupSource(&doc)
+		if source != "" {
+			sources = append(sources, source)
+		}
+	}
+	return sources, nil
 }
 
 func (s *Service) Task(id string) (*Task, error) {
@@ -203,6 +245,67 @@ func (s *Service) Reindex(ctx context.Context, documentID string) (*Task, error)
 	return taskCopy, nil
 }
 
+func (s *Service) ReindexAll(ctx context.Context) (*ReindexAllResult, error) {
+	s.startWorker()
+	now := time.Now()
+	var tasks []Task
+	err := s.store.Update(func(state *State) error {
+		for _, doc := range state.Documents {
+			if doc == nil || doc.Status == DocumentStatusDeleted || doc.Status == DocumentStatusIndexing || strings.TrimSpace(doc.ActiveTaskID) != "" {
+				continue
+			}
+			if !documentEnabled(doc) || strings.TrimSpace(doc.FilePath) == "" {
+				continue
+			}
+			if _, err := os.Stat(doc.FilePath); err != nil {
+				continue
+			}
+			task := &Task{
+				ID:         uuid.NewString(),
+				DocumentID: doc.ID,
+				Type:       TaskTypeReindex,
+				Status:     TaskStatusQueued,
+				CreatedAt:  now,
+				UpdatedAt:  now,
+			}
+			doc.Status = DocumentStatusIndexing
+			doc.ActiveTaskID = task.ID
+			doc.LastError = ""
+			doc.UpdatedAt = now
+			state.Tasks[task.ID] = task
+			tasks = append(tasks, *task)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, task := range tasks {
+		s.enqueue(task.ID)
+	}
+	return &ReindexAllResult{Tasks: tasks}, nil
+}
+
+func (s *Service) SetDocumentEnabled(ctx context.Context, documentID string, enabled bool) (*Document, error) {
+	var docCopy *Document
+	now := time.Now()
+	err := s.store.Update(func(state *State) error {
+		doc, ok := state.Documents[documentID]
+		if !ok || doc.Status == DocumentStatusDeleted {
+			return ErrDocumentNotFound
+		}
+		doc.Enabled = &enabled
+		doc.UpdatedAt = now
+		cp := *doc
+		docCopy = &cp
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return docCopy, nil
+}
+
 func (s *Service) Delete(ctx context.Context, documentID string) (*Task, error) {
 	s.startWorker()
 	now := time.Now()
@@ -235,8 +338,97 @@ func (s *Service) Delete(ctx context.Context, documentID string) (*Task, error) 
 	return taskCopy, nil
 }
 
+func (s *Service) Cleanup(ctx context.Context, documentID string) (*Task, error) {
+	s.startWorker()
+	now := time.Now()
+	var taskCopy *Task
+	err := s.store.Update(func(state *State) error {
+		doc, ok := state.Documents[documentID]
+		if !ok || doc.Status == DocumentStatusDeleted {
+			return ErrDocumentNotFound
+		}
+		if !isCleanableDocumentStatus(doc.Status) {
+			return ErrDocumentNotCleanable
+		}
+		task := &Task{
+			ID:         uuid.NewString(),
+			DocumentID: doc.ID,
+			Type:       TaskTypeCleanup,
+			Status:     TaskStatusQueued,
+			CreatedAt:  now,
+			UpdatedAt:  now,
+		}
+		doc.ActiveTaskID = task.ID
+		doc.UpdatedAt = now
+		state.Tasks[task.ID] = task
+		cp := *task
+		taskCopy = &cp
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	s.enqueue(taskCopy.ID)
+	return taskCopy, nil
+}
+
+func (s *Service) CancelTask(ctx context.Context, taskID string) (*Task, error) {
+	taskID = strings.TrimSpace(taskID)
+	if taskID == "" {
+		return nil, ErrTaskNotFound
+	}
+
+	var taskCopy *Task
+	var cancel context.CancelFunc
+	now := time.Now()
+	err := s.store.Update(func(state *State) error {
+		task, ok := state.Tasks[taskID]
+		if !ok {
+			return ErrTaskNotFound
+		}
+		if !isIndexingTask(task.Type) {
+			return ErrTaskNotCancelable
+		}
+		switch task.Status {
+		case TaskStatusQueued, TaskStatusRunning:
+			if task.Status == TaskStatusRunning {
+				s.runningMu.Lock()
+				cancel = s.runningTasks[taskID]
+				s.runningMu.Unlock()
+			}
+			task.Status = TaskStatusCanceled
+			task.Error = cancelMessage
+			task.FinishedAt = &now
+			task.UpdatedAt = now
+			if doc := state.Documents[task.DocumentID]; doc != nil {
+				doc.Status = DocumentStatusCanceled
+				doc.ActiveTaskID = ""
+				doc.LastError = cancelMessage
+				doc.UpdatedAt = now
+			}
+		default:
+		}
+		cp := *task
+		taskCopy = &cp
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if cancel != nil {
+		cancel()
+	}
+	return taskCopy, nil
+}
+
+func isIndexingTask(taskType TaskType) bool {
+	return taskType == TaskTypeIndex || taskType == TaskTypeReindex
+}
+
 func (s *Service) runTask(taskID string) {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), s.cfg.IndexTimeout)
+	defer cancel()
+
 	var taskType TaskType
 	var docID string
 	started := time.Now()
@@ -244,6 +436,9 @@ func (s *Service) runTask(taskID string) {
 		task, ok := state.Tasks[taskID]
 		if !ok {
 			return ErrTaskNotFound
+		}
+		if task.Status == TaskStatusCanceled {
+			return ErrTaskNotCancelable
 		}
 		task.Status = TaskStatusRunning
 		task.StartedAt = &started
@@ -254,14 +449,24 @@ func (s *Service) runTask(taskID string) {
 	}); err != nil {
 		return
 	}
+	s.runningMu.Lock()
+	s.runningTasks[taskID] = cancel
+	s.runningMu.Unlock()
+	defer func() {
+		s.runningMu.Lock()
+		delete(s.runningTasks, taskID)
+		s.runningMu.Unlock()
+	}()
 
 	var idxResult indexResult
 	var err error
 	switch taskType {
 	case TaskTypeDelete:
-		err = s.deleteDocumentData(ctx, docID)
+		err = s.runDeleteDocument(ctx, docID)
+	case TaskTypeCleanup:
+		err = s.runCleanupDocument(ctx, docID)
 	default:
-		idxResult, err = s.indexDocument(ctx, docID)
+		idxResult, err = s.runIndexDocument(ctx, docID)
 	}
 	finished := time.Now()
 	_ = s.store.Update(func(state *State) error {
@@ -269,18 +474,36 @@ func (s *Service) runTask(taskID string) {
 		if !ok {
 			return ErrTaskNotFound
 		}
+		if task.Status == TaskStatusCanceled {
+			return nil
+		}
 		doc := state.Documents[task.DocumentID]
 		task.FinishedAt = &finished
 		task.UpdatedAt = finished
+		cancelReason := cancellationReason(ctx, err)
+		if cancelReason != "" {
+			task.Status = TaskStatusCanceled
+			task.Error = cancelReason
+			if doc != nil {
+				doc.Status = DocumentStatusCanceled
+				doc.ActiveTaskID = ""
+				doc.LastError = cancelReason
+				doc.UpdatedAt = finished
+			}
+			return nil
+		}
 		if err != nil {
 			task.Status = TaskStatusFailed
 			task.Error = err.Error()
 			if doc != nil {
 				if task.Type == TaskTypeDelete {
 					doc.Status = DocumentStatusDeleteFailed
+				} else if task.Type == TaskTypeCleanup {
+					doc.Status = DocumentStatusDeleteFailed
 				} else {
 					doc.Status = DocumentStatusFailed
 				}
+				doc.ActiveTaskID = ""
 				doc.LastError = err.Error()
 				doc.UpdatedAt = finished
 			}
@@ -292,7 +515,7 @@ func (s *Service) runTask(taskID string) {
 			doc.ActiveTaskID = ""
 			doc.LastError = ""
 			doc.UpdatedAt = finished
-			if task.Type == TaskTypeDelete {
+			if task.Type == TaskTypeDelete || task.Type == TaskTypeCleanup {
 				doc.Status = DocumentStatusDeleted
 			} else {
 				doc.Status = DocumentStatusReady
@@ -326,15 +549,36 @@ func (s *Service) indexDocument(ctx context.Context, documentID string) (indexRe
 	if err := deleteMilvusBySource(ctx, source); err != nil {
 		return indexResult{}, err
 	}
-	r, err := knowledge_index_pipeline.BuildKnowledgeIndexing(ctx)
+	tfr, err := knowledge_index_pipeline.NewDocumentTransformer(ctx)
 	if err != nil {
 		return indexResult{}, err
 	}
-	ids, err := r.Invoke(ctx, document.Source{URI: doc.FilePath}, compose.WithCallbacks(log_call_back.LogCallback(nil)))
+	chunks, err := tfr.Transform(ctx, docs)
 	if err != nil {
-		return indexResult{}, fmt.Errorf("invoke index graph failed: %w", err)
+		return indexResult{}, fmt.Errorf("split document failed: %w", err)
+	}
+	for i, chunk := range chunks {
+		if chunk.MetaData == nil {
+			chunk.MetaData = make(map[string]any)
+		}
+		chunk.MetaData["document_id"] = doc.ID
+		chunk.MetaData["file_name"] = doc.FileName
+		chunk.MetaData["source"] = source
+		chunk.MetaData["chunk_index"] = i
+		chunk.MetaData["enabled"] = documentEnabled(doc)
+	}
+	ids, err := indexer2.StoreDocuments(ctx, chunks)
+	if err != nil {
+		return indexResult{}, fmt.Errorf("store document chunks failed: %w", err)
 	}
 	return indexResult{chunkCount: len(ids), source: source}, nil
+}
+
+func (s *Service) runIndexDocument(ctx context.Context, documentID string) (indexResult, error) {
+	if s.indexDocumentFn != nil {
+		return s.indexDocumentFn(ctx, documentID)
+	}
+	return s.indexDocument(ctx, documentID)
 }
 
 func (s *Service) deleteDocumentData(ctx context.Context, documentID string) error {
@@ -366,6 +610,71 @@ func (s *Service) deleteDocumentData(ctx context.Context, documentID string) err
 		return nil
 	})
 	return nil
+}
+
+func (s *Service) runDeleteDocument(ctx context.Context, documentID string) error {
+	if s.deleteDocumentFn != nil {
+		return s.deleteDocumentFn(ctx, documentID)
+	}
+	return s.deleteDocumentData(ctx, documentID)
+}
+
+func (s *Service) cleanupDocumentData(ctx context.Context, documentID string) error {
+	doc, err := s.store.Document(documentID)
+	if err != nil {
+		return err
+	}
+	source := cleanupSource(doc)
+	if source != "" {
+		if err := deleteMilvusBySource(ctx, source); err != nil {
+			return err
+		}
+	}
+	if doc.FilePath != "" {
+		if err := os.Remove(doc.FilePath); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("remove document file: %w", err)
+		}
+	}
+	_ = s.store.Update(func(state *State) error {
+		delete(state.Documents, documentID)
+		return nil
+	})
+	return nil
+}
+
+func (s *Service) runCleanupDocument(ctx context.Context, documentID string) error {
+	if s.cleanupDocumentFn != nil {
+		return s.cleanupDocumentFn(ctx, documentID)
+	}
+	return s.cleanupDocumentData(ctx, documentID)
+}
+
+func cleanupSource(doc *Document) string {
+	if doc == nil {
+		return ""
+	}
+	if strings.TrimSpace(doc.Source) != "" {
+		return doc.Source
+	}
+	return doc.FilePath
+}
+
+func documentEnabled(doc *Document) bool {
+	return doc == nil || doc.Enabled == nil || *doc.Enabled
+}
+
+func cancellationReason(ctx context.Context, err error) string {
+	if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
+		return cancelMessage
+	}
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return timeoutMessage
+	}
+	return ""
+}
+
+func isCleanableDocumentStatus(status DocumentStatus) bool {
+	return status == DocumentStatusFailed || status == DocumentStatusCanceled || status == DocumentStatusDeleteFailed
 }
 
 func (s *Service) startWorker() {
@@ -471,6 +780,9 @@ func normalizeConfig(cfg Config) Config {
 	}
 	if cfg.MaxUploadBytes <= 0 {
 		cfg.MaxUploadBytes = 20 * 1024 * 1024
+	}
+	if cfg.IndexTimeout <= 0 {
+		cfg.IndexTimeout = defaultIndexTimeout
 	}
 	return cfg
 }

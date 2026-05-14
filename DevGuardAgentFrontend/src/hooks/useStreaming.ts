@@ -31,6 +31,7 @@ export const useStreaming = () => {
 
     // Create EventSource for streaming
     const eventSource = new EventSource(`/api/chat_stream?${params.toString()}`);
+    let accumulatedContent = '';
     let closed = false;
     const closeStream = () => {
       if (closed) return;
@@ -45,7 +46,8 @@ export const useStreaming = () => {
       try {
         const data = parseSSEData(event.data);
         if (data.content) {
-          updateStreamingMessage(data.content);
+          accumulatedContent += data.content;
+          updateStreamingMessage(accumulatedContent);
         }
       } catch (error) {
         console.error('Error parsing SSE data:', error);
@@ -69,13 +71,22 @@ export const useStreaming = () => {
 
     eventSource.addEventListener('error', (event) => {
       console.error('SSE server error:', event);
+      const message = parseSSEError(event, '流式通道异常，Agent 未能完成本次分析。');
+      useChatStore.getState().addMessage({
+        role: 'assistant',
+        content: `请求失败：${message}`,
+      });
       closeStream();
       setStreaming(false);
-      failTrace('流式通道异常，Agent 未能完成本次分析。');
+      failTrace(message);
     });
 
     eventSource.onerror = (error) => {
       console.error('SSE error:', error);
+      useChatStore.getState().addMessage({
+        role: 'assistant',
+        content: '请求失败：流式通道连接异常，请检查后端服务或配置。',
+      });
       closeStream();
       setStreaming(false);
       failTrace('流式通道异常，Agent 未能完成本次分析。');
@@ -179,14 +190,20 @@ const handleStreamingEvent = (eventName: string, rawData: string) => {
       return;
     }
     if (eventName === 'error') {
+      const message = parseSSEData(rawData).content || parseSSEMessage(rawData) || '附件分析链路异常，请检查文件内容或稍后重试。';
+      useChatStore.getState().addMessage({
+        role: 'assistant',
+        content: `请求失败：${message}`,
+      });
       setStreaming(false);
-      failTrace('附件分析链路异常，请检查文件内容或稍后重试。');
+      failTrace(message);
       return;
     }
 
     const data = parseSSEData(rawData);
     if (data.content) {
-      updateStreamingMessage(data.content);
+      const current = useChatStore.getState().streamingContent;
+      updateStreamingMessage(`${current}${data.content}`);
     }
   } catch (error) {
     console.error('Error parsing streaming event:', error);
@@ -199,8 +216,28 @@ const parseSSEData = (raw: string): { content?: string; taskId?: string; traceId
     if (typeof parsed === 'string') {
       return { content: parsed };
     }
+    if (typeof parsed?.message === 'string') {
+      return { content: parsed.message };
+    }
     return parsed;
   } catch {
     return { content: raw };
+  }
+};
+
+const parseSSEError = (event: Event, fallback: string) => {
+  const messageEvent = event as MessageEvent<string>;
+  if (typeof messageEvent.data === 'string' && messageEvent.data) {
+    return parseSSEData(messageEvent.data).content || parseSSEMessage(messageEvent.data) || fallback;
+  }
+  return fallback;
+};
+
+const parseSSEMessage = (raw: string) => {
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed?.message === 'string' ? parsed.message : '';
+  } catch {
+    return '';
   }
 };
