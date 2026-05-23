@@ -40,12 +40,12 @@ const statusLabel: Record<KnowledgeDocument['status'], string> = {
 };
 
 const statusStyle: Record<KnowledgeDocument['status'], string> = {
-  indexing: 'border-amber-200 bg-amber-50 text-amber-700',
-  ready: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  failed: 'border-red-200 bg-red-50 text-red-700',
-  delete_failed: 'border-red-200 bg-red-50 text-red-700',
-  deleted: 'border-[#ead7b7] bg-[#fff6e8] text-slate-500',
-  canceled: 'border-slate-200 bg-slate-50 text-slate-600',
+  indexing: 'border-amber-400/20 bg-amber-400/10 text-amber-200',
+  ready: 'border-emerald-400/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
+  failed: 'border-red-400/20 bg-red-400/10 text-red-200',
+  delete_failed: 'border-red-400/20 bg-red-400/10 text-red-200',
+  deleted: 'border-white/10 bg-white/[0.04] text-slate-400',
+  canceled: 'border-white/10 bg-white/[0.04] text-slate-400',
 };
 
 const request = async <T,>(url: string, options: RequestInit = {}) => {
@@ -108,9 +108,9 @@ const formatScore = (score: number) => {
 };
 
 const scoreToneClass = (score: number) => {
-  if (score >= 0.75) return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-  if (score >= 0.45) return 'border-amber-200 bg-amber-50 text-amber-700';
-  return 'border-slate-200 bg-slate-50 text-slate-500';
+  if (score >= 0.75) return 'border-emerald-400/20 bg-[#4f8cff]/10 text-[#c3d7ff]';
+  if (score >= 0.45) return 'border-amber-400/20 bg-amber-400/10 text-amber-200';
+  return 'border-white/10 bg-white/[0.04] text-slate-400';
 };
 
 const isActiveDocument = (doc: KnowledgeDocument) => doc.status === 'indexing' || Boolean(doc.activeTaskId);
@@ -402,15 +402,15 @@ const KnowledgePage = () => {
     <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:overflow-hidden">
       <div className="grid h-full min-h-[760px] gap-3 xl:grid-cols-[minmax(620px,1fr)_320px]">
         <main className="app-surface flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm">
-          <header className="shrink-0 border-b border-[#ead7b7] px-5 py-4">
+          <header className="shrink-0 border-b border-white/10 px-5 py-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="mb-2 inline-flex items-center gap-2 rounded-md border border-[#ead1c5] bg-[#fbf7f4] px-2.5 py-1 text-xs font-semibold text-[#7f432f]">
+                <div className="mb-2 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-semibold text-[#8fb5ff]">
                   <Database className="h-3.5 w-3.5" />
                   Knowledge Base
                 </div>
-                <h1 className="text-xl font-semibold tracking-tight text-slate-950">知识库管理</h1>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
+                <h1 className="text-xl font-semibold tracking-tight text-slate-50">知识库管理</h1>
+                <p className="mt-1 text-sm leading-6 text-slate-400">
                   管理 Agent 可检索的运维手册、复盘材料和内部处置经验。
                 </p>
               </div>
@@ -453,7 +453,7 @@ const KnowledgePage = () => {
             </div>
           </header>
 
-          <section className="grid shrink-0 gap-3 border-b border-[#ead7b7] bg-[#fff6e8] p-4 sm:grid-cols-4">
+          <section className="grid shrink-0 gap-3 border-b border-white/10 bg-white/[0.03] p-4 sm:grid-cols-4">
             <StatCard label="可检索文档" value={stats.ready} tone="emerald" />
             <StatCard label="已启用" value={stats.enabled} tone="slate" />
             <StatCard label="索引中" value={stats.indexing} tone="amber" />
@@ -461,15 +461,15 @@ const KnowledgePage = () => {
           </section>
 
           {(error || success) && (
-            <div className="shrink-0 border-b border-[#ead7b7] px-4 py-3">
+            <div className="shrink-0 border-b border-white/10 px-4 py-3">
               {error && (
-                <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-400/10 px-3 py-2 text-sm text-red-200">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{error}</span>
                 </div>
               )}
               {success && !error && (
-                <div className="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                <div className="flex items-start gap-2 rounded-lg border border-[#4f8cff]/20 bg-[#4f8cff]/10 px-3 py-2 text-sm text-[#c3d7ff]">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{success}</span>
                 </div>
@@ -479,15 +479,15 @@ const KnowledgePage = () => {
 
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             {isLoading ? (
-              <div className="flex h-64 items-center justify-center text-sm text-slate-500">
+              <div className="flex h-64 items-center justify-center text-sm text-slate-400">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 正在读取知识库
               </div>
             ) : documents.length === 0 ? (
               <EmptyState onUpload={() => fileInputRef.current?.click()} isUploading={isUploading} />
             ) : (
-              <div className="overflow-hidden rounded-lg border border-[#ead7b7]">
-                <div className="hidden grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] gap-3 border-b border-[#ead7b7] bg-[#fff6e8] px-4 py-3 text-xs font-semibold text-slate-500 lg:grid">
+              <div className="overflow-hidden rounded-lg border border-white/10">
+                <div className="hidden grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-xs font-semibold text-slate-400 lg:grid">
                   <span>文档</span>
                   <span>大小</span>
                   <span>状态</span>
@@ -517,30 +517,30 @@ const KnowledgePage = () => {
         </main>
 
         <aside className="app-surface flex min-h-[520px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
-          <div className="border-b border-[#ead7b7] px-4 py-4">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-              <SearchCheck className="h-4 w-4 text-[#9a563f]" />
+          <div className="border-b border-white/10 px-4 py-4">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-50">
+              <SearchCheck className="h-4 w-4 text-[#8fb5ff]" />
               运行状态
             </h2>
-            <p className="mt-1 text-xs leading-5 text-slate-500">索引任务会自动轮询刷新，完成后停止。</p>
+            <p className="mt-1 text-xs leading-5 text-slate-400">索引任务会自动轮询刷新，完成后停止。</p>
           </div>
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
             <section className="app-surface-muted rounded-lg border p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-50">
                 {hasActiveTasks ? <Loader2 className="h-4 w-4 animate-spin text-amber-600" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
                 {hasActiveTasks ? '任务执行中' : '任务空闲'}
               </div>
-              <p className="mt-2 break-all text-xs leading-5 text-slate-600">{activeTaskLabel}</p>
+              <p className="mt-2 break-all text-xs leading-5 text-slate-400">{activeTaskLabel}</p>
             </section>
 
             <section className="app-surface rounded-lg border p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                    <Server className="h-4 w-4 text-[#9a563f]" />
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-50">
+                    <Server className="h-4 w-4 text-[#8fb5ff]" />
                     向量库状态
                   </h3>
-                  <p className="mt-1 truncate text-xs text-slate-500">{health?.address || '未检测'}</p>
+                  <p className="mt-1 truncate text-xs text-slate-400">{health?.address || '未检测'}</p>
                 </div>
                 <button
                   type="button"
@@ -555,10 +555,10 @@ const KnowledgePage = () => {
               <div
                 className={`mt-3 rounded-md border px-3 py-2 text-xs leading-5 ${
                   health?.ok
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                    ? 'border-emerald-400/20 bg-[#4f8cff]/10 text-[#c3d7ff]'
                     : health
-                      ? 'border-red-200 bg-red-50 text-red-700'
-                      : 'border-slate-200 bg-slate-50 text-slate-600'
+                      ? 'border-red-400/20 bg-red-400/10 text-red-200'
+                      : 'border-white/10 bg-white/[0.04] text-slate-400'
                 }`}
               >
                 <div className="flex items-center gap-2 font-semibold">
@@ -573,7 +573,7 @@ const KnowledgePage = () => {
                 </div>
                 {health?.error && <p className="mt-1 break-words font-normal">{health.error}</p>}
                 {health?.suggestion && (
-                  <p className="mt-2 rounded border border-current/20 bg-white/50 px-2 py-1.5 font-normal">
+                  <p className="mt-2 rounded border border-current/20 bg-white/[0.04] px-2 py-1.5 font-normal">
                     {health.suggestion}
                   </p>
                 )}
@@ -588,14 +588,14 @@ const KnowledgePage = () => {
 
             <section className="app-surface rounded-lg border p-4">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <Search className="h-4 w-4 text-[#9a563f]" />
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-50">
+                  <Search className="h-4 w-4 text-[#8fb5ff]" />
                   检索测试
                 </h3>
-                <span className="text-xs font-medium text-slate-500">TopK {searchTopK}</span>
+                <span className="text-xs font-medium text-slate-400">TopK {searchTopK}</span>
               </div>
               <form className="mt-3 space-y-3" onSubmit={handleSearch}>
-                <label className="block text-xs font-semibold text-slate-500" htmlFor="knowledge-search-query">
+                <label className="block text-xs font-semibold text-slate-400" htmlFor="knowledge-search-query">
                   查询内容
                 </label>
                 <textarea
@@ -604,16 +604,16 @@ const KnowledgePage = () => {
                   onChange={(event) => setSearchQuery(event.target.value)}
                   rows={3}
                   placeholder="例如：接口失败率过高怎么处理"
-                  className="min-h-[88px] w-full resize-none rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3 py-2 text-sm leading-6 text-slate-900 outline-none transition focus:border-[#c77c58] focus:ring-2 focus:ring-[#f1c7b0]"
+                  className="min-h-[88px] w-full resize-none rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-sm leading-6 text-slate-50 outline-none transition focus:border-[#4f8cff] focus:ring-2 focus:ring-[#4f8cff]/30"
                 />
                 <div className="flex items-end gap-2">
-                  <label className="min-w-0 flex-1 text-xs font-semibold text-slate-500" htmlFor="knowledge-search-topk">
+                  <label className="min-w-0 flex-1 text-xs font-semibold text-slate-400" htmlFor="knowledge-search-topk">
                     返回片段
                     <select
                       id="knowledge-search-topk"
                       value={searchTopK}
                       onChange={(event) => setSearchTopK(Number(event.target.value))}
-                      className="mt-1 h-11 w-full cursor-pointer rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#c77c58] focus:ring-2 focus:ring-[#f1c7b0]"
+                      className="mt-1 h-11 w-full cursor-pointer rounded-md border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-slate-50 outline-none transition focus:border-[#4f8cff] focus:ring-2 focus:ring-[#4f8cff]/30"
                     >
                       {[3, 5, 8, 10, 20].map((value) => (
                         <option key={value} value={value}>
@@ -633,23 +633,23 @@ const KnowledgePage = () => {
                 </div>
               </form>
               {!hasReadyDocuments && (
-                <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                <p className="mt-3 rounded-md border border-amber-200 bg-amber-400/10 px-3 py-2 text-xs leading-5 text-amber-100">
                   当前没有可检索文档，上传并等待索引完成后再测试。
                 </p>
               )}
               {searchError && (
-                <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                <p className="mt-3 rounded-md border border-red-200 bg-red-400/10 px-3 py-2 text-xs leading-5 text-red-200">
                   {searchError}
                 </p>
               )}
               {searchResult && (
                 <div className="mt-4 space-y-3">
-                  <div className="flex items-center justify-between text-xs text-slate-500">
+                  <div className="flex items-center justify-between text-xs text-slate-400">
                     <span>命中 {searchResult.documents.length} 条</span>
                     <span className="truncate">{searchResult.query}</span>
                   </div>
                   {searchResult.documents.length === 0 ? (
-                    <p className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-600">
+                    <p className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-slate-400">
                       没有召回片段，可以换一个更贴近文档措辞的问题。
                     </p>
                   ) : (
@@ -657,10 +657,10 @@ const KnowledgePage = () => {
                       {searchResult.documents.map((doc, index) => (
                         <article
                           key={`${doc.id || doc.source}-${index}`}
-                          className={`rounded-md border p-3 ${doc.score > 0 && doc.score < 0.45 ? 'border-slate-200 bg-slate-50 opacity-80' : 'border-[#ead7b7] bg-[#fffdf8]'}`}
+                          className={`rounded-md border p-3 ${doc.score > 0 && doc.score < 0.45 ? 'border-white/10 bg-white/[0.04] opacity-80' : 'border-white/10 bg-white/[0.04]'}`}
                         >
-                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-[#f7ebe5] text-[#7f432f]">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-[#4f8cff]/12 text-[#8fb5ff]">
                               {index + 1}
                             </span>
                             <span className={`shrink-0 rounded border px-1.5 py-0.5 ${scoreToneClass(doc.score)}`}>
@@ -669,7 +669,7 @@ const KnowledgePage = () => {
                             <span className="truncate">{doc.fileName || doc.source || '未知来源'}</span>
                           </div>
                           {doc.source && <p className="mt-1 truncate text-[11px] text-slate-400">{doc.source}</p>}
-                          <p className="mt-2 line-clamp-4 break-words text-xs leading-5 text-slate-700">{doc.content}</p>
+                          <p className="mt-2 line-clamp-4 break-words text-xs leading-5 text-slate-300">{doc.content}</p>
                         </article>
                       ))}
                     </div>
@@ -679,15 +679,15 @@ const KnowledgePage = () => {
             </section>
 
             <section className="app-surface rounded-lg border p-4">
-              <h3 className="text-sm font-semibold text-slate-950">上传规则</h3>
-              <div className="mt-3 space-y-2 text-sm text-slate-600">
+              <h3 className="text-sm font-semibold text-slate-50">上传规则</h3>
+              <div className="mt-3 space-y-2 text-sm text-slate-400">
                 <RuleItem icon={FileText} text="支持 TXT、MD、Markdown 文件" />
                 <RuleItem icon={Database} text="同内容文件会按 hash 去重" />
                 <RuleItem icon={RotateCcw} text="重建会替换旧向量片段" />
               </div>
             </section>
 
-            <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <section className="rounded-lg border border-amber-200 bg-amber-400/10 p-4 text-sm text-amber-100">
               <h3 className="font-semibold">检索影响</h3>
               <p className="mt-2 leading-6">
                 状态为“可检索”的文档会参与 Agent 的内部文档召回；索引失败的文档不会可靠出现在回答上下文中。
@@ -703,10 +703,10 @@ const KnowledgePage = () => {
 type StatTone = 'emerald' | 'amber' | 'red' | 'slate';
 
 const statToneClass: Record<StatTone, string> = {
-  emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  amber: 'bg-amber-50 text-amber-700 border-amber-200',
-  red: 'bg-red-50 text-red-700 border-red-200',
-  slate: 'bg-[#fff6e8] text-slate-700 border-[#ead7b7]',
+  emerald: 'bg-[#4f8cff]/10 text-[#c3d7ff] border-[#4f8cff]/20',
+  amber: 'bg-amber-400/10 text-amber-200 border-amber-200',
+  red: 'bg-red-400/10 text-red-200 border-red-200',
+  slate: 'bg-white/[0.03] text-slate-300 border-white/10',
 };
 
 const StatCard = ({ label, value, tone }: { label: string; value: number; tone: StatTone }) => (
@@ -717,13 +717,13 @@ const StatCard = ({ label, value, tone }: { label: string; value: number; tone: 
 );
 
 const EmptyState = ({ onUpload, isUploading }: { onUpload: () => void; isUploading: boolean }) => (
-  <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-dashed border-[#dec39d] bg-[#fff6e8] px-6 py-12 text-center">
+  <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.03] px-6 py-12 text-center">
     <div className="max-w-md">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-[#ead1c5] bg-[#fbf7f4] text-[#7f432f]">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-[#8fb5ff]">
         <FileText className="h-6 w-6" />
       </div>
-      <h2 className="mt-4 text-lg font-semibold text-slate-950">还没有知识文档</h2>
-      <p className="mt-2 text-sm leading-6 text-slate-600">上传运维手册、故障复盘或处置流程后，Agent 可以在回答和告警分析中检索这些内部知识。</p>
+      <h2 className="mt-4 text-lg font-semibold text-slate-50">还没有知识文档</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-400">上传运维手册、故障复盘或处置流程后，Agent 可以在回答和告警分析中检索这些内部知识。</p>
       <button
         type="button"
         onClick={onUpload}
@@ -767,19 +767,19 @@ const DocumentRow = ({
   const isConfirmingDelete = confirmDeleteId === doc.id;
 
   return (
-    <article className="grid gap-3 bg-[#fffdf8] px-4 py-4 lg:grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] lg:items-center">
+    <article className="grid gap-3 bg-white/[0.04] px-4 py-4 lg:grid-cols-[minmax(220px,1.5fr)_110px_96px_120px_156px_132px] lg:items-center">
       <div className="min-w-0">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f7ebe5] text-[#7f432f]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4f8cff]/12 text-[#8fb5ff]">
             <FileText className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold text-slate-950">{doc.fileName}</h3>
-            <p className="mt-1 truncate text-xs text-slate-500">{doc.filePath}</p>
-            <p className={`mt-2 text-xs font-semibold ${doc.enabled ? 'text-emerald-700' : 'text-slate-400'}`}>
+            <h3 className="truncate text-sm font-semibold text-slate-50">{doc.fileName}</h3>
+            <p className="mt-1 truncate text-xs text-slate-400">{doc.filePath}</p>
+            <p className={`mt-2 text-xs font-semibold ${doc.enabled ? 'text-[#c3d7ff]' : 'text-slate-400'}`}>
               {doc.enabled ? '参与检索' : '已禁用检索'}
             </p>
-            {doc.lastError && <p className="mt-2 line-clamp-2 text-xs leading-5 text-red-700">{doc.lastError}</p>}
+            {doc.lastError && <p className="mt-2 line-clamp-2 text-xs leading-5 text-red-200">{doc.lastError}</p>}
           </div>
         </div>
       </div>
@@ -799,8 +799,8 @@ const DocumentRow = ({
           disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning || isToggling}
           className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
             doc.enabled
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-              : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+              ? 'border-emerald-400/20 bg-[#4f8cff]/10 text-[#c3d7ff] hover:bg-emerald-100'
+              : 'border-white/10 bg-white/[0.04] text-slate-400 hover:bg-slate-100'
           }`}
         >
           {isToggling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : doc.enabled ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Ban className="h-3.5 w-3.5" />}
@@ -811,7 +811,7 @@ const DocumentRow = ({
             type="button"
             onClick={() => onCancelTask(doc)}
             disabled={!doc.activeTaskId || isCanceling || isDeleting}
-            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-amber-300 bg-amber-50 px-2.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-amber-300 bg-amber-400/10 px-2.5 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isCanceling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />}
             取消
@@ -831,7 +831,7 @@ const DocumentRow = ({
             type="button"
             onClick={() => onCleanup(doc.id)}
             disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning}
-            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-red-200 bg-red-400/10 px-2.5 text-xs font-semibold text-red-200 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isCleaning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldX className="h-3.5 w-3.5" />}
             清理索引
@@ -843,8 +843,8 @@ const DocumentRow = ({
           disabled={isActive || isReindexing || isDeleting || isCanceling || isCleaning}
           className={`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
             isConfirmingDelete
-              ? 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100'
-              : 'border-[#ead7b7] bg-[#fffdf8] text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700'
+              ? 'border-red-300 bg-red-400/10 text-red-200 hover:bg-red-100'
+              : 'border-white/10 bg-white/[0.04] text-slate-400 hover:border-red-300 hover:bg-red-400/10 hover:text-red-200'
           }`}
         >
           {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
@@ -867,7 +867,7 @@ const DocumentRow = ({
 const InfoCell = ({ label, value, icon: Icon }: { label: string; value: string; icon?: typeof Clock3 }) => (
   <div className="min-w-0">
     <p className="text-[11px] font-semibold text-slate-400 lg:hidden">{label}</p>
-    <p className="mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-slate-700 lg:mt-0">
+    <p className="mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-slate-300 lg:mt-0">
       {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
       <span className="truncate">{value}</span>
     </p>
@@ -876,9 +876,10 @@ const InfoCell = ({ label, value, icon: Icon }: { label: string; value: string; 
 
 const RuleItem = ({ icon: Icon, text }: { icon: typeof FileText; text: string }) => (
   <div className="flex items-center gap-2">
-    <Icon className="h-4 w-4 shrink-0 text-[#9a563f]" />
+    <Icon className="h-4 w-4 shrink-0 text-[#8fb5ff]" />
     <span>{text}</span>
   </div>
 );
 
 export default KnowledgePage;
+

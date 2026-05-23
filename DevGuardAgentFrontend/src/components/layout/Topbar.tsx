@@ -23,12 +23,12 @@ const Topbar = () => {
                   : '系统设置';
 
   return (
-    <header className="app-surface flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4 shadow-sm">
+    <header className="app-surface flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 shadow-[0_12px_30px_rgba(3,8,20,0.24)]">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
           onClick={toggleSidebar}
-          className="brand-icon-button flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-[#ead7b7] text-slate-600 md:hidden"
+          className="brand-icon-button flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-white/10 text-slate-100 md:hidden"
           aria-label="打开侧边栏"
         >
           <PanelLeftOpen className="h-5 w-5" />
@@ -36,7 +36,7 @@ const Topbar = () => {
         <button
           type="button"
           onClick={toggleSidebarCollapsed}
-          className="brand-icon-button hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-[#ead7b7] text-slate-600 md:flex"
+          className="brand-icon-button hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-white/10 text-slate-100 md:flex"
           aria-label={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
           title={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
         >
@@ -47,8 +47,8 @@ const Topbar = () => {
           )}
         </button>
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold text-slate-950">{title}</h2>
-          <p className="hidden text-xs text-slate-500 sm:block">Runtime console · online configuration</p>
+          <h2 className="truncate text-sm font-semibold text-slate-100">{title}</h2>
+          <p className="hidden text-xs text-slate-400 sm:block">Runtime console · online configuration</p>
         </div>
       </div>
 

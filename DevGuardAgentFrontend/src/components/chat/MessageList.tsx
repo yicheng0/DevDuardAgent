@@ -25,14 +25,14 @@ const MessageList = ({ compact = false }: MessageListProps) => {
       {session.messages.length === 0 && !isStreaming ? (
         <div className="flex h-full items-center justify-center">
           <div
-            className={`w-full rounded-lg border border-dashed border-[#dec39d] bg-[#fff6e8] text-center ${
+            className={`w-full rounded-lg border border-dashed border-white/12 bg-[#0c1728] text-center ${
               compact ? 'p-3' : 'p-5'
             }`}
           >
-            <p className="text-sm font-semibold text-slate-950">
+            <p className="text-sm font-semibold text-slate-50">
               {compact ? '向 Agent 追问' : '等待 Agent 协同'}
             </p>
-            <p className={`mt-2 text-slate-500 ${compact ? 'text-xs leading-5' : 'text-sm leading-6'}`}>
+            <p className={`mt-2 text-slate-400 ${compact ? 'text-xs leading-5' : 'text-sm leading-6'}`}>
               {compact
                 ? '围绕当前告警补充问题，回答会同步进入会话。'
                 : '运行告警分析或直接输入问题，Trace 会同步生成。'}

@@ -12,7 +12,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const { isSidebarOpen, isSidebarCollapsed } = useUIStore();
 
   return (
-    <div className="app-bg relative h-screen w-screen overflow-hidden text-slate-950">
+    <div className="app-bg relative h-screen w-screen overflow-hidden text-slate-100">
       <div
         className={`fixed left-0 top-0 z-30 h-full transition-transform duration-200 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -32,7 +32,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-[#3f2116]/35 md:hidden"
+          className="fixed inset-0 z-20 bg-slate-950/55 md:hidden"
           onClick={() => useUIStore.getState().toggleSidebar()}
         />
       )}

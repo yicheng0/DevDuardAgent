@@ -28,10 +28,10 @@ const phaseIcon = {
 };
 
 const statusClass = {
-  pending: 'border-[#dec39d] bg-[#fffaf0] text-[#8a7562]',
-  running: 'border-[#d9a08a] bg-[#f7ebe5] text-[#7f432f] shadow-[0_0_0_4px_rgba(154,86,63,0.12)]',
-  completed: 'border-emerald-300 bg-emerald-50 text-emerald-700',
-  error: 'border-red-300 bg-red-50 text-red-700',
+  pending: 'border-white/10 bg-[#0f1f38] text-slate-300',
+  running: 'border-[#4f8cff] bg-[#4f8cff]/15 text-[#8fb5ff] shadow-[0_0_0_4px_rgba(79,140,255,0.14)]',
+  completed: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200',
+  error: 'border-red-400/20 bg-red-400/10 text-red-200',
 };
 
 const getStatusIcon = (step: AIOpsStep) => {
@@ -52,7 +52,7 @@ const getStatusIcon = (step: AIOpsStep) => {
 export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
   return (
     <div className="relative space-y-3">
-      <div className="absolute left-4 top-5 h-[calc(100%-40px)] w-px bg-[#dec39d]" />
+      <div className="absolute left-4 top-5 h-[calc(100%-40px)] w-px bg-white/10" />
       {steps.map((step, index) => (
         <motion.div
           key={step.id}
@@ -70,32 +70,32 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
           <div
             className={`min-w-0 flex-1 rounded-lg border p-3 transition-colors ${
               step.status === 'running'
-                ? 'border-[#d9a08a] bg-[#f7ebe5]'
-                : 'border-[#ead7b7] bg-[#fffdf8]'
+                ? 'border-[#4f8cff]/40 bg-[#4f8cff]/10'
+                : 'border-white/10 bg-[#0f1f38]'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className={`text-sm font-semibold ${step.status === 'running' ? 'text-[#3f2116]' : 'text-[#2f2119]'}`}>
+                  <h3 className={`text-sm font-semibold text-slate-50`}>
                     {step.title}
                   </h3>
                   <RiskBadge level={step.riskLevel} />
                 </div>
                 {step.description && (
-                  <p className={`mt-1 text-sm leading-5 ${step.status === 'running' ? 'text-[#6f3b2a]' : 'text-[#6f5b4b]'}`}>
+                  <p className="mt-1 text-sm leading-5 text-slate-400">
                     {step.description}
                   </p>
                 )}
               </div>
               {step.durationMs && (
                 <span
-                  className={`rounded-md border px-2 py-1 text-xs ${
-                    step.status === 'running'
-                      ? 'border-[#d9a08a] bg-[#fffdf8] text-[#7f432f]'
-                      : 'border-[#ead7b7] bg-[#fff6e8] text-[#8a7562]'
-                  }`}
-                >
+                className={`rounded-md border px-2 py-1 text-xs ${
+                  step.status === 'running'
+                    ? 'border-[#4f8cff]/40 bg-[#4f8cff]/10 text-[#8fb5ff]'
+                    : 'border-white/10 bg-[#0f1f38] text-slate-300'
+                }`}
+              >
                   {(step.durationMs / 1000).toFixed(1)}s
                 </span>
               )}
@@ -105,8 +105,8 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
               <div
                 className={`mt-3 inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold ${
                   step.status === 'running'
-                    ? 'border-[#d9a08a] bg-[#fffdf8] text-[#7f432f]'
-                    : 'border-[#d9a08a] bg-[#f7ebe5] text-[#7f432f]'
+                    ? 'border-[#4f8cff]/40 bg-[#4f8cff]/10 text-[#8fb5ff]'
+                    : 'border-white/10 bg-[#0f1f38] text-slate-300'
                 }`}
               >
                 <FileSearch className="h-3.5 w-3.5" />
@@ -120,8 +120,8 @@ export const TraceTimeline = ({ steps }: TraceTimelineProps) => {
               <p
                 className={`mt-3 rounded-md px-3 py-2 text-sm leading-5 ${
                   step.status === 'running'
-                    ? 'bg-[#fffdf8] text-[#4f281b]'
-                    : 'bg-[#fff6e8] text-[#4f281b]'
+                    ? 'bg-[#0f1f38] text-slate-200'
+                    : 'bg-[#0c1728] text-slate-300'
                 }`}
               >
                 {step.result}

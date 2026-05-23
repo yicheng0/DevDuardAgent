@@ -10,8 +10,8 @@ interface GlowButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 const variantClasses = {
   primary: 'brand-button',
   secondary: 'brand-button brand-button-secondary',
-  success: 'border border-emerald-700 bg-emerald-600 hover:bg-emerald-700',
-  danger: 'border border-red-700 bg-red-600 hover:bg-red-700',
+  success: 'border border-[#4f8cff]/20 bg-[#4f8cff]/80 hover:bg-[#4f8cff]',
+  danger: 'border border-[#7c5cff]/20 bg-[#7c5cff]/80 hover:bg-[#7c5cff]',
 };
 
 export const GlowButton = ({

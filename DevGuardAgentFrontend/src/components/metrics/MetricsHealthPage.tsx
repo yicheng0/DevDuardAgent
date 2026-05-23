@@ -145,9 +145,9 @@ const statusLabel: Record<MetricHealthStatus, string> = {
 };
 
 const statusStyle: Record<MetricHealthStatus, string> = {
-  healthy: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  warning: 'border-amber-200 bg-amber-50 text-amber-700',
-  critical: 'border-red-200 bg-red-50 text-red-700',
+  healthy: 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
+  warning: 'border-[#7c5cff]/20 bg-[#7c5cff]/10 text-[#d8ccff]',
+  critical: 'border-red-400/20 bg-red-400/10 text-red-200',
 };
 
 const statusIcon = {
@@ -184,8 +184,8 @@ const Sparkline = ({ points, metric }: { points: MetricTrendPoint[]; metric: key
 
   return (
     <svg viewBox="0 0 100 36" className="h-10 w-full" role="img" aria-label="趋势图">
-      <polyline points={coords} fill="none" stroke="#9a563f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="0" y1="34" x2="100" y2="34" stroke="#e2e8f0" strokeWidth="1" />
+      <polyline points={coords} fill="none" stroke="#8fb5ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="0" y1="34" x2="100" y2="34" stroke="rgba(255,255,255,0.10)" strokeWidth="1" />
     </svg>
   );
 };
@@ -195,12 +195,12 @@ const HealthBar = ({ value, tone = 'emerald' }: { value: number; tone?: 'emerald
     tone === 'red'
       ? 'bg-red-500'
       : tone === 'amber'
-        ? 'bg-amber-500'
+        ? 'bg-[#7c5cff]'
         : tone === 'slate'
           ? 'bg-[#9a7a62]'
-          : 'bg-emerald-500';
+          : 'bg-[#4f8cff]';
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-[#f4e3ca]">
+    <div className="h-2 overflow-hidden rounded-full bg-white/10">
       <div className={`h-full rounded-full ${fill}`} style={{ width: `${clamp(value)}%` }} />
     </div>
   );
@@ -278,15 +278,15 @@ const MetricsHealthPage = () => {
 
   return (
     <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:grid xl:grid-cols-[minmax(680px,1fr)_340px] xl:gap-3 xl:overflow-hidden">
-      <main className="app-surface mb-3 flex min-h-[760px] flex-col overflow-hidden rounded-lg border shadow-sm xl:mb-0 xl:min-h-0">
-        <div className="border-b border-[#ead7b7] bg-[#fffdf8] p-4">
+      <main className="app-surface mb-3 flex min-h-[760px] flex-col overflow-hidden rounded-lg border border-white/10 shadow-[0_14px_30px_rgba(3,8,20,0.2)] xl:mb-0 xl:min-h-0">
+        <div className="border-b border-white/10 bg-[#0c1728] p-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
-              <h1 className="flex items-center gap-2 text-base font-semibold text-slate-950">
-                <Gauge className="h-5 w-5 text-[#9a563f]" />
+              <h1 className="flex items-center gap-2 text-base font-semibold text-slate-50">
+                <Gauge className="h-5 w-5 text-[#8fb5ff]" />
                 指标健康总览
               </h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-400">
                 {timeRangeLabel[timeRange]}服务健康、SLO、资源压力和活跃告警。
               </p>
             </div>
@@ -294,7 +294,7 @@ const MetricsHealthPage = () => {
               <select
                 value={serviceId}
                 onChange={(event) => setServiceId(event.target.value)}
-                className="brand-input h-10 rounded-md border px-3 text-sm text-slate-800"
+                className="brand-input h-10 rounded-md border px-3 text-sm text-slate-100"
                 aria-label="服务筛选"
               >
                 <option value="all">全部服务</option>
@@ -304,14 +304,14 @@ const MetricsHealthPage = () => {
                   </option>
                 ))}
               </select>
-              <div className="grid grid-cols-4 overflow-hidden rounded-md border border-[#ead7b7] bg-[#fff6e8]">
+              <div className="grid grid-cols-4 overflow-hidden rounded-md border border-white/10 bg-[#0f1f38]">
                 {(['15m', '1h', '6h', '24h'] as TimeRange[]).map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => setTimeRange(item)}
                     className={`h-10 px-3 text-xs font-semibold transition-colors ${
-                      timeRange === item ? 'bg-[#f7ebe5] text-[#7f432f]' : 'text-slate-500 hover:bg-[#fffdf8]'
+                      timeRange === item ? 'bg-[#4f8cff] text-white' : 'text-slate-400 hover:bg-white/[0.06]'
                     }`}
                   >
                     {item}
@@ -331,96 +331,96 @@ const MetricsHealthPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-3 border-b border-[#ead7b7] bg-[#fff6e8] p-4 md:grid-cols-2 xl:grid-cols-5">
-          <div className="app-surface rounded-lg border p-3">
-            <p className="text-xs font-semibold text-slate-500">健康服务</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{summary.healthyServices}/{summary.totalServices}</p>
+        <div className="grid gap-3 border-b border-white/10 bg-[#0c1728] p-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="app-surface rounded-lg border border-white/10 p-3">
+            <p className="text-xs font-semibold text-slate-400">健康服务</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-50">{summary.healthyServices}/{summary.totalServices}</p>
             <HealthBar value={(summary.healthyServices / Math.max(summary.totalServices, 1)) * 100} />
           </div>
-          <div className="app-surface rounded-lg border p-3">
-            <p className="text-xs font-semibold text-slate-500">异常服务</p>
-            <p className="mt-1 text-2xl font-semibold text-red-700">{summary.criticalServices}</p>
+          <div className="app-surface rounded-lg border border-white/10 p-3">
+            <p className="text-xs font-semibold text-slate-400">异常服务</p>
+            <p className="mt-1 text-2xl font-semibold text-red-200">{summary.criticalServices}</p>
             <HealthBar value={(summary.criticalServices / Math.max(summary.totalServices, 1)) * 100} tone="red" />
           </div>
-          <div className="app-surface rounded-lg border p-3">
-            <p className="text-xs font-semibold text-slate-500">平均 SLO</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{formatPercent(summary.averageSlo)}</p>
+          <div className="app-surface rounded-lg border border-white/10 p-3">
+            <p className="text-xs font-semibold text-slate-400">平均 SLO</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-50">{formatPercent(summary.averageSlo)}</p>
             <HealthBar value={summary.averageSlo} />
           </div>
-          <div className="app-surface rounded-lg border p-3">
-            <p className="text-xs font-semibold text-slate-500">错误预算剩余</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{formatPercent(summary.averageErrorBudgetRemaining, 0)}</p>
+          <div className="app-surface rounded-lg border border-white/10 p-3">
+            <p className="text-xs font-semibold text-slate-400">错误预算剩余</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-50">{formatPercent(summary.averageErrorBudgetRemaining, 0)}</p>
             <HealthBar value={summary.averageErrorBudgetRemaining} tone={summary.averageErrorBudgetRemaining < 30 ? 'red' : 'amber'} />
           </div>
-          <div className="app-surface rounded-lg border p-3">
-            <p className="text-xs font-semibold text-slate-500">活跃告警</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{summary.activeAlerts}</p>
+          <div className="app-surface rounded-lg border border-white/10 p-3">
+            <p className="text-xs font-semibold text-slate-400">活跃告警</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-50">{summary.activeAlerts}</p>
             <HealthBar value={summary.activeAlerts * 18} tone={summary.activeAlerts ? 'amber' : 'emerald'} />
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           <section className="grid gap-4 xl:grid-cols-[minmax(420px,1fr)_320px]">
-            <div className="app-surface rounded-lg border p-4">
+            <div className="app-surface rounded-lg border border-white/10 p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <BarChart3 className="h-4 w-4 text-[#9a563f]" />
+                <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-50">
+                  <BarChart3 className="h-4 w-4 text-[#8fb5ff]" />
                   聚合趋势
                 </h2>
-                <span className="text-xs text-slate-500">{timeRangeLabel[timeRange]}</span>
+                <span className="text-xs text-slate-400">{timeRangeLabel[timeRange]}</span>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <p className="mb-2 text-xs font-semibold text-slate-500">请求量</p>
+                  <p className="mb-2 text-xs font-semibold text-slate-400">请求量</p>
                   <Sparkline points={aggregateTrend} metric="requests" />
-                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                  <p className="mt-1 text-sm font-semibold text-slate-50">
                     {numberFormat.format(latestTrend?.requests || 0)} rpm
                   </p>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-semibold text-slate-500">错误率</p>
+                  <p className="mb-2 text-xs font-semibold text-slate-400">错误率</p>
                   <Sparkline points={aggregateTrend} metric="errorRate" />
-                  <p className="mt-1 text-sm font-semibold text-slate-900">{formatPercent(latestTrend?.errorRate || 0)}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-50">{formatPercent(latestTrend?.errorRate || 0)}</p>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-semibold text-slate-500">p95 延迟</p>
+                  <p className="mb-2 text-xs font-semibold text-slate-400">p95 延迟</p>
                   <Sparkline points={aggregateTrend} metric="latencyMs" />
-                  <p className="mt-1 text-sm font-semibold text-slate-900">{Math.round(latestTrend?.latencyMs || 0)}ms</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-50">{Math.round(latestTrend?.latencyMs || 0)}ms</p>
                 </div>
               </div>
             </div>
 
-            <div className="app-surface rounded-lg border p-4">
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
-                <ShieldCheck className="h-4 w-4 text-[#9a563f]" />
+            <div className="app-surface rounded-lg border border-white/10 p-4">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-50">
+                <ShieldCheck className="h-4 w-4 text-[#8fb5ff]" />
                 SLO 风险
               </h2>
               <div className="space-y-3">
                 {riskyServices.slice(0, 3).map((service) => (
-                  <div key={service.id} className="rounded-md bg-[#fff6e8] p-3 ring-1 ring-[#ead7b7]">
+                  <div key={service.id} className="rounded-md border border-white/10 bg-[#0f1f38] p-3">
                     <div className="mb-2 flex items-center justify-between gap-3">
-                      <span className="truncate text-sm font-semibold text-slate-950">{service.name}</span>
-                      <span className="text-xs font-semibold text-slate-500">{service.burnRate.toFixed(1)}x burn</span>
+                      <span className="truncate text-sm font-semibold text-slate-50">{service.name}</span>
+                      <span className="text-xs font-semibold text-slate-400">{service.burnRate.toFixed(1)}x burn</span>
                     </div>
                     <HealthBar value={service.errorBudgetRemaining} tone={service.errorBudgetRemaining < 30 ? 'red' : 'amber'} />
-                    <p className="mt-2 text-xs text-slate-500">错误预算剩余 {formatPercent(service.errorBudgetRemaining, 0)}</p>
+                    <p className="mt-2 text-xs text-slate-400">错误预算剩余 {formatPercent(service.errorBudgetRemaining, 0)}</p>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="app-surface mt-4 overflow-hidden rounded-lg border">
-            <div className="flex items-center justify-between gap-3 border-b border-[#ead7b7] px-4 py-3">
-              <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                <Server className="h-4 w-4 text-[#9a563f]" />
+          <section className="app-surface mt-4 overflow-hidden rounded-lg border border-white/10">
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-50">
+                <Server className="h-4 w-4 text-[#8fb5ff]" />
                 服务健康
               </h2>
-              <span className="text-xs text-slate-500">最后刷新 {lastRefresh.toLocaleTimeString()}</span>
+              <span className="text-xs text-slate-400">最后刷新 {lastRefresh.toLocaleTimeString()}</span>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-[920px] w-full text-left text-sm">
-                <thead className="bg-[#fff6e8] text-xs font-semibold text-slate-500">
+                <thead className="bg-[#0c1728] text-xs font-semibold text-slate-400">
                   <tr>
                     <th className="px-4 py-3">服务</th>
                     <th className="px-4 py-3">状态</th>
@@ -432,14 +432,14 @@ const MetricsHealthPage = () => {
                     <th className="px-4 py-3">告警</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-white/10">
                   {visibleServices.map((service) => {
                     const StatusIcon = statusIcon[service.status];
                     return (
-                      <tr key={service.id} className="hover:bg-[#fff6e8]">
+                      <tr key={service.id} className="hover:bg-[#0c1728]">
                         <td className="px-4 py-3">
-                          <p className="font-semibold text-slate-950">{service.name}</p>
-                          <p className="text-xs text-slate-500">{service.owner} · {service.environment}</p>
+                          <p className="font-semibold text-slate-50">{service.name}</p>
+                          <p className="text-xs text-slate-400">{service.owner} · {service.environment}</p>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-semibold ${statusStyle[service.status]}`}>
@@ -448,21 +448,21 @@ const MetricsHealthPage = () => {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-semibold text-slate-900">{formatPercent(service.slo)}</p>
-                          <p className="text-xs text-slate-500">目标 {formatPercent(service.sloTarget)}</p>
+                          <p className="font-semibold text-slate-50">{formatPercent(service.slo)}</p>
+                          <p className="text-xs text-slate-400">目标 {formatPercent(service.sloTarget)}</p>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-slate-900">{numberFormat.format(service.rps)}</td>
-                        <td className="px-4 py-3 font-semibold text-slate-900">{formatPercent(service.errorRate)}</td>
-                        <td className="px-4 py-3 font-semibold text-slate-900">{service.p95LatencyMs}ms</td>
+                        <td className="px-4 py-3 font-semibold text-slate-50">{numberFormat.format(service.rps)}</td>
+                        <td className="px-4 py-3 font-semibold text-slate-50">{formatPercent(service.errorRate)}</td>
+                        <td className="px-4 py-3 font-semibold text-slate-50">{service.p95LatencyMs}ms</td>
                         <td className="px-4 py-3">
                           <div className="min-w-[120px] space-y-1.5">
                             <HealthBar value={service.cpu} tone={service.cpu > 80 ? 'red' : 'slate'} />
                             <HealthBar value={service.memory} tone={service.memory > 80 ? 'red' : 'amber'} />
                           </div>
-                          <p className="mt-1 text-xs text-slate-500">CPU {service.cpu}% · MEM {service.memory}%</p>
+                          <p className="mt-1 text-xs text-slate-400">CPU {service.cpu}% · MEM {service.memory}%</p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={service.activeAlerts ? 'font-semibold text-red-700' : 'font-semibold text-emerald-700'}>
+                          <span className={service.activeAlerts ? 'font-semibold text-red-200' : 'font-semibold text-emerald-200'}>
                             {service.activeAlerts}
                           </span>
                         </td>
@@ -476,38 +476,38 @@ const MetricsHealthPage = () => {
         </div>
       </main>
 
-      <aside className="app-surface flex min-h-[620px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
-        <div className="border-b border-[#ead7b7] px-4 py-3">
-          <h2 className="text-sm font-semibold text-slate-950">健康上下文</h2>
-          <p className="mt-0.5 text-xs text-slate-500">风险服务、资源压力与最近异常</p>
+      <aside className="app-surface flex min-h-[620px] flex-col overflow-hidden rounded-lg border border-white/10 shadow-[0_14px_30px_rgba(3,8,20,0.2)] xl:min-h-0">
+        <div className="border-b border-white/10 px-4 py-3">
+          <h2 className="text-sm font-semibold text-slate-50">健康上下文</h2>
+          <p className="mt-0.5 text-xs text-slate-400">风险服务、资源压力与最近异常</p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           <section>
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-50">
+              <AlertTriangle className="h-4 w-4 text-[#8fb5ff]" />
               高风险服务
             </h3>
             <div className="space-y-3">
               {riskyServices.slice(0, 4).map((service) => (
-                <article key={service.id} className="app-surface rounded-lg border p-3 shadow-sm">
+                <article key={service.id} className="app-surface rounded-lg border border-white/10 p-3 shadow-[0_10px_24px_rgba(3,8,20,0.14)]">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="truncate text-sm font-semibold text-slate-950">{service.name}</p>
+                    <p className="truncate text-sm font-semibold text-slate-50">{service.name}</p>
                     <span className={`rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${statusStyle[service.status]}`}>
                       {statusLabel[service.status]}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="rounded-md bg-[#fff6e8] p-2">
-                      <p className="font-semibold text-slate-900">{formatPercent(service.errorRate)}</p>
-                      <p className="text-slate-500">错误率</p>
+                    <div className="rounded-md border border-white/10 bg-[#0f1f38] p-2">
+                      <p className="font-semibold text-slate-50">{formatPercent(service.errorRate)}</p>
+                      <p className="text-slate-400">错误率</p>
                     </div>
-                    <div className="rounded-md bg-[#fff6e8] p-2">
-                      <p className="font-semibold text-slate-900">{service.p95LatencyMs}ms</p>
-                      <p className="text-slate-500">p95</p>
+                    <div className="rounded-md border border-white/10 bg-[#0f1f38] p-2">
+                      <p className="font-semibold text-slate-50">{service.p95LatencyMs}ms</p>
+                      <p className="text-slate-400">p95</p>
                     </div>
-                    <div className="rounded-md bg-[#fff6e8] p-2">
-                      <p className="font-semibold text-slate-900">{service.activeAlerts}</p>
-                      <p className="text-slate-500">告警</p>
+                    <div className="rounded-md border border-white/10 bg-[#0f1f38] p-2">
+                      <p className="font-semibold text-slate-50">{service.activeAlerts}</p>
+                      <p className="text-slate-400">告警</p>
                     </div>
                   </div>
                 </article>
@@ -516,8 +516,8 @@ const MetricsHealthPage = () => {
           </section>
 
           <section className="mt-5">
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
-              <TrendingUp className="h-4 w-4 text-[#9a563f]" />
+            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-50">
+              <TrendingUp className="h-4 w-4 text-[#8fb5ff]" />
               资源压力排行
             </h3>
             <div className="space-y-3">
@@ -525,10 +525,10 @@ const MetricsHealthPage = () => {
                 .sort((a, b) => b.cpu + b.memory - (a.cpu + a.memory))
                 .slice(0, 4)
                 .map((service) => (
-                  <div key={service.id} className="rounded-md bg-[#fff6e8] p-3 ring-1 ring-[#ead7b7]">
+                  <div key={service.id} className="rounded-md border border-white/10 bg-[#0f1f38] p-3">
                     <div className="mb-2 flex items-center justify-between gap-3">
-                      <span className="truncate text-sm font-semibold text-slate-950">{service.name}</span>
-                      <span className="text-xs text-slate-500">{Math.round((service.cpu + service.memory) / 2)}%</span>
+                      <span className="truncate text-sm font-semibold text-slate-50">{service.name}</span>
+                      <span className="text-xs text-slate-400">{Math.round((service.cpu + service.memory) / 2)}%</span>
                     </div>
                     <HealthBar value={(service.cpu + service.memory) / 2} tone={service.cpu > 80 || service.memory > 80 ? 'red' : 'amber'} />
                   </div>
@@ -536,12 +536,12 @@ const MetricsHealthPage = () => {
             </div>
           </section>
 
-          <section className="app-surface-muted mt-5 rounded-lg border p-3">
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
-              <Clock3 className="h-4 w-4 text-[#9a563f]" />
+          <section className="app-surface-muted mt-5 rounded-lg border border-white/10 p-3">
+            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-50">
+              <Clock3 className="h-4 w-4 text-[#8fb5ff]" />
               最近异常
             </h3>
-            <div className="space-y-3 text-sm leading-6 text-slate-600">
+            <div className="space-y-3 text-sm leading-6 text-slate-300">
               <p>checkout-api 5xx 错误率超过 4%，错误预算燃烧率达到 8.4x。</p>
               <p>order-worker p95 延迟持续高于 800ms，队列消费可能受影响。</p>
               <p>auth-gateway 登录失败请求增加，建议联动安全告警确认来源。</p>

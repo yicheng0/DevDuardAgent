@@ -106,14 +106,14 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
   };
 
   return (
-    <div className={`border-t border-[#ead7b7] bg-[#fff6e8] ${compact ? 'p-2.5' : 'p-3'}`}>
+    <div className={`border-t border-white/10 bg-white/[0.03] ${compact ? 'p-2.5' : 'p-3'}`}>
       <div
         className={`mb-2 grid grid-cols-1 gap-2 sm:items-center ${
           compact ? 'sm:grid-cols-1' : 'sm:grid-cols-[minmax(0,1fr)_auto]'
         }`}
       >
         <div
-          className={`grid w-full grid-cols-2 gap-1 rounded-md bg-[#f4e3ca] p-1 ${
+          className={`grid w-full grid-cols-2 gap-1 rounded-md border border-white/10 bg-[#0f1f38] p-1 ${
             compact ? '' : 'sm:w-[184px]'
           }`}
           aria-label="响应模式"
@@ -125,8 +125,8 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
               onClick={() => setChatMode(mode)}
               className={`brand-focus-ring inline-flex h-8 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded px-2 text-xs font-semibold transition-colors ${
                 chatMode === mode
-                  ? 'bg-[#fffdf8] text-[#7f432f] shadow-sm'
-                  : 'text-slate-500 hover:text-[#7f432f]'
+                  ? 'bg-[#4f8cff] text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-100'
               }`}
             >
               {mode === 'stream' && <Zap className="h-3.5 w-3.5" />}
@@ -134,13 +134,13 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
             </button>
           ))}
         </div>
-        <span className={`hidden whitespace-nowrap text-xs text-slate-500 ${compact ? '' : 'sm:inline'}`}>
+        <span className={`hidden whitespace-nowrap text-xs text-slate-400 ${compact ? '' : 'sm:inline'}`}>
           Enter 发送，Shift+Enter 换行
         </span>
       </div>
 
       {file && (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3 py-2 text-xs text-slate-600">
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-white/10 bg-[#0f1f38] px-3 py-2 text-xs text-slate-300">
           <span className="flex min-w-0 items-center gap-2">
             <Paperclip className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{file.name}</span>
@@ -148,7 +148,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
           <button
             type="button"
             onClick={() => setFile(null)}
-            className="brand-focus-ring cursor-pointer rounded text-slate-500 transition-colors hover:text-red-600"
+            className="brand-focus-ring cursor-pointer rounded text-slate-400 transition-colors hover:text-red-300"
             aria-label="移除文件"
           >
             <X className="h-4 w-4" />
@@ -157,14 +157,14 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
       )}
 
       <div
-        className={`brand-focus-within grid items-end gap-2 rounded-lg border border-[#dec39d] bg-[#fffdf8] ${
+        className={`brand-focus-within grid items-end gap-2 rounded-lg border border-white/10 bg-[#0b1628] ${
           compact ? 'grid-cols-[36px_minmax(0,1fr)_36px] p-1.5' : 'grid-cols-[40px_minmax(0,1fr)_40px] p-2'
         }`}
       >
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className={`brand-icon-button flex shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500 ${
+          className={`brand-icon-button flex shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-300 ${
             compact ? 'h-9 w-9' : 'h-10 w-10'
           }`}
           title="上传文件"
@@ -189,7 +189,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
           }}
           onKeyDown={handleKeyDown}
           placeholder="询问 Agent，或描述需要分析的告警..."
-          className={`min-w-0 resize-none border-none bg-transparent text-slate-900 outline-none placeholder:text-slate-400 ${
+          className={`min-w-0 resize-none border-none bg-transparent text-slate-100 outline-none placeholder:text-slate-400 ${
             compact ? 'min-h-9 max-h-[84px] py-1.5 text-xs leading-5' : 'min-h-10 max-h-[120px] py-2 text-sm leading-5'
           }`}
           rows={1}
@@ -199,7 +199,7 @@ const InputArea = ({ compact = false }: InputAreaProps) => {
           type="button"
           onClick={handleSend}
           disabled={!input.trim() && !file}
-          className={`brand-button flex shrink-0 cursor-pointer items-center justify-center rounded-md p-0 disabled:cursor-not-allowed disabled:bg-slate-300 ${
+          className={`brand-button flex shrink-0 cursor-pointer items-center justify-center rounded-md p-0 disabled:cursor-not-allowed disabled:bg-[#1b2d4a] ${
             compact ? 'h-9 w-9' : 'h-10 w-10'
           }`}
           aria-label="发送"

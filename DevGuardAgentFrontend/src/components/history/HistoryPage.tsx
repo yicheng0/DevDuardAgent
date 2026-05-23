@@ -31,9 +31,9 @@ const statusLabel: Record<AgentTaskStatus, string> = {
 };
 
 const statusStyle: Record<AgentTaskStatus, string> = {
-  running: 'border-amber-200 bg-amber-50 text-amber-700',
-  succeeded: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  failed: 'border-red-200 bg-red-50 text-red-700',
+  running: 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
+  succeeded: 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
+  failed: 'border-red-400/20 bg-red-400/10 text-red-200',
 };
 
 const statusIcon: Record<AgentTaskStatus, typeof Clock3> = {
@@ -263,15 +263,15 @@ const HistoryPage = () => {
 
   return (
     <div className="app-bg h-full min-h-0 overflow-y-auto p-3 xl:grid xl:grid-cols-[minmax(440px,0.82fr)_minmax(520px,1.18fr)] xl:gap-3 xl:overflow-hidden">
-      <section className="app-surface mb-3 flex min-h-[620px] flex-col overflow-hidden rounded-lg border shadow-sm xl:mb-0 xl:min-h-0">
-        <div className="border-b border-[#ead7b7] p-4">
+      <section className="app-surface mb-3 flex min-h-[620px] flex-col overflow-hidden rounded-lg border border-white/10 shadow-[0_14px_30px_rgba(3,8,20,0.2)] xl:mb-0 xl:min-h-0">
+        <div className="border-b border-white/10 p-4">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="flex items-center gap-2 text-base font-semibold text-slate-950">
-                <Clock3 className="h-5 w-5 text-[#9a563f]" />
+              <h1 className="flex items-center gap-2 text-base font-semibold text-slate-50">
+                <Clock3 className="h-5 w-5 text-[#8fb5ff]" />
                 任务历史
               </h1>
-              <p className="mt-1 text-sm text-slate-500">回看 Agent 对话任务、Trace 阶段和最终处置答复。</p>
+              <p className="mt-1 text-sm text-slate-400">回看 Agent 对话任务、Trace 阶段和最终处置答复。</p>
             </div>
             <button
               type="button"
@@ -291,15 +291,15 @@ const HistoryPage = () => {
               ['成功', stats.succeeded],
               ['失败', stats.failed],
             ].map(([label, value]) => (
-              <div key={label} className="app-surface-muted rounded-lg border p-3">
-                <p className="text-lg font-semibold text-slate-950">{value}</p>
-                <p className="text-xs text-slate-500">{label}</p>
+              <div key={label} className="app-surface-muted rounded-lg border border-white/10 p-3">
+                <p className="text-lg font-semibold text-slate-50">{value}</p>
+                <p className="text-xs text-slate-400">{label}</p>
               </div>
             ))}
           </div>
 
           <div className="mt-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_260px]">
-            <label className="brand-focus-within flex h-10 min-w-0 items-center gap-2 rounded-md border border-[#ead7b7] bg-[#fffdf8] px-3">
+            <label className="brand-focus-within flex h-10 min-w-0 items-center gap-2 rounded-md border border-white/10 bg-[#0f1f38] px-3">
               <Search className="h-4 w-4 shrink-0 text-slate-400" />
               <input
                 value={keyword}
@@ -307,11 +307,11 @@ const HistoryPage = () => {
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') void loadTasks();
                 }}
-                className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-400"
                 placeholder="搜索问题、答复或 Trace ID"
               />
             </label>
-            <div className="grid grid-cols-4 overflow-hidden rounded-md border border-[#ead7b7] bg-[#fff6e8]">
+            <div className="grid grid-cols-4 overflow-hidden rounded-md border border-white/10 bg-[#0f1f38]">
               {(['all', 'running', 'succeeded', 'failed'] as StatusFilter[]).map((item) => (
                 <button
                   key={item}
@@ -319,8 +319,8 @@ const HistoryPage = () => {
                   onClick={() => setStatus(item)}
                   className={`h-10 cursor-pointer text-xs font-semibold transition-all ${
                     status === item
-                      ? 'bg-[#fffdf8] text-[#653221] shadow-[inset_0_0_0_1px_rgba(154,86,63,0.22),0_8px_18px_rgba(127,67,47,0.12)]'
-                      : 'text-[#806a5c] hover:bg-[#fffdf8] hover:text-[#4f3f35]'
+                      ? 'bg-[#4f8cff] text-white shadow-[inset_0_0_0_1px_rgba(79,140,255,0.22),0_8px_18px_rgba(3,8,20,0.24)]'
+                      : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100'
                   }`}
                 >
                   {item === 'all' ? '全部' : statusLabel[item]}
@@ -336,7 +336,7 @@ const HistoryPage = () => {
         </div>
 
         {error && (
-          <div className="m-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="m-4 flex items-start gap-2 rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-200">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -346,18 +346,18 @@ const HistoryPage = () => {
           {isLoading && tasks.length === 0 && (
             <div className="flex min-h-[360px] items-center justify-center text-center">
               <div>
-                <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#9a563f]" />
-                <p className="mt-3 text-sm font-semibold text-slate-950">正在加载任务记录</p>
+                <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#8fb5ff]" />
+                <p className="mt-3 text-sm font-semibold text-slate-50">正在加载任务记录</p>
               </div>
             </div>
           )}
 
           {!isLoading && tasks.length === 0 && (
-            <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-dashed border-[#dec39d] bg-[#fff6e8] p-8 text-center">
+            <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-dashed border-white/10 bg-[#0f1f38] p-8 text-center">
               <div className="max-w-sm">
-                <FileText className="mx-auto h-10 w-10 text-[#9a563f]" />
-                <p className="mt-4 text-base font-semibold text-slate-950">暂无任务记录</p>
-                <p className="mt-2 text-sm leading-6 text-slate-500">发送一次 Agent 对话后，这里会展示任务执行历史。</p>
+                <FileText className="mx-auto h-10 w-10 text-[#8fb5ff]" />
+                <p className="mt-4 text-base font-semibold text-slate-50">暂无任务记录</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">发送一次 Agent 对话后，这里会展示任务执行历史。</p>
               </div>
             </div>
           )}
@@ -373,21 +373,21 @@ const HistoryPage = () => {
                   onClick={() => selectTask(task)}
                   className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-all ${
                     isActive
-                      ? 'border-[#d9a08a] bg-[#fbf7f4] shadow-[0_8px_22px_rgba(127,67,47,0.1)]'
-                      : 'border-[#ead7b7] bg-[#fffdf8] hover:border-[#ead1c5] hover:bg-[#fff6e8]'
+                      ? 'border-[#4f8cff]/50 bg-[#4f8cff]/10 shadow-[0_8px_22px_rgba(3,8,20,0.16)]'
+                      : 'border-white/10 bg-[#0f1f38] hover:border-[#4f8cff]/30 hover:bg-[#0f1f38]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-950">{task.title || '未命名任务'}</p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{task.question || '无问题内容'}</p>
+                      <p className="truncate text-sm font-semibold text-slate-50">{task.title || '未命名任务'}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{task.question || '无问题内容'}</p>
                     </div>
                     <span className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1 text-xs font-semibold ${statusStyle[task.status]}`}>
                       <Icon className={`h-3.5 w-3.5 ${task.status === 'running' ? 'animate-spin' : ''}`} />
                       {statusLabel[task.status]}
                     </span>
                   </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                     <span>{task.mode === 'stream' ? '流式' : '快速'}</span>
                     <span className="h-1 w-1 rounded-full bg-slate-300" />
                     <span>{formatDate(task.updatedAt)}</span>
@@ -407,23 +407,23 @@ const HistoryPage = () => {
 
       <section className="app-surface flex min-h-[620px] flex-col overflow-hidden rounded-lg border shadow-sm xl:min-h-0">
         {!selectedTask ? (
-          <div className="flex h-full items-center justify-center p-8 text-center">
-            <div className="max-w-sm">
-              <Route className="mx-auto h-10 w-10 text-[#9a563f]" />
-              <p className="mt-4 text-base font-semibold text-slate-950">选择一条任务记录</p>
-              <p className="mt-2 text-sm leading-6 text-slate-500">详情会展示执行阶段、错误信息和最终答复。</p>
+            <div className="flex h-full items-center justify-center p-8 text-center">
+              <div className="max-w-sm">
+              <Route className="mx-auto h-10 w-10 text-[#8fb5ff]" />
+              <p className="mt-4 text-base font-semibold text-slate-50">选择一条任务记录</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">详情会展示执行阶段、错误信息和最终答复。</p>
+              </div>
             </div>
-          </div>
-        ) : (
+          ) : (
           <>
-            <div className="border-b border-[#ead7b7] p-4">
+            <div className="border-b border-white/10 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
-                    <MessageSquareText className="h-5 w-5 text-[#9a563f]" />
+                  <h2 className="flex items-center gap-2 text-base font-semibold text-slate-50">
+                    <MessageSquareText className="h-5 w-5 text-[#8fb5ff]" />
                     {selectedTask.title || '未命名任务'}
                   </h2>
-                  <p className="mt-1 break-all text-xs text-slate-500">Trace: {selectedTask.traceId || '-'}</p>
+                  <p className="mt-1 break-all text-xs text-slate-400">Trace: {selectedTask.traceId || '-'}</p>
                 </div>
                 <button
                   type="button"
@@ -438,7 +438,7 @@ const HistoryPage = () => {
                   onClick={() => toggleImportant(selectedTask)}
                   disabled={actionTaskId === selectedTask.id}
                   className={`brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold disabled:opacity-60 ${
-                    selectedTask.important ? 'border-amber-200 bg-amber-50 text-amber-700' : ''
+                    selectedTask.important ? 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]' : ''
                   }`}
                 >
                   {actionTaskId === selectedTask.id ? (
@@ -452,7 +452,7 @@ const HistoryPage = () => {
                   type="button"
                   onClick={() => deleteTask(selectedTask)}
                   disabled={actionTaskId === selectedTask.id}
-                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold text-red-700 disabled:opacity-60"
+                  className="brand-subtle-button inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold text-red-200 disabled:opacity-60"
                 >
                   {actionTaskId === selectedTask.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                   删除
@@ -462,7 +462,7 @@ const HistoryPage = () => {
 
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
               {isDetailLoading && (
-                <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#ead7b7] bg-[#fff6e8] px-3 py-2 text-sm text-[#7f432f]">
+                <div className="mb-3 flex items-center gap-2 rounded-lg border border-white/10 bg-[#0f1f38] px-3 py-2 text-sm text-[#8fb5ff]">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   正在刷新任务详情
                 </div>
@@ -474,32 +474,32 @@ const HistoryPage = () => {
                   <p className="mt-1 text-base font-semibold">{statusLabel[selectedTask.status]}</p>
                 </div>
                 <div className="app-surface-muted rounded-lg border p-3">
-                  <p className="text-xs font-semibold text-slate-500">开始时间</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-950">{formatDate(selectedTask.startedAt)}</p>
+                  <p className="text-xs font-semibold text-slate-400">开始时间</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-50">{formatDate(selectedTask.startedAt)}</p>
                 </div>
                 <div className="app-surface-muted rounded-lg border p-3">
-                  <p className="text-xs font-semibold text-slate-500">完成时间</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-950">{formatDate(selectedTask.finishedAt)}</p>
+                  <p className="text-xs font-semibold text-slate-400">完成时间</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-50">{formatDate(selectedTask.finishedAt)}</p>
                 </div>
               </div>
 
               <section className="app-surface-muted mt-4 rounded-lg border p-4">
-                <h3 className="text-sm font-semibold text-slate-950">用户问题</h3>
-                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">
+                <h3 className="text-sm font-semibold text-slate-50">用户问题</h3>
+                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">
                   {selectedTask.question || '无问题内容'}
                 </p>
               </section>
 
               {selectedTask.error && (
-                <section className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
-                  <h3 className="text-sm font-semibold text-red-800">错误信息</h3>
-                  <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-red-700">{selectedTask.error}</p>
+                <section className="mt-4 rounded-lg border border-red-400/20 bg-red-400/10 p-4">
+                  <h3 className="text-sm font-semibold text-red-200">错误信息</h3>
+                  <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-red-100">{selectedTask.error}</p>
                 </section>
               )}
 
               <section className="app-surface mt-4 rounded-lg border p-4">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <Route className="h-4 w-4 text-[#9a563f]" />
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-50">
+                  <Route className="h-4 w-4 text-[#8fb5ff]" />
                   Trace 阶段
                 </h3>
                 {selectedTask.steps?.length ? (
@@ -507,23 +507,23 @@ const HistoryPage = () => {
                     {selectedTask.steps.map((step) => (
                       <article key={step.id} className="app-surface-muted rounded-lg border p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="text-sm font-semibold text-slate-950">{step.title}</p>
-                          <span className="rounded-md bg-[#fffdf8] px-2 py-1 text-xs font-semibold text-slate-500 ring-1 ring-[#ead7b7]">
+                          <p className="text-sm font-semibold text-slate-50">{step.title}</p>
+                          <span className="rounded-md bg-white/5 px-2 py-1 text-xs font-semibold text-slate-300 ring-1 ring-white/10">
                             {stepStatusLabel[step.status] || step.status}
                           </span>
                         </div>
-                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
-                          {step.phase && <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">阶段：{step.phase}</span>}
-                          {step.toolName && <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">工具：{step.toolName}</span>}
-                          {step.durationMs ? <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">耗时：{formatDuration(step.durationMs)}</span> : null}
-                          {step.riskLevel && <span className="rounded-md bg-[#fffdf8] px-2 py-1 ring-1 ring-[#ead7b7]">风险：{riskLabel[step.riskLevel]}</span>}
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-400">
+                          {step.phase && <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">阶段：{step.phase}</span>}
+                          {step.toolName && <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">工具：{step.toolName}</span>}
+                          {step.durationMs ? <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">耗时：{formatDuration(step.durationMs)}</span> : null}
+                          {step.riskLevel && <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">风险：{riskLabel[step.riskLevel]}</span>}
                         </div>
-                        {step.description && <p className="mt-2 text-sm leading-6 text-slate-600">{step.description}</p>}
-                        {step.result && <p className="mt-2 text-sm leading-6 text-slate-700">{step.result}</p>}
+                        {step.description && <p className="mt-2 text-sm leading-6 text-slate-300">{step.description}</p>}
+                        {step.result && <p className="mt-2 text-sm leading-6 text-slate-200">{step.result}</p>}
                         {step.evidence?.length ? (
                           <div className="mt-3 space-y-1">
                             {step.evidence.map((item) => (
-                              <p key={item} className="break-words rounded-md bg-[#fffdf8] px-2 py-1 text-xs leading-5 text-slate-600 ring-1 ring-[#ead7b7]">
+                              <p key={item} className="break-words rounded-md bg-white/5 px-2 py-1 text-xs leading-5 text-slate-300 ring-1 ring-white/10">
                                 {item}
                               </p>
                             ))}
@@ -533,13 +533,13 @@ const HistoryPage = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">暂无 Trace 阶段数据。</p>
+                  <p className="text-sm text-slate-400">暂无 Trace 阶段数据。</p>
                 )}
               </section>
 
               <section className="app-surface mt-4 rounded-lg border p-4">
-                <h3 className="text-sm font-semibold text-slate-950">最终答复</h3>
-                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">
+                <h3 className="text-sm font-semibold text-slate-50">最终答复</h3>
+                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">
                   {selectedTask.answer || '暂无最终答复。'}
                 </p>
               </section>
@@ -552,3 +552,4 @@ const HistoryPage = () => {
 };
 
 export default HistoryPage;
+

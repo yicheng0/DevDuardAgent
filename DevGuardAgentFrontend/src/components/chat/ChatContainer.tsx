@@ -39,13 +39,13 @@ const ChatContainer = ({ compact = false }: ChatContainerProps) => {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[#fffdf8]">
+    <div className="flex h-full min-h-0 flex-col bg-transparent">
       {!compact && (
-        <div className="flex flex-wrap items-center gap-2 border-b border-[#ead7b7] bg-[#fffdf8] px-3 py-2">
+        <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-[#0b1628] px-3 py-2">
           <select
             value={currentSessionId || ''}
             onChange={(event) => switchSession(event.target.value)}
-            className="brand-input h-9 min-w-0 flex-1 rounded-md border px-2 text-sm text-slate-700"
+            className="brand-input h-9 min-w-0 flex-1 rounded-md border px-2 text-sm text-slate-100"
             aria-label="选择聊天会话"
           >
             {sessions.map((item) => (
@@ -66,7 +66,7 @@ const ChatContainer = ({ compact = false }: ChatContainerProps) => {
             type="button"
             onClick={handleDeleteSession}
             disabled={!session || isDeleting}
-            className="brand-subtle-button inline-flex h-9 items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold text-red-700 disabled:opacity-60"
+            className="brand-subtle-button inline-flex h-9 items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold text-red-200 disabled:opacity-60"
           >
             {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             删除

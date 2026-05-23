@@ -16,9 +16,9 @@ const blurClasses = {
 };
 
 const variantClasses = {
-  default: 'border-[#ead7b7] bg-[#fffdf8]',
-  elevated: 'border-[#ead7b7] bg-[#fffdf8] shadow-sm',
-  glow: 'border-[#ead1c5] bg-[#f7ebe5]',
+  default: 'border-white/10 bg-[#0f1f38]',
+  elevated: 'border-white/10 bg-[#132744] shadow-[0_12px_28px_rgba(3,8,20,0.18)]',
+  glow: 'border-[#4f8cff]/25 bg-[#4f8cff]/10',
 };
 
 export const GlassCard = ({

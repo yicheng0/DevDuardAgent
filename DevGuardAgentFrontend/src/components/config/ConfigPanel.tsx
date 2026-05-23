@@ -196,7 +196,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
     if (!result) return null;
 
     return (
-      <p className={`mt-3 text-xs font-medium ${result.ok ? 'text-emerald-700' : 'text-red-700'}`}>
+      <p className={`mt-3 text-xs font-medium ${result.ok ? 'text-emerald-300' : 'text-red-300'}`}>
         {result.message}
       </p>
     );
@@ -209,14 +209,14 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
     target: ConfigTestTarget,
     badge: string
   ) => (
-    <section className="app-surface rounded-lg border p-4 shadow-sm">
+    <section className="app-surface rounded-lg border border-white/10 p-4 shadow-[0_12px_28px_rgba(3,8,20,0.18)]">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
-            <span className="rounded-md bg-[#f7ebe5] px-2 py-1 text-xs font-semibold text-[#7f432f]">{badge}</span>
+            <h3 className="text-sm font-semibold text-slate-50">{title}</h3>
+            <span className="rounded-md border border-white/10 bg-[#132744] px-2 py-1 text-xs font-semibold text-slate-200">{badge}</span>
           </div>
-          <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">{description}</p>
         </div>
         <button
           type="button"
@@ -230,7 +230,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="block">
-          <span className="text-xs font-medium text-slate-600">Base URL</span>
+          <span className="text-xs font-medium text-slate-400">Base URL</span>
           <input
             value={config[key].baseUrl}
             onChange={(event) => updateModel(key, 'baseUrl', event.target.value)}
@@ -239,7 +239,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-slate-600">Model</span>
+          <span className="text-xs font-medium text-slate-400">Model</span>
           <input
             value={config[key].model}
             onChange={(event) => updateModel(key, 'model', event.target.value)}
@@ -248,7 +248,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
           />
         </label>
         <label className="block md:col-span-2">
-          <span className="text-xs font-medium text-slate-600">API Key</span>
+          <span className="text-xs font-medium text-slate-400">API Key</span>
           <input
             type="password"
             value={config[key].apiKey.value}
@@ -263,22 +263,22 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
   );
 
   return (
-    <div className={`flex min-h-0 flex-col overflow-hidden ${isDialog ? 'h-full' : 'app-surface h-full rounded-lg border shadow-sm'}`}>
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#ead7b7] bg-[#fffdf8] px-5 py-4">
+    <div className={`flex min-h-0 flex-col overflow-hidden ${isDialog ? 'h-full' : 'app-surface h-full rounded-lg border border-white/10 shadow-[0_16px_36px_rgba(3,8,20,0.18)]'}`}>
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#0c1728] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#9a563f] text-white">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#2c69ff,#845dff)] text-white">
             <Settings className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <h2 className="truncate text-base font-semibold text-slate-950">运行配置</h2>
-            <p className="truncate text-xs text-slate-500">模型、Embedding、MCP、Milvus 与文件目录</p>
+            <h2 className="truncate text-base font-semibold text-slate-50">运行配置</h2>
+            <p className="truncate text-xs text-slate-400">模型、Embedding、MCP、Milvus 与文件目录</p>
           </div>
         </div>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="brand-icon-button flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-500"
+            className="brand-icon-button flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-200"
             aria-label="关闭配置"
           >
             <X className="h-5 w-5" />
@@ -288,14 +288,14 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
 
       {!hasToken ? (
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
-          <div className="app-surface mx-auto max-w-md rounded-lg border p-5 shadow-sm">
+          <div className="app-surface mx-auto max-w-md rounded-lg border border-white/10 p-5 shadow-[0_12px_28px_rgba(3,8,20,0.16)]">
             <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fff6e8] text-[#7f432f]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#132744] text-[#8fb5ff]">
                 <KeyRound className="h-5 w-5" />
               </span>
               <div>
-                <h3 className="text-sm font-semibold text-slate-950">管理员口令</h3>
-                <p className="text-xs leading-5 text-slate-500">默认口令为 devguard-admin，建议部署前修改。</p>
+                <h3 className="text-sm font-semibold text-slate-50">管理员口令</h3>
+                <p className="text-xs leading-5 text-slate-400">默认口令为 devguard-admin，建议部署前修改。</p>
               </div>
             </div>
             <input
@@ -308,7 +308,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
               className="brand-input h-10 w-full rounded-md border px-3 text-sm"
               placeholder="输入管理员口令"
             />
-            {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
+            {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
             <button
               type="button"
               onClick={handleTokenSubmit}
@@ -322,26 +322,26 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
         <>
           <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
             {isLoading ? (
-              <div className="flex h-48 items-center justify-center text-sm text-slate-500">
+              <div className="flex h-48 items-center justify-center text-sm text-slate-400">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 正在读取配置
               </div>
             ) : (
               <div className="mx-auto grid max-w-6xl gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="min-w-0 space-y-4">
-                  {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+                  {error && <div className="rounded-lg border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div>}
                   {success && (
-                    <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                    <div className="flex items-center gap-2 rounded-lg border border-[#4f8cff]/20 bg-[#4f8cff]/10 px-4 py-3 text-sm text-[#c3d7ff]">
                       <CheckCircle2 className="h-4 w-4 shrink-0" />
                       {success}
                     </div>
                   )}
                   {modelGroups.map((group) => renderModelGroup(group.title, group.description, group.key, group.target, group.badge))}
-                  <section className="app-surface rounded-lg border p-4 shadow-sm">
+                  <section className="app-surface rounded-lg border border-white/10 p-4 shadow-[0_12px_28px_rgba(3,8,20,0.16)]">
                     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-950">运维与存储</h3>
-                        <p className="mt-1 text-xs leading-5 text-slate-500">MCP 日志服务、Milvus 地址和上传文件目录。</p>
+                        <h3 className="text-sm font-semibold text-slate-50">运维与存储</h3>
+                        <p className="mt-1 text-xs leading-5 text-slate-400">MCP 日志服务、Milvus 地址和上传文件目录。</p>
                       </div>
                       <button
                         type="button"
@@ -355,7 +355,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
                       <label className="block md:col-span-2">
-                        <span className="text-xs font-medium text-slate-600">MCP URL</span>
+                        <span className="text-xs font-medium text-slate-400">MCP URL</span>
                         <input
                           value={config.mcpUrl}
                           onChange={(event) => setConfig((current) => ({ ...current, mcpUrl: event.target.value }))}
@@ -364,7 +364,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                         />
                       </label>
                       <label className="block">
-                        <span className="text-xs font-medium text-slate-600">Milvus Address</span>
+                        <span className="text-xs font-medium text-slate-400">Milvus Address</span>
                         <input
                           value={config.milvusAddress}
                           onChange={(event) => setConfig((current) => ({ ...current, milvusAddress: event.target.value }))}
@@ -373,7 +373,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                         />
                       </label>
                       <label className="block">
-                        <span className="text-xs font-medium text-slate-600">File Dir</span>
+                        <span className="text-xs font-medium text-slate-400">File Dir</span>
                         <input
                           value={config.fileDir}
                           onChange={(event) => setConfig((current) => ({ ...current, fileDir: event.target.value }))}
@@ -382,7 +382,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                         />
                       </label>
                       <label className="block">
-                        <span className="text-xs font-medium text-slate-600">Index Timeout Seconds</span>
+                        <span className="text-xs font-medium text-slate-400">Index Timeout Seconds</span>
                         <input
                           type="number"
                           min={30}
@@ -405,29 +405,29 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
                 </div>
 
                 <aside className="space-y-4">
-                  <section className="app-surface rounded-lg border p-4 shadow-sm">
-                    <h3 className="text-sm font-semibold text-slate-950">当前配置范围</h3>
+                  <section className="app-surface rounded-lg border border-white/10 p-4 shadow-[0_12px_28px_rgba(3,8,20,0.16)]">
+                    <h3 className="text-sm font-semibold text-slate-50">当前配置范围</h3>
                     <div className="mt-4 space-y-3 text-sm">
-                      <div className="flex items-center gap-3 text-slate-600">
-                        <ServerCog className="h-4 w-4 text-[#9a563f]" />
+                      <div className="flex items-center gap-3 text-slate-300">
+                        <ServerCog className="h-4 w-4 text-[#8fb5ff]" />
                         两套 OpenAI 兼容 Chat 模型
                       </div>
-                      <div className="flex items-center gap-3 text-slate-600">
-                        <Database className="h-4 w-4 text-[#9a563f]" />
+                      <div className="flex items-center gap-3 text-slate-300">
+                        <Database className="h-4 w-4 text-[#8fb5ff]" />
                         DashScope 兼容 Embedding
                       </div>
-                      <div className="flex items-center gap-3 text-slate-600">
-                        <Network className="h-4 w-4 text-[#9a563f]" />
+                      <div className="flex items-center gap-3 text-slate-300">
+                        <Network className="h-4 w-4 text-[#8fb5ff]" />
                         MCP SSE 与 Milvus 连接
                       </div>
-                      <div className="flex items-center gap-3 text-slate-600">
-                        <FolderOpen className="h-4 w-4 text-[#9a563f]" />
+                      <div className="flex items-center gap-3 text-slate-300">
+                        <FolderOpen className="h-4 w-4 text-[#8fb5ff]" />
                         知识库文件存储目录
                       </div>
                     </div>
                   </section>
 
-                  <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  <section className="rounded-lg border border-[#4f8cff]/20 bg-[#4f8cff]/10 p-4 text-sm text-[#c3d7ff]">
                     <h3 className="font-semibold">密钥保存说明</h3>
                     <p className="mt-2 leading-6">
                       已配置的 API Key 会以 ******** 显示。保存时保持为空或保持 ********，后端会沿用原密钥；输入新值才会覆盖。
@@ -447,7 +447,7 @@ const ConfigPanel = ({ onClose, variant = 'page' }: ConfigPanelProps) => {
               </div>
             )}
           </div>
-          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#ead7b7] bg-[#fffdf8] px-5 py-4">
+          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-[#0c1728] px-5 py-4">
             <button
               type="button"
               onClick={() => {

@@ -14,23 +14,26 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #fff8e8;
-  color: #0f172a;
-  --app-bg: #fff8e8;
-  --app-bg-soft: #fff3d6;
-  --app-surface: #fffdf8;
-  --app-surface-muted: #fff6e8;
-  --app-surface-strong: #fffaf0;
-  --app-border: #ead7b7;
-  --app-border-strong: #dec39d;
-  --app-text: #2f2119;
-  --app-text-muted: #6f5b4b;
-  --brand-primary: #9a563f;
-  --brand-primary-strong: #7f432f;
-  --brand-primary-soft: #f7ebe5;
-  --brand-primary-muted: #ead1c5;
-  --brand-primary-ring: rgb(154 86 63 / 0.28);
-  --brand-primary-shadow: rgb(127 67 47 / 0.22);
+  background:
+    radial-gradient(circle at top left, rgb(30 64 175 / 0.24), transparent 28%),
+    radial-gradient(circle at top right, rgb(88 28 135 / 0.18), transparent 32%),
+    linear-gradient(180deg, #06111f 0%, #081521 42%, #0b1320 100%);
+  color: #e5eefc;
+  --app-bg: #081521;
+  --app-bg-soft: #0d1b2f;
+  --app-surface: linear-gradient(180deg, rgba(14, 29, 52, 0.94), rgba(10, 21, 39, 0.9));
+  --app-surface-muted: linear-gradient(180deg, rgba(12, 25, 46, 0.9), rgba(9, 18, 34, 0.88));
+  --app-surface-strong: linear-gradient(180deg, rgba(20, 40, 73, 0.96), rgba(11, 24, 44, 0.94));
+  --app-border: rgb(71 95 140 / 0.34);
+  --app-border-strong: rgb(96 121 177 / 0.5);
+  --app-text: #e5eefc;
+  --app-text-muted: #9eb0cc;
+  --brand-primary: #4f8cff;
+  --brand-primary-strong: #7c5cff;
+  --brand-primary-soft: rgba(79, 140, 255, 0.14);
+  --brand-primary-muted: rgba(79, 140, 255, 0.26);
+  --brand-primary-ring: rgb(79 140 255 / 0.34);
+  --brand-primary-shadow: rgb(35 76 164 / 0.38);
   font-family:
     Inter,
     ui-sans-serif,
@@ -72,8 +75,8 @@ pre {
 }
 
 ::selection {
-  background: #bfdbfe;
-  color: #172554;
+  background: rgb(79 140 255 / 0.36);
+  color: #eff6ff;
 }
 
 .line-clamp-2 {
@@ -91,11 +94,12 @@ pre {
   justify-content: center;
   gap: 8px;
   border-radius: 8px;
-  border: 1px solid var(--brand-primary);
-  background: linear-gradient(180deg, #a7624b 0%, var(--brand-primary) 100%);
+  border: 1px solid rgb(88 126 255 / 0.8);
+  background:
+    linear-gradient(135deg, rgb(44 105 255) 0%, rgb(93 92 255) 48%, rgb(133 77 255) 100%);
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 10px 24px var(--brand-primary-shadow);
+  box-shadow: 0 12px 28px var(--brand-primary-shadow);
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
@@ -104,9 +108,10 @@ pre {
 }
 
 .brand-button:hover {
-  border-color: var(--brand-primary-strong);
-  background: linear-gradient(180deg, #925038 0%, var(--brand-primary-strong) 100%);
-  box-shadow: 0 12px 28px rgb(127 67 47 / 0.28);
+  border-color: rgb(129 156 255 / 0.95);
+  background:
+    linear-gradient(135deg, rgb(65 119 255) 0%, rgb(107 96 255) 48%, rgb(141 89 255) 100%);
+  box-shadow: 0 16px 36px rgb(35 76 164 / 0.42);
 }
 
 .brand-button:active {
@@ -122,25 +127,25 @@ pre {
 
 .brand-button:disabled {
   cursor: not-allowed;
-  border-color: #cbd5e1;
-  background: #cbd5e1;
+  border-color: rgb(82 100 130 / 0.7);
+  background: rgb(51 65 85 / 0.7);
   box-shadow: none;
-  color: #f8fafc;
+  color: rgb(226 232 240 / 0.72);
   transform: none;
 }
 
 .brand-button-secondary {
-  border-color: var(--brand-primary-muted);
-  background: var(--brand-primary-soft);
-  color: var(--brand-primary-strong);
+  border-color: var(--app-border);
+  background: rgba(15, 32, 58, 0.82);
+  color: #d7e6ff;
   box-shadow: none;
 }
 
 .brand-button-secondary:hover {
-  border-color: var(--brand-primary);
-  background: #f1ddd3;
-  color: var(--brand-primary-strong);
-  box-shadow: 0 8px 18px rgb(127 67 47 / 0.12);
+  border-color: rgb(107 134 192 / 0.8);
+  background: rgba(20, 40, 73, 0.92);
+  color: #eff6ff;
+  box-shadow: 0 12px 24px rgb(15 23 42 / 0.24);
 }
 
 .brand-button-sm {
@@ -156,7 +161,7 @@ pre {
 }
 
 .brand-icon-button {
-  color: var(--brand-primary-strong);
+  color: #b5c7f2;
   transition:
     background-color 160ms ease,
     color 160ms ease,
@@ -164,24 +169,24 @@ pre {
 }
 
 .brand-icon-button:hover {
-  border-color: var(--brand-primary-muted);
-  background: var(--brand-primary-soft);
-  color: var(--brand-primary-strong);
+  border-color: rgb(79 140 255 / 0.42);
+  background: rgba(79, 140, 255, 0.12);
+  color: #eff6ff;
 }
 
 .brand-text-link {
-  color: var(--brand-primary-strong);
+  color: #8fb5ff;
   transition: color 160ms ease;
 }
 
 .brand-text-link:hover {
-  color: #653221;
+  color: #d8e6ff;
 }
 
 .brand-subtle-button {
-  border-color: var(--brand-primary-muted);
-  background: var(--app-surface);
-  color: var(--brand-primary-strong);
+  border-color: var(--app-border);
+  background: rgba(15, 32, 58, 0.8);
+  color: #d9e6ff;
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
@@ -190,9 +195,9 @@ pre {
 }
 
 .brand-subtle-button:hover {
-  border-color: var(--brand-primary);
-  background: var(--brand-primary-soft);
-  color: var(--brand-primary-strong);
+  border-color: rgb(79 140 255 / 0.52);
+  background: rgba(26, 48, 84, 0.95);
+  color: #eff6ff;
 }
 
 .brand-subtle-button:focus-visible {
@@ -201,41 +206,41 @@ pre {
 }
 
 .brand-selected-surface {
-  border-color: var(--brand-primary-muted);
-  background: var(--brand-primary-soft);
-  color: var(--brand-primary-strong);
+  border-color: rgb(79 140 255 / 0.42);
+  background: rgba(79, 140, 255, 0.14);
+  color: #eff6ff;
 }
 
 .sidebar-nav-item {
-  border-color: rgb(234 215 183 / 0.46);
+  border-color: rgb(71 95 140 / 0.34);
   background:
-    linear-gradient(135deg, rgb(255 255 255 / 0.34), rgb(255 246 232 / 0.42)),
-    rgb(255 253 248 / 0.32);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.58);
-  backdrop-filter: blur(8px);
-}
-
-.sidebar-nav-item:hover {
-  border-color: rgb(217 160 138 / 0.32);
-  background:
-    linear-gradient(135deg, rgb(255 255 255 / 0.56), rgb(255 246 232 / 0.72)),
-    rgb(255 250 247 / 0.54);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.78),
-    0 8px 18px rgb(127 67 47 / 0.08);
+    linear-gradient(135deg, rgb(15 32 58 / 0.92), rgb(8 21 33 / 0.84)),
+    rgb(11 19 32 / 0.8);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
   backdrop-filter: blur(14px);
 }
 
-.sidebar-nav-active {
-  border-color: rgb(217 160 138 / 0.62);
+.sidebar-nav-item:hover {
+  border-color: rgb(79 140 255 / 0.42);
   background:
-    linear-gradient(135deg, rgb(255 255 255 / 0.82), rgb(247 235 229 / 0.78)),
-    linear-gradient(180deg, rgb(255 250 247 / 0.86), rgb(255 239 230 / 0.68));
+    linear-gradient(135deg, rgb(22 44 79 / 0.96), rgb(11 24 44 / 0.92)),
+    rgb(15 27 47 / 0.86);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.9),
-    inset 0 -1px 0 rgb(154 86 63 / 0.08),
-    0 12px 28px rgb(127 67 47 / 0.15),
-    0 0 0 1px rgb(255 255 255 / 0.56);
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 12px 30px rgb(3 8 20 / 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.sidebar-nav-active {
+  border-color: rgb(79 140 255 / 0.7);
+  background:
+    linear-gradient(135deg, rgb(32 63 117 / 0.95), rgb(20 40 73 / 0.96)),
+    linear-gradient(180deg, rgb(22 45 86 / 0.96), rgb(13 27 47 / 0.94));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    inset 0 -1px 0 rgb(79 140 255 / 0.18),
+    0 16px 34px rgb(3 8 20 / 0.36),
+    0 0 0 1px rgb(120 146 255 / 0.22);
   backdrop-filter: blur(18px);
 }
 
@@ -249,11 +254,12 @@ pre {
     border-color 160ms ease,
     box-shadow 160ms ease;
   border-color: var(--app-border);
-  background: var(--app-surface);
+  background: rgba(8, 21, 33, 0.9);
+  color: #e5eefc;
 }
 
 .brand-input:focus {
-  border-color: var(--brand-primary);
+  border-color: rgb(79 140 255 / 0.82);
   outline: none;
   box-shadow: 0 0 0 3px var(--brand-primary-ring);
 }
@@ -270,22 +276,31 @@ pre {
 }
 
 .app-bg {
-  background: var(--app-bg);
+  background:
+    radial-gradient(circle at top left, rgb(30 64 175 / 0.12), transparent 24%),
+    radial-gradient(circle at bottom right, rgb(88 28 135 / 0.14), transparent 28%),
+    var(--app-bg);
 }
 
 .app-surface {
   border-color: var(--app-border);
   background: var(--app-surface);
+  color: var(--app-text);
+  backdrop-filter: blur(18px);
 }
 
 .app-surface-muted {
   border-color: var(--app-border);
   background: var(--app-surface-muted);
+  color: var(--app-text);
+  backdrop-filter: blur(16px);
 }
 
 .app-surface-strong {
   border-color: var(--app-border-strong);
   background: var(--app-surface-strong);
+  color: var(--app-text);
+  backdrop-filter: blur(18px);
 }
 
 .agent-workbench {
@@ -297,4 +312,5 @@ pre {
 .agent-workbench-muted {
   border-color: var(--app-border);
   background: var(--app-surface-muted);
+  color: var(--app-text);
 }

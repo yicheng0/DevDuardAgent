@@ -83,7 +83,7 @@ const Message = ({ message, compact = false }: MessageProps) => {
       {!isUser && (
         <div className="shrink-0">
           <div
-            className={`flex items-center justify-center rounded-md bg-[#f7ebe5] text-[#7f432f] ring-1 ring-[#ead1c5] ${
+            className={`flex items-center justify-center rounded-md bg-[#132744] text-[#8fb5ff] ring-1 ring-white/10 ${
               compact ? 'h-7 w-7' : 'h-8 w-8'
             }`}
           >
@@ -95,8 +95,8 @@ const Message = ({ message, compact = false }: MessageProps) => {
       <div
         className={`${compact ? 'max-w-[88%] px-2.5 py-1.5 text-xs leading-5' : 'max-w-[82%] px-3 py-2 text-sm leading-6'} rounded-lg border ${
           isUser
-            ? 'border-[#9a563f] bg-[#9a563f] text-white'
-            : 'border-[#ead7b7] bg-[#fff6e8] text-slate-800'
+            ? 'border-[#4f8cff] bg-[#4f8cff] text-white'
+            : 'border-white/10 bg-[#0f1f38] text-slate-100'
         }`}
       >
         {canToggleImportant && (
@@ -109,8 +109,8 @@ const Message = ({ message, compact = false }: MessageProps) => {
                 compact ? 'h-7 w-7' : 'h-8 w-8'
               } ${
                 message.important
-                  ? 'border-amber-200 bg-amber-50 text-amber-600'
-                  : 'border-[#ead7b7] bg-[#fffdf8] text-slate-400 hover:text-[#9a563f]'
+                  ? 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]'
+                  : 'border-white/10 bg-[#0c1728] text-slate-400 hover:text-slate-100'
               } disabled:opacity-60`}
               aria-label={message.important ? '取消重要记录' : '标记为重要记录'}
               title={message.important ? '取消重要记录' : '标记为重要记录'}
@@ -126,7 +126,7 @@ const Message = ({ message, compact = false }: MessageProps) => {
         {renderContent()}
         {message.isStreaming && (
           <motion.span
-            className="ml-1 inline-block h-4 w-1.5 bg-[#9a563f]"
+            className="ml-1 inline-block h-4 w-1.5 bg-[#8fb5ff]"
             animate={{ opacity: [1, 0] }}
             transition={{ duration: 1, repeat: Infinity }}
           />
@@ -136,7 +136,7 @@ const Message = ({ message, compact = false }: MessageProps) => {
       {isUser && (
         <div className="shrink-0">
           <div
-            className={`flex items-center justify-center rounded-md bg-[#fff6e8] text-[#7f432f] ring-1 ring-[#ead7b7] ${
+            className={`flex items-center justify-center rounded-md bg-[#132744] text-[#8fb5ff] ring-1 ring-white/10 ${
               compact ? 'h-7 w-7' : 'h-8 w-8'
             }`}
           >

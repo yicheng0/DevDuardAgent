@@ -30,7 +30,7 @@ const navItems: Array<{
 
 const BrandMark = ({ collapsed = false }: { collapsed?: boolean }) => (
   <div
-    className={`flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#ead1c5] bg-[#fbf7f4] shadow-[0_10px_24px_rgba(127,67,47,0.12)] ${
+    className={`flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(135deg,rgba(35,76,164,0.55),rgba(124,92,255,0.24))] shadow-[0_12px_28px_rgba(3,8,20,0.32)] ${
       collapsed ? 'h-11 w-11' : 'h-10 w-10'
     }`}
     title="DevGuard Agent"
@@ -42,12 +42,12 @@ const BrandMark = ({ collapsed = false }: { collapsed?: boolean }) => (
       aria-hidden="true"
       className={collapsed ? 'h-8 w-8' : 'h-7 w-7'}
     >
-      <rect x="5" y="5" width="38" height="38" rx="11" fill="#fffaf7" />
-      <rect x="5.75" y="5.75" width="36.5" height="36.5" rx="10.25" fill="none" stroke="#d8b7a8" strokeWidth="1.5" />
+      <rect x="5" y="5" width="38" height="38" rx="11" fill="#07111f" />
+      <rect x="5.75" y="5.75" width="36.5" height="36.5" rx="10.25" fill="none" stroke="rgba(167,191,255,0.34)" strokeWidth="1.5" />
       <path
         d="M16 14.5h6.5c6.1 0 10 3.65 10 9.5s-3.9 9.5-10 9.5H16v-19Z"
         fill="none"
-        stroke="#653221"
+        stroke="#e5eefc"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="4"
@@ -55,12 +55,12 @@ const BrandMark = ({ collapsed = false }: { collapsed?: boolean }) => (
       <path
         d="M31.5 22.5h5.5v10.25c-2.55 1.25-5.12 1.85-7.7 1.85-5.65 0-9.8-4.1-9.8-9.75 0-5.8 4.3-9.85 10.2-9.85 2.95 0 5.35.9 7.35 2.55"
         fill="none"
-        stroke="#9a563f"
+        stroke="#8a6cff"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="3.25"
       />
-      <path d="M16 36h20" stroke="#c6947d" strokeLinecap="round" strokeWidth="2" />
+      <path d="M16 36h20" stroke="#6aa6ff" strokeLinecap="round" strokeWidth="2" />
     </svg>
   </div>
 );
@@ -70,20 +70,20 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`app-surface flex h-full flex-col overflow-hidden border-r shadow-sm transition-[width] duration-200 ${
+      className={`app-surface flex h-full flex-col overflow-hidden border-r border-white/10 shadow-[0_16px_38px_rgba(3,8,20,0.28)] transition-[width] duration-200 ${
         isSidebarCollapsed ? 'w-[72px]' : 'w-64'
       }`}
       aria-label="主导航"
     >
-      <div className={`border-b border-[#ead7b7] py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
+      <div className={`border-b border-white/10 py-4 ${isSidebarCollapsed ? 'px-3' : 'px-4'}`}>
         <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
           <BrandMark collapsed={isSidebarCollapsed} />
           {!isSidebarCollapsed && (
             <div className="min-w-0">
-              <h1 className="truncate text-base font-semibold tracking-tight text-slate-950">
+              <h1 className="truncate text-base font-semibold tracking-tight text-slate-100">
                 DevGuard Agent
               </h1>
-              <p className="text-xs font-medium text-slate-500">Ops Intelligence</p>
+              <p className="text-xs font-medium text-slate-400">Flash API Console</p>
             </div>
           )}
         </div>
@@ -105,13 +105,13 @@ const Sidebar = () => {
                 isSidebarCollapsed ? 'h-11 justify-center px-0 py-0' : 'min-h-11 gap-3 px-3 py-2.5 pl-4 text-left'
               } ${
                 isActive
-                  ? 'sidebar-nav-active text-[#7f432f]'
-                  : 'text-[#5f4a3d] hover:text-slate-950'
+                  ? 'sidebar-nav-active text-slate-100'
+                  : 'text-slate-300 hover:text-slate-50'
               }`}
             >
               <span
                 className={`absolute bottom-2 left-0 top-2 w-[3px] rounded-r-full transition-all duration-200 ${
-                  isActive ? 'bg-[#9a563f] opacity-100 shadow-[0_0_12px_rgba(154,86,63,0.55)]' : 'opacity-0'
+                  isActive ? 'bg-[#4f8cff] opacity-100 shadow-[0_0_12px_rgba(79,140,255,0.55)]' : 'opacity-0'
                 }`}
               />
               <span
@@ -119,8 +119,8 @@ const Sidebar = () => {
                   isSidebarCollapsed ? 'h-9 w-9' : 'h-6 w-6'
                 } ${
                   isActive
-                    ? 'bg-[#fff6e8] text-[#7f432f] shadow-[inset_0_1px_0_rgba(255,248,232,0.85)]'
-                    : 'bg-[#fffaf0] text-[#8a695a] group-hover:bg-[#fff6e8] group-hover:text-[#6f3b2a]'
+                    ? 'bg-white/10 text-slate-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
+                    : 'bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-slate-100'
                 }`}
               >
                 <Icon className={isSidebarCollapsed ? 'h-[18px] w-[18px]' : 'h-[17px] w-[17px]'} />
@@ -130,15 +130,15 @@ const Sidebar = () => {
                   <span
                     className={`block text-sm ${
                       isActive
-                        ? 'font-semibold text-[#653221]'
-                        : 'font-medium text-[#4f3f35] group-hover:text-[#241a15]'
+                        ? 'font-semibold text-slate-50'
+                        : 'font-medium text-slate-200 group-hover:text-white'
                     }`}
                   >
                     {item.label}
                   </span>
                   <span
                     className={`block truncate text-xs ${
-                      isActive ? 'text-[#9a563f]/75' : 'text-[#806a5c] group-hover:text-[#6f5b4b]'
+                      isActive ? 'text-[#9cbcff]' : 'text-slate-400 group-hover:text-slate-300'
                     }`}
                   >
                     {item.description}
@@ -146,34 +146,34 @@ const Sidebar = () => {
                 </span>
               )}
               {!isSidebarCollapsed && isActive && (
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9a563f] shadow-[0_0_10px_rgba(154,86,63,0.65)]" />
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#4f8cff] shadow-[0_0_10px_rgba(79,140,255,0.65)]" />
               )}
             </button>
           );
         })}
       </nav>
 
-      <div className={`border-t border-[#ead7b7] ${isSidebarCollapsed ? 'p-2' : 'p-3'}`}>
+      <div className={`border-t border-white/10 ${isSidebarCollapsed ? 'p-2' : 'p-3'}`}>
         {isSidebarCollapsed ? (
           <div
-            className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700"
+            className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#8fb5ff]"
             title="Runtime healthy"
           >
             <Activity className="h-4 w-4" />
           </div>
         ) : (
           <>
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-800">
+            <div className="rounded-lg border border-[#4f8cff]/20 bg-[#4f8cff]/10 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#c3d7ff]">
                 <Activity className="h-4 w-4" />
                 Runtime healthy
               </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-emerald-700">
+              <div className="mt-2 flex items-center justify-between text-xs text-[#c3d7ff]/80">
                 <span>5 tools ready</span>
                 <span>stream on</span>
               </div>
             </div>
-            <div className="mt-3 px-1 text-xs text-slate-400">v1.0 · production workspace</div>
+            <div className="mt-3 px-1 text-xs text-slate-500">v1.0 · flash api workspace</div>
           </>
         )}
       </div>
