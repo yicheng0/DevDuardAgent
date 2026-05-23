@@ -4,10 +4,14 @@ import (
 	"SuperBizAgent/api/chat/v1"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	chatopenai "github.com/cloudwego/eino-ext/components/model/openai"
+	"github.com/cloudwego/eino/schema"
 )
 
 func TestChatModelConnectionUsesLiveEndpoint(t *testing.T) {
@@ -126,6 +130,164 @@ func TestRuntimeConfigPreservesIndexTimeoutSeconds(t *testing.T) {
 	}
 }
 
+func TestChatModelGenerateSendsMaxCompletionTokens(t *testing.T) {
+	var seenBody map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v1/chat/completions" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		if got := r.Header.Get("Authorization"); got != "Bearer sk-test" {
+			t.Fatalf("unexpected authorization header: %s", got)
+		}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("read request body: %v", err)
+		}
+		if err := json.Unmarshal(body, &seenBody); err != nil {
+			t.Fatalf("decode request body: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":     "chat-test",
+			"object": "chat.completion",
+			"choices": []map[string]any{
+				{
+					"index": 0,
+					"message": map[string]any{
+						"role":    "assistant",
+						"content": "ok",
+					},
+					"finish_reason": "stop",
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	model, err := chatopenai.NewChatModel(context.Background(), &chatopenai.ChatModelConfig{
+		Model:               "gpt-5",
+		APIKey:              "sk-test",
+		BaseURL:             server.URL + "/v1",
+		MaxCompletionTokens: ptrInt(42),
+		HTTPClient:          &http.Client{},
+	})
+	if err != nil {
+		t.Fatalf("new chat model: %v", err)
+	}
+
+	_, err = model.Generate(context.Background(), []*schema.Message{
+		schema.UserMessage("Hi"),
+	})
+	if err != nil {
+		t.Fatalf("generate: %v", err)
+	}
+	if got := int(seenBody["max_completion_tokens"].(float64)); got != 42 {
+		t.Fatalf("max_completion_tokens = %d, want 42", got)
+	}
+	if _, ok := seenBody["max_output_tokens"]; ok {
+		t.Fatalf("did not expect max_output_tokens in chat completions body: %#v", seenBody)
+	}
+}
+
+func TestChatModelGenerateSendsExtraFieldMaxOutputTokens(t *testing.T) {
+	var seenBody map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("read request body: %v", err)
+		}
+		if err := json.Unmarshal(body, &seenBody); err != nil {
+			t.Fatalf("decode request body: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":     "chat-test",
+			"object": "chat.completion",
+			"choices": []map[string]any{
+				{
+					"index": 0,
+					"message": map[string]any{
+						"role":    "assistant",
+						"content": "ok",
+					},
+					"finish_reason": "stop",
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	model, err := chatopenai.NewChatModel(context.Background(), &chatopenai.ChatModelConfig{
+		Model:      "gpt-5",
+		APIKey:     "sk-test",
+		BaseURL:    server.URL + "/v1",
+		HTTPClient: &http.Client{},
+	})
+	if err != nil {
+		t.Fatalf("new chat model: %v", err)
+	}
+
+	_, err = model.Generate(context.Background(), []*schema.Message{
+		schema.UserMessage("Hi"),
+	}, chatopenai.WithExtraFields(map[string]any{
+		"max_output_tokens": 66,
+	}))
+	if err != nil {
+		t.Fatalf("generate: %v", err)
+	}
+	if got := int(seenBody["max_output_tokens"].(float64)); got != 66 {
+		t.Fatalf("max_output_tokens = %d, want 66", got)
+	}
+}
+
+func TestChatModelGenerateRejectsEventStreamResponse(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("data: {\"id\":\"chat-test\"}\n\n"))
+	}))
+	defer server.Close()
+
+	model, err := chatopenai.NewChatModel(context.Background(), &chatopenai.ChatModelConfig{
+		Model:      "gpt-5",
+		APIKey:     "sk-test",
+		BaseURL:    server.URL + "/v1",
+		HTTPClient: &http.Client{},
+	})
+	if err != nil {
+		t.Fatalf("new chat model: %v", err)
+	}
+
+	_, err = model.Generate(context.Background(), []*schema.Message{
+		schema.UserMessage("Hi"),
+	})
+	if err == nil || !strings.Contains(err.Error(), "invalid character") {
+		t.Fatalf("expected JSON parse error, got: %v", err)
+	}
+}
+
+func TestChatModelGenerateRejectsEmptyBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	model, err := chatopenai.NewChatModel(context.Background(), &chatopenai.ChatModelConfig{
+		Model:      "gpt-5",
+		APIKey:     "sk-test",
+		BaseURL:    server.URL + "/v1",
+		HTTPClient: &http.Client{},
+	})
+	if err != nil {
+		t.Fatalf("new chat model: %v", err)
+	}
+
+	_, err = model.Generate(context.Background(), []*schema.Message{
+		schema.UserMessage("Hi"),
+	})
+	if err == nil {
+		t.Fatal("expected error for empty response body")
+	}
+}
+
 func TestRuntimeConfigDefaultsIndexTimeoutSeconds(t *testing.T) {
 	cfg := &yamlRuntimeConfig{}
 	applyRuntimeDefaults(cfg)
@@ -165,6 +327,10 @@ func validRuntimeConfigForTest() *yamlRuntimeConfig {
 	cfg.Milvus.Address = "localhost:19530"
 	cfg.Knowledge.IndexTimeoutSeconds = defaultIndexTimeoutSeconds
 	return cfg
+}
+
+func ptrInt(v int) *int {
+	return &v
 }
 
 type assertErr string
