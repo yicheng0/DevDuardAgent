@@ -297,9 +297,9 @@ const incidentContexts: Record<string, IncidentContext> = {
 };
 
 const severityStyle = {
-  low: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200',
-  medium: 'border-sky-400/20 bg-sky-400/10 text-sky-200',
-  high: 'border-amber-400/20 bg-amber-400/10 text-amber-200',
+  low: 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
+  medium: 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
+  high: 'border-[#7c5cff]/20 bg-[#7c5cff]/10 text-[#d8ccff]',
   critical: 'border-red-400/20 bg-red-400/10 text-red-200',
 };
 
@@ -311,10 +311,10 @@ const statusLabel = {
 };
 
 const statusStyle = {
-  open: 'bg-white/5 text-slate-300',
+  open: 'bg-[#0f1f38] text-slate-300',
   investigating: 'bg-[#4f8cff]/12 text-[#8fb5ff]',
   mitigating: 'bg-[#7c5cff]/12 text-[#c4b5fd]',
-  resolved: 'bg-emerald-400/10 text-emerald-200',
+  resolved: 'bg-[#4f8cff]/10 text-[#c3d7ff]',
 };
 
 const statusLaneOrder: IncidentItem['status'][] = [
@@ -328,7 +328,7 @@ const stepStatusStyle = {
   ready: 'bg-[#4f8cff]/12 text-[#8fb5ff]',
   running: 'bg-[#7c5cff]/12 text-[#c4b5fd]',
   blocked: 'bg-red-400/10 text-red-200',
-  done: 'bg-emerald-400/10 text-emerald-200',
+  done: 'bg-[#4f8cff]/10 text-[#c3d7ff]',
 };
 
 const evidenceIcon = {
@@ -381,7 +381,7 @@ const OpsWorkbench = () => {
               <h2 className="text-sm font-semibold text-slate-50">生产事件看板</h2>
               <p className="mt-0.5 text-xs text-slate-400">按处置状态分组</p>
             </div>
-            <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-700">
+            <span className="rounded-md border border-red-400/20 bg-red-400/10 px-2 py-1 text-xs font-semibold text-red-200">
               {incidents.filter((incident) => incident.status !== 'resolved').length} open
             </span>
           </div>
@@ -461,7 +461,7 @@ const OpsWorkbench = () => {
                   {isRunning ? (
                     <PlayCircle className="h-3.5 w-3.5 text-[#8fb5ff]" />
                   ) : (
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[#8fb5ff]" />
                   )}
                   Agent {agentStatus}
                 </span>
@@ -492,15 +492,15 @@ const OpsWorkbench = () => {
               受影响服务
             </div>
             <p className="truncate text-lg font-semibold text-slate-50">{selectedIncident.service}</p>
-            <p className="mt-1 truncate text-xs text-[#8a7562]">{selectedIncident.owner}</p>
+            <p className="mt-1 truncate text-xs text-slate-400">{selectedIncident.owner}</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
             <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <AlertTriangle className="h-4 w-4 text-[#8fb5ff]" />
               影响范围
             </div>
             <p className="truncate text-lg font-semibold text-slate-50">{selectedIncident.affectedUsers}</p>
-            <p className="mt-1 text-xs text-[#8a7562]">指标与日志估算</p>
+            <p className="mt-1 text-xs text-slate-400">指标与日志估算</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
             <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-300">
@@ -508,7 +508,7 @@ const OpsWorkbench = () => {
               最近更新
             </div>
             <p className="truncate text-lg font-semibold text-slate-50">{selectedIncident.updatedAt}</p>
-            <p className="mt-1 text-xs text-[#8a7562]">持续自动刷新</p>
+            <p className="mt-1 text-xs text-slate-400">持续自动刷新</p>
           </div>
         </div>
 
@@ -557,7 +557,7 @@ const OpsWorkbench = () => {
                 <MessageSquareText className="h-4 w-4 text-[#8fb5ff]" />
                 Agent 推理轨迹
               </h2>
-              <p className="mt-1 text-xs text-[#8a7562]">
+              <p className="mt-1 text-xs text-slate-400">
                 展示任务理解、证据检索、运行态查询、风险研判和响应生成过程
               </p>
             </div>
@@ -676,7 +676,7 @@ const OpsWorkbench = () => {
                         </code>
                       )}
                       {step.requiresApproval && (
-                        <p className="mt-2 text-xs text-orange-700">需要人工确认后执行</p>
+                        <p className="mt-2 text-xs text-[#c3d7ff]">需要人工确认后执行</p>
                       )}
                     </div>
                   </div>

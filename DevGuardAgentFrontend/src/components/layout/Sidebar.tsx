@@ -120,7 +120,7 @@ const Sidebar = () => {
                 } ${
                   isActive
                     ? 'bg-white/10 text-slate-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
-                    : 'bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-slate-100'
+                    : 'bg-[#0f1f38] text-slate-400 group-hover:bg-white/10 group-hover:text-slate-100'
                 }`}
               >
                 <Icon className={isSidebarCollapsed ? 'h-[18px] w-[18px]' : 'h-[17px] w-[17px]'} />
@@ -173,7 +173,7 @@ const Sidebar = () => {
                 <span>stream on</span>
               </div>
             </div>
-            <div className="mt-3 px-1 text-xs text-slate-500">v1.0 · flash api workspace</div>
+            <div className="mt-3 px-1 text-xs text-slate-400">v1.0 · flash api workspace</div>
           </>
         )}
       </div>

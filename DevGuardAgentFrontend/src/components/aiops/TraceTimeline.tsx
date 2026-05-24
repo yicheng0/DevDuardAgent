@@ -30,7 +30,7 @@ const phaseIcon = {
 const statusClass = {
   pending: 'border-white/10 bg-[#0f1f38] text-slate-300',
   running: 'border-[#4f8cff] bg-[#4f8cff]/15 text-[#8fb5ff] shadow-[0_0_0_4px_rgba(79,140,255,0.14)]',
-  completed: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200',
+  completed: 'border-[#4f8cff]/20 bg-[#4f8cff]/10 text-[#c3d7ff]',
   error: 'border-red-400/20 bg-red-400/10 text-red-200',
 };
 

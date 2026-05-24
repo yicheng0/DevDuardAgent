@@ -527,7 +527,7 @@ const KnowledgePage = () => {
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
             <section className="app-surface-muted rounded-lg border p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-50">
-                {hasActiveTasks ? <Loader2 className="h-4 w-4 animate-spin text-amber-600" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+                {hasActiveTasks ? <Loader2 className="h-4 w-4 animate-spin text-[#8fb5ff]" /> : <CheckCircle2 className="h-4 w-4 text-[#8fb5ff]" />}
                 {hasActiveTasks ? '任务执行中' : '任务空闲'}
               </div>
               <p className="mt-2 break-all text-xs leading-5 text-slate-400">{activeTaskLabel}</p>

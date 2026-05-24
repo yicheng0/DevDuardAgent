@@ -128,7 +128,7 @@ const OverviewPage = () => (
               return (
                 <article key={item.title} className="app-surface-muted rounded-lg border border-white/10 p-4 shadow-[0_10px_28px_rgba(3,8,20,0.18)]">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/8 text-[#8fb5ff]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#0f1f38] text-[#8fb5ff]">
                       <Icon className="h-4 w-4" />
                     </span>
                     <div className="min-w-0">
@@ -145,7 +145,7 @@ const OverviewPage = () => (
             <h2 className="text-sm font-semibold text-slate-50">当前接入状态</h2>
             <div className="mt-3 grid gap-2">
               {runtimeStats.map((stat) => (
-                <div key={stat.label} className="flex items-center justify-between gap-3 rounded-md border border-white/8 bg-white/5 px-3 py-2">
+                <div key={stat.label} className="flex items-center justify-between gap-3 rounded-md border border-white/10 bg-[#0f1f38] px-3 py-2">
                   <span className="text-xs font-medium text-slate-400">{stat.label}</span>
                   <span className="truncate text-sm font-semibold text-slate-100">{stat.value}</span>
                 </div>
@@ -185,9 +185,9 @@ const ModulePlaceholder = ({ activeNav }: { activeNav: Exclude<NavItemId, 'alert
 
   return (
     <div className="app-bg h-full min-h-0 overflow-y-auto p-4">
-      <section className="app-surface flex min-h-[calc(100vh-7rem)] items-center justify-center rounded-lg border border-dashed border-white/12 px-6 py-12 text-center shadow-[0_16px_36px_rgba(3,8,20,0.18)]">
+      <section className="app-surface flex min-h-[calc(100vh-7rem)] items-center justify-center rounded-lg border border-dashed border-white/10 px-6 py-12 text-center shadow-[0_16px_36px_rgba(3,8,20,0.18)]">
         <div className="max-w-xl">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#8fb5ff]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-white/10 bg-[#0f1f38] text-[#8fb5ff]">
             <Icon className="h-6 w-6" />
           </div>
           <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -197,7 +197,7 @@ const ModulePlaceholder = ({ activeNav }: { activeNav: Exclude<NavItemId, 'alert
             {view.title}
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-300">{view.description}</p>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-300">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-white/10 bg-[#0f1f38] px-3 py-2 text-sm font-medium text-slate-300">
             <BarChart3 className="h-4 w-4 text-[#8fb5ff]" />
             告警队列仅在“告警处置”模块显示
           </div>
@@ -219,7 +219,7 @@ const AgentTracePage = () => {
         <div className="app-surface rounded-lg border border-white/10 p-5 shadow-[0_16px_36px_rgba(3,8,20,0.2)]">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="min-w-0">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-200">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-white/10 bg-[#0f1f38] px-2.5 py-1 text-xs font-semibold text-slate-200">
                 <Route className="h-3.5 w-3.5" />
                 Agent Trace
               </div>
@@ -255,7 +255,7 @@ const AgentTracePage = () => {
           ) : (
             <div className="flex min-h-[360px] items-center justify-center text-center">
               <div className="max-w-md">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#8fb5ff]">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-white/10 bg-[#0f1f38] text-[#8fb5ff]">
                   <Route className="h-6 w-6" />
                 </div>
                 <p className="text-base font-medium text-slate-50">暂无 Trace</p>

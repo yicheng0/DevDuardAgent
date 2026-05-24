@@ -508,22 +508,22 @@ const HistoryPage = () => {
                       <article key={step.id} className="app-surface-muted rounded-lg border p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="text-sm font-semibold text-slate-50">{step.title}</p>
-                          <span className="rounded-md bg-white/5 px-2 py-1 text-xs font-semibold text-slate-300 ring-1 ring-white/10">
+                          <span className="rounded-md bg-[#0f1f38] px-2 py-1 text-xs font-semibold text-slate-300 ring-1 ring-white/10">
                             {stepStatusLabel[step.status] || step.status}
                           </span>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-400">
-                          {step.phase && <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">阶段：{step.phase}</span>}
-                          {step.toolName && <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">工具：{step.toolName}</span>}
-                          {step.durationMs ? <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">耗时：{formatDuration(step.durationMs)}</span> : null}
-                          {step.riskLevel && <span className="rounded-md bg-white/5 px-2 py-1 ring-1 ring-white/10">风险：{riskLabel[step.riskLevel]}</span>}
+                          {step.phase && <span className="rounded-md bg-[#0f1f38] px-2 py-1 ring-1 ring-white/10">阶段：{step.phase}</span>}
+                          {step.toolName && <span className="rounded-md bg-[#0f1f38] px-2 py-1 ring-1 ring-white/10">工具：{step.toolName}</span>}
+                          {step.durationMs ? <span className="rounded-md bg-[#0f1f38] px-2 py-1 ring-1 ring-white/10">耗时：{formatDuration(step.durationMs)}</span> : null}
+                          {step.riskLevel && <span className="rounded-md bg-[#0f1f38] px-2 py-1 ring-1 ring-white/10">风险：{riskLabel[step.riskLevel]}</span>}
                         </div>
                         {step.description && <p className="mt-2 text-sm leading-6 text-slate-300">{step.description}</p>}
                         {step.result && <p className="mt-2 text-sm leading-6 text-slate-200">{step.result}</p>}
                         {step.evidence?.length ? (
                           <div className="mt-3 space-y-1">
                             {step.evidence.map((item) => (
-                              <p key={item} className="break-words rounded-md bg-white/5 px-2 py-1 text-xs leading-5 text-slate-300 ring-1 ring-white/10">
+                              <p key={item} className="break-words rounded-md bg-[#0f1f38] px-2 py-1 text-xs leading-5 text-slate-300 ring-1 ring-white/10">
                                 {item}
                               </p>
                             ))}
